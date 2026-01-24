@@ -15,9 +15,10 @@ export default function Login() {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const url = process.env.REACT_APP_API_URL + "login/";
         console.log(username, password);
 
-        axios.post("http://localhost:8000/api/login/", { username, password })
+        axios.post(url, { username, password })
             .then((response) => {
                 console.log(response.data);
                 localStorage.setItem("access", response.data.access);

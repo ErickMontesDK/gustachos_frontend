@@ -1,8 +1,10 @@
 import { Navigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import DeliveryHome from "../components/DeliveryHome";
+import AdminDashboard from "../components/AdminDashboard";
 
 export default function Home() {
     const access = localStorage.getItem("access");
-    console.log(access);
 
     if (access === null) {
         return <Navigate to="/login" />
@@ -10,24 +12,26 @@ export default function Home() {
 
     const role = localStorage.getItem("role") || "";
     const name = localStorage.getItem("name") || "";
-    const id = localStorage.getItem("id") || "";
 
-    const handleLogout = () => {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        localStorage.removeItem("role");
-        localStorage.removeItem("name");
-        localStorage.removeItem("id");
-        window.location.href = "/login";
+    const renderContent = () => {
+        switch (role.toLowerCase()) {
+            case 'delivery':
+                return <DeliveryHome />;
+            case 'admin':
+            case 'operator':
+                return <AdminDashboard />;
+            default:
+                return (
+                    <div className="alert alert-warning m-4">
+                        Access not configured for role: <strong>{role}</strong>
+                    </div>
+                );
+        }
     }
 
     return (
-        <div>
-            <h1>Home</h1>
-            <p>You are a {role} user</p>
-            <p>Name: {name}</p>
-            <p>ID: {id}</p>
-            <button onClick={handleLogout}>Logout</button>
-        </div>
+        <Layout role={role} name={name}>
+            {renderContent()}
+        </Layout>
     );
 }

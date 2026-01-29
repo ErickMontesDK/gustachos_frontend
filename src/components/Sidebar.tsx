@@ -1,0 +1,89 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    LayoutDashboard,
+    MapPin,
+    LogOut,
+    User,
+    Menu,
+    ChevronRight
+} from 'lucide-react';
+
+import '../styles/layout.css';
+
+interface SidebarVars {
+    role: string;
+    name: string;
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
+}
+
+export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) {
+    const handleLogout = () => {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        localStorage.removeItem("role");
+        localStorage.removeItem("name");
+        localStorage.removeItem("id");
+        window.location.href = "/login";
+    };
+
+    return (
+        <div className={`bg-dark text-white sidebar-container ${isOpen ? 'w-250' : 'w-70'}`}>
+
+
+            <div className="p-3 d-flex align-items-center justify-content-between border-bottom border-secondary">
+                {isOpen && <h5 className="mb-0 fw-bold text-truncate">EchoRoute</h5>}
+                <button className="btn btn-outline-light border-0 p-1" onClick={() => setIsOpen(!isOpen)}>
+                    <Menu size={24} />
+                </button>
+            </div>
+
+
+
+            <div className="p-3 mb-4 d-flex align-items-center overflow-hidden">
+                <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '40px', height: '40px' }}>
+                    <User size={20} />
+                </div>
+                {isOpen && (
+                    <div className="ms-3 text-truncate">
+                        <div className="fw-bold">{name}</div>
+                        <div className="small text-secondary text-uppercase" style={{ fontSize: '0.7rem' }}>{role}</div>
+                    </div>
+                )}
+            </div>
+
+
+
+            <nav className="flex-grow-1 px-2">
+                <ul className="list-unstyled">
+                    <li>
+                        <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom active">
+                            <LayoutDashboard size={20} className="flex-shrink-0" />
+                            {isOpen && <span className="ms-3">Dashboard</span>}
+                        </button>
+                    </li>
+                    {role === 'delivery' && (
+                        <li>
+                            <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom">
+                                <MapPin size={20} className="flex-shrink-0" />
+                                {isOpen && <span className="ms-3">Register Visit</span>}
+                            </button>
+                        </li>
+                    )}
+                </ul>
+            </nav>
+
+
+            <div className="p-3 border-top border-secondary">
+                <button className="btn btn-outline-danger w-100 d-flex align-items-center py-2 px-3 justify-content-center" onClick={handleLogout}>
+                    <LogOut size={18} className="flex-shrink-0" />
+                    {isOpen && <span className="ms-2">Log out</span>}
+                </button>
+            </div>
+
+        </div>
+    );
+};
+
+

@@ -1,0 +1,43 @@
+/* General Home components styles */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Specific component styles */
+.bg-primary-subtle {
+    background-color: #cfe2ff;
+}
+
+.bg-warning-subtle {
+    background-color: #fff3cd;
+}
+
+.bg-success-subtle {
+    background-color: #d1e7dd;
+}
+
+.bg-danger-subtle {
+    background-color: #f8d7da;
+}
+
+.card-visit {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s ease;
+}
+
+.card-visit:hover {
+    transform: translateY(-5px);
+}

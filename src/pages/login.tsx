@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -8,10 +8,12 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const access = localStorage.getItem("access");
-    if (access) {
-        navigate("/home");
-    }
+    useEffect(() => {
+        const access = localStorage.getItem("access");
+        if (access) {
+            navigate("/home");
+        }
+    }, []);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

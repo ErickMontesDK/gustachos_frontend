@@ -26,13 +26,19 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
         window.location.href = "/login";
     };
 
+    const currentPage = window.location.pathname;
+    console.log(currentPage);
+
     return (
-        <div className={`bg-dark text-white sidebar-container ${isOpen ? 'w-250' : 'w-70'}`}>
+        <div className={`bg-dark text-white sidebar-container ${isOpen ? 'w-250 open' : 'w-70'}`}>
 
 
             <div className="p-3 d-flex align-items-center justify-content-between border-bottom border-secondary">
                 {isOpen && <h5 className="mb-0 fw-bold text-truncate">EchoRoute</h5>}
-                <button className="btn btn-outline-light border-0 p-1" onClick={() => setIsOpen(!isOpen)}>
+                <button
+                    className="btn btn-outline-light border-0 p-1 d-md-block"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
                     <Menu size={24} />
                 </button>
             </div>
@@ -56,14 +62,14 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
             <nav className="flex-grow-1 px-2">
                 <ul className="list-unstyled">
                     <li>
-                        <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom active">
+                        <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/home" ? "active" : ""}`} onClick={() => window.location.href = "/"}>
                             <LayoutDashboard size={20} className="flex-shrink-0" />
                             {isOpen && <span className="ms-3">Dashboard</span>}
                         </button>
                     </li>
                     {role === 'delivery' && (
                         <li>
-                            <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom" onClick={() => window.location.href = "/register-visit"}>
+                            <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/register-visit" ? "active" : ""}`} onClick={() => window.location.href = "/register-visit"}>
                                 <MapPin size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Register Visit</span>}
                             </button>

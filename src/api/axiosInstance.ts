@@ -8,6 +8,13 @@ const api = axios.create({
     },
 });
 
+const publicApi = axios.create({
+    baseURL: baseURL,
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
+
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('access');
 
@@ -36,7 +43,7 @@ api.interceptors.response.use((response) => {
             return Promise.reject(error);
         }
 
-        return api.post("refresh/", { refresh: refreshToken })
+        return api.post("token/refresh/", { refresh: refreshToken })
             .then((response) => {
                 localStorage.setItem('access', response.data.access);
                 localStorage.setItem('refresh', response.data.refresh);
@@ -45,6 +52,7 @@ api.interceptors.response.use((response) => {
                 return api(originalRequest);
             })
             .catch((error) => {
+                console.error(error);
                 localStorage.removeItem('access');
                 localStorage.removeItem('refresh');
                 window.location.href = '/login';
@@ -53,4 +61,4 @@ api.interceptors.response.use((response) => {
     return Promise.reject(error);
 });
 
-export default api;
+export { api, publicApi };

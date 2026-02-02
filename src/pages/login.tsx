@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import '../styles/login.css';
+import { publicApi } from '../api/axiosInstance';
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -24,14 +24,14 @@ export default function Login() {
         setIsLoading(true);
         setError("");
 
-        const url = process.env.REACT_APP_API_URL + "login/";
+        const url = "login/";
 
-        axios.post(url, { username, password })
+        publicApi.post(url, { username, password })
             .then((response) => {
                 localStorage.setItem("access", response.data.access);
                 localStorage.setItem("refresh", response.data.refresh);
 
-                const decodedToken: any = jwtDecode(response.data.access);
+                const decodedToken: any = jwtDecode(response.data.access); //TODO: check the type of the token
                 localStorage.setItem("role", decodedToken.role.toLowerCase());
                 localStorage.setItem("name", decodedToken.name);
                 localStorage.setItem("id", decodedToken.user_id);
@@ -40,7 +40,7 @@ export default function Login() {
             })
             .catch((error) => {
                 console.error(error);
-                setError("Usuario o contraseña incorrectos");
+                setError("Wrong username or password");
             })
             .finally(() => {
                 setIsLoading(false);

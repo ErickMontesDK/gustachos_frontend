@@ -1,12 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
     MapPin,
     LogOut,
     User,
     Menu,
-    ChevronRight
 } from 'lucide-react';
 
 import '../styles/layout.css';
@@ -65,7 +63,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                     </li>
                     {role === 'delivery' && (
                         <li>
-                            <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom">
+                            <button className="btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom" onClick={() => window.location.href = "/register-visit"}>
                                 <MapPin size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Register Visit</span>}
                             </button>

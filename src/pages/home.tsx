@@ -23,7 +23,7 @@ export default function Home() {
             default:
                 return (
                     <div className="alert alert-warning m-4">
-                        Access not configured for role: <strong>{role}</strong>
+                        Access not configured for role: {role}
                     </div>
                 );
         }

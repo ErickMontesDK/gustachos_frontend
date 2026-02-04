@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { api } from "../api/axiosInstance";
 import Layout from "./Layout";
-import { QrCode, ClipboardList, MapPin, User, CheckCircle2, AlertCircle, Store } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { QrCode, ClipboardList, MapPin, User, CheckCircle2, AlertCircle, Store, Home, RefreshCw } from "lucide-react";
 import '../styles/register-visit.css';
 import CodeScannerComponent from "./CodeScanner";
 
@@ -28,7 +29,9 @@ export default function RegisterVisit() {
 
     const [isProductive, setIsProductive] = useState(false);
     const [notes, setNotes] = useState("");
-    const [isLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [isScannerPaused, setIsScannerPaused] = useState(true);
 
     const [isScannerLoading, setIsScannerLoading] = useState(false);
@@ -39,6 +42,7 @@ export default function RegisterVisit() {
     const [longitude, setLongitude] = useState(0);
     const [datetime, setDatetime] = useState("");
 
+    const navigate = useNavigate();
     const role = localStorage.getItem("role") || "deliverer";
     const name = localStorage.getItem("name") || "User";
 
@@ -87,37 +91,58 @@ export default function RegisterVisit() {
     }
 
     const handleScan = (detectedCodes: DetectedCode[]) => {
+        gettingGeolocation();
         setIsScannerUsed(true);
         setIsScannerLoading(true);
         const detectedCode = detectedCodes[0].rawValue;
         setIsScannerPaused(true);
         console.log("Detected code: ", detectedCode);
 
-        setTimeout(() => {
-            console.log("Scanner loading...");
+        api.get(`/clients/${detectedCode}`)
+            .then(response => {
+                console.log("Client data: ", response.data);
+                setClientData(response.data);
+                setClientId(parseInt(response.data.id));
+                gettingDatetime();
 
-            api.get(`/clients/${detectedCode}`)
-                .then(response => {
-                    console.log("Client data: ", response.data);
-                    setClientData(response.data);
-                    setClientId(parseInt(response.data.id));
-                    gettingDatetime();
-                    gettingGeolocation();
+                setIsClientFound(true);
+            })
+            .catch(error => {
+                console.error("Error fetching client data: ", error);
+            })
+            .finally(() => {
+                setIsScannerLoading(false);
+            });
 
-                    setIsClientFound(true);
-                })
-                .catch(error => {
-                    console.error("Error fetching client data: ", error);
-                })
-                .finally(() => {
-                    setIsScannerLoading(false);
-                });
-        }, 2000);
+    }
 
+    const resetForm = () => {
+        setClientData({
+            name: "",
+            code: "",
+            address: "",
+            client_type: "",
+            neighborhood: "",
+            municipality: "",
+            state: "",
+        });
+        setClientId(null);
+        setIsProductive(false);
+        setNotes("");
+        setIsScannerUsed(false);
+        setIsClientFound(false);
+        setIsSuccess(false);
+        setLatitude(0);
+        setLongitude(0);
+        setDatetime("");
+        setErrorMessage("");
     }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!clientId) return;
+
+        setIsSubmitting(true);
         api.post("/visits/", {
             client: clientId,
             visited_at: datetime,
@@ -128,9 +153,14 @@ export default function RegisterVisit() {
         })
             .then(response => {
                 console.log("Visit registered successfully: ", response.data);
+                setIsSuccess(true);
             })
             .catch(error => {
-                console.error("Error registering visit: ", error.response.data);
+                console.error("Error registering visit: ", error.response?.data || error.message);
+                setErrorMessage(error.response?.data?.detail || "An error occurred while registering the visit. Please try again.");
+            })
+            .finally(() => {
+                setIsSubmitting(false);
             });
     }
 
@@ -250,10 +280,66 @@ export default function RegisterVisit() {
                     </div>
 
 
-                    <button type="submit" className="submit-btn" disabled={isLoading}>
-                        {isLoading ? "Registering..." : "Complete Registration"}
+                    <button type="submit" className="submit-btn" disabled={isSubmitting || !isClientFound}>
+                        {isSubmitting ? (
+                            <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Registering...
+                            </>
+                        ) : "Complete Registration"}
                     </button>
                 </form>
+
+                {isSuccess && (
+                    <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+                                <div className="modal-body p-5 text-center">
+                                    <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', backgroundColor: 'var(--success-subtle)', borderRadius: '50%', color: 'var(--success-color)' }}>
+                                        <CheckCircle2 size={48} />
+                                    </div>
+                                    <h2 className="fw-bold mb-3" style={{ letterSpacing: '-0.025em' }}>Visit Registered!</h2>
+                                    <p className="text-muted mb-4">
+                                        The visit to <strong>{clientData.name}</strong> has been successfully recorded.
+                                    </p>
+                                    <div className="d-grid gap-2">
+                                        <button className="btn btn-primary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={resetForm}>
+                                            <RefreshCw size={20} className="me-2" />
+                                            Register Another Visit
+                                        </button>
+                                        <button className="btn btn-outline-secondary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={() => navigate("/home")}>
+                                            <Home size={20} className="me-2" />
+                                            Back to Home
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {errorMessage && (
+                    <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+                                <div className="modal-body p-5 text-center">
+                                    <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', backgroundColor: 'var(--danger-subtle)', borderRadius: '50%', color: 'var(--danger-color)' }}>
+                                        <AlertCircle size={48} />
+                                    </div>
+                                    <h2 className="fw-bold mb-3" style={{ letterSpacing: '-0.025em' }}>Oops! Something went wrong</h2>
+                                    <p className="text-muted mb-4">
+                                        {errorMessage}
+                                    </p>
+                                    <div className="d-grid gap-2">
+                                        <button className="btn btn-danger btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={() => setErrorMessage("")}>
+                                            Try Again
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </Layout>
     );

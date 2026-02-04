@@ -34,7 +34,7 @@
 
 .scanner-box {
   aspect-ratio: 1/1;
-  min-width: 160px;
+  width: 161px !important;
   margin: 0 auto;
   padding: 1rem;
   border: 2px dashed var(--primary-color);
@@ -161,4 +161,15 @@
 
 .submit-btn:active {
   transform: scale(var(--btn-hover-scale));
+}
+
+/* Mobile adjustments */
+@media (max-width: 500px) {
+  .register-visit-container {
+    padding: 1rem;
+  }
+
+  .success-card {
+    padding: 2rem 1.5rem;
+  }
 }

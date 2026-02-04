@@ -1,0 +1,60 @@
+:root {
+    /* Color Palette - RGB */
+    --primary-color: rgb(0, 85, 255);
+    --primary-hover: rgb(0, 70, 210);
+    --primary-subtle: rgba(0, 85, 255, 0.1);
+
+    /* Backgrounds */
+    --bg-main: rgb(248, 249, 251);
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-bg-solid: rgb(255, 255, 255);
+
+    /* Text Colors */
+    --text-main: rgb(36, 45, 53);
+    --text-muted: rgb(103, 114, 126);
+    --text-light: rgb(255, 255, 255);
+    --text-dark: rgb(33, 37, 41);
+
+    /* Status Colors */
+    --success-color: rgb(25, 135, 84);
+    --success-bg: rgb(209, 231, 221);
+    --warning-color: rgb(255, 193, 7);
+    --warning-bg: rgb(255, 243, 205);
+    --danger-color: rgb(220, 53, 69);
+    --danger-bg: rgb(248, 215, 218);
+    --info-color: rgb(13, 202, 240);
+    --info-bg: rgb(207, 226, 255);
+
+    --success-subtle: rgba(25, 135, 84, 0.1);
+    --danger-subtle: rgba(220, 53, 69, 0.1);
+
+    /* Typography */
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-code: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+    /* Borders & Shadows */
+    --border-color: rgb(226, 232, 240);
+    --border-color-light: rgb(240, 240, 240);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 18px;
+    --border-radius-xl: 24px;
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.05);
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.4s;
+    --transition-bezier: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Buttons */
+    --btn-primary-color: rgb(0, 85, 255);
+    --btn-primary-hover: rgb(0, 70, 210);
+    --btn-primary-subtle: rgba(0, 85, 255, 0.1);
+
+    --btn-hover-translate: -2px;
+    --btn-hover-scale: 0.98;
+}

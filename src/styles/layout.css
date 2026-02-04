@@ -1,7 +1,7 @@
 /* Sidebar styles */
 .sidebar-container {
     height: 100vh;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-bezier);
     display: flex;
     flex-direction: column;
     z-index: 1050;
@@ -16,18 +16,18 @@
 }
 
 .nav-link-custom {
-    border-radius: 8px;
-    transition: all 0.2s;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
     border: none;
 }
 
 .nav-link-custom:hover {
     background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #fff;
+    color: var(--text-light);
 }
 
 .nav-link-custom.active {
-    background-color: var(--bs-primary) !important;
+    background-color: var(--primary-color) !important;
 }
 
 /* Layout styles */
@@ -36,15 +36,15 @@
     padding: 1.5rem;
     overflow-y: auto;
     max-height: 100vh;
-    transition: margin-left 0.3s ease;
+    transition: margin-left var(--transition-normal);
 }
 
 /* Mobile specific styles */
 .mobile-top-bar {
     display: none;
     height: 60px;
-    background-color: #fff;
-    border-bottom: 1px solid #e9ecef;
+    background-color: var(--text-light);
+    border-bottom: 1px solid var(--border-color-light);
     padding: 0 1rem;
     align-items: center;
     position: sticky;

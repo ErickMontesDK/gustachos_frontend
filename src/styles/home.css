@@ -1,6 +1,6 @@
 /* General Home components styles */
 .animate-fade-in {
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn var(--transition-fast);
 }
 
 @keyframes fadeIn {
@@ -17,25 +17,25 @@
 
 /* Specific component styles */
 .bg-primary-subtle {
-    background-color: #cfe2ff;
+    background-color: var(--info-bg);
 }
 
 .bg-warning-subtle {
-    background-color: #fff3cd;
+    background-color: var(--warning-bg);
 }
 
 .bg-success-subtle {
-    background-color: #d1e7dd;
+    background-color: var(--success-bg);
 }
 
 .bg-danger-subtle {
-    background-color: #f8d7da;
+    background-color: var(--danger-bg);
 }
 
 .card-visit {
     border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast);
 }
 
 .card-visit:hover {

@@ -124,7 +124,7 @@ export default function RegisterVisit() {
                 },
                 (err) => {
                     console.error("Manual GPS failure:", err);
-                    if (err.code === 1) { // PERMISSION_DENIED
+                    if (err.code === 1) {
                         setPermissionError("Location access was denied. Please reset it using the lock icon in your browser.");
                     } else {
                         setPermissionError("GPS failed. Please ensure location is enabled on your device.");
@@ -256,18 +256,6 @@ export default function RegisterVisit() {
 
     if (permissionsGranted === false) {
         return (
-            // <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
-            //     <div className="modal-dialog modal-dialog-centered text-white text-center">
-            //         <div className="p-4 bg-dark border border-danger" style={{ borderRadius: '24px' }}>
-            //             <AlertCircle size={60} className="text-danger mb-3" />
-            //             <h2>Necessary permissions</h2>
-            //             <p>{permissionError}</p>
-            //             <button className="btn btn-primary w-100 py-3" onClick={() => navigate("/home")}>
-            //                 Go back to home and try again
-            //             </button>
-            //         </div>
-            //     </div>
-            // </div>
             <Modal
                 title="Necessary permissions"
                 message={permissionError}
@@ -409,31 +397,7 @@ export default function RegisterVisit() {
                     </form>
 
                     {isSuccess && (
-                        // <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-                        //     <div className="modal-dialog modal-dialog-centered">
-                        //         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                        //             <div className="modal-body p-5 text-center">
-                        //                 <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', backgroundColor: 'var(--success-subtle)', borderRadius: '50%', color: 'var(--success-color)' }}>
-                        //                     <CheckCircle2 size={48} />
-                        //                 </div>
-                        //                 <h2 className="fw-bold mb-3" style={{ letterSpacing: '-0.025em' }}>Visit Registered!</h2>
-                        //                 <p className="text-muted mb-4">
-                        //                     The visit to <strong>{clientData.name}</strong> has been successfully recorded.
-                        //                 </p>
-                        //                 <div className="d-grid gap-2">
-                        //                     <button className="btn btn-primary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={resetForm}>
-                        //                         <RefreshCw size={20} className="me-2" />
-                        //                         Register Another Visit
-                        //                     </button>
-                        //                     <button className="btn btn-outline-secondary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={() => navigate("/home")}>
-                        //                         <Home size={20} className="me-2" />
-                        //                         Back to Home
-                        //                     </button>
-                        //                 </div>
-                        //             </div>
-                        //         </div>
-                        //     </div>
-                        // </div>
+
                         <Modal
                             title="Visit Registered!"
                             message={`The visit to ${clientData.name} has been successfully recorded.`}
@@ -446,26 +410,7 @@ export default function RegisterVisit() {
                     )}
 
                     {errorMessage && (
-                        // <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-                        //     <div className="modal-dialog modal-dialog-centered">
-                        //         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                        //             <div className="modal-body p-5 text-center">
-                        //                 <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', backgroundColor: 'var(--danger-subtle)', borderRadius: '50%', color: 'var(--danger-color)' }}>
-                        //                     <AlertCircle size={48} />
-                        //                 </div>
-                        //                 <h2 className="fw-bold mb-3" style={{ letterSpacing: '-0.025em' }}>Oops! Something went wrong</h2>
-                        //                 <p className="text-muted mb-4">
-                        //                     {errorMessage}
-                        //                 </p>
-                        //                 <div className="d-grid gap-2">
-                        //                     <button className="btn btn-danger btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={() => setErrorMessage("")}>
-                        //                         Try Again
-                        //                     </button>
-                        //                 </div>
-                        //             </div>
-                        //         </div>
-                        //     </div>
-                        // </div>
+
                         <Modal
                             title="Oops! Something went wrong"
                             message={errorMessage}

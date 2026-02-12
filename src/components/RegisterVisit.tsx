@@ -157,6 +157,7 @@ export default function RegisterVisit() {
             const longitude = parseFloat(position.coords.longitude.toFixed(6));
             setLatitude(latitude);
             setLongitude(longitude);
+            console.log("Latitude: " + latitude + " Longitude: " + longitude);
 
         }, (error) => {
             switch (error.code) {

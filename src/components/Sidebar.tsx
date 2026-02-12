@@ -27,7 +27,6 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
     };
 
     const currentPage = window.location.pathname;
-    console.log(currentPage);
 
     return (
         <div className={`bg-dark text-white sidebar-container ${isOpen ? 'w-250 open' : 'w-70'}`}>
@@ -72,6 +71,14 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/register-visit" ? "active" : ""}`} onClick={() => window.location.href = "/register-visit"}>
                                 <MapPin size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Register Visit</span>}
+                            </button>
+                        </li>
+                    )}
+                    {(role === 'admin' || role === 'operator') && (
+                        <li>
+                            <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/visits-data" ? "active" : ""}`} onClick={() => window.location.href = "/visits-data"}>
+                                <MapPin size={20} className="flex-shrink-0" />
+                                {isOpen && <span className="ms-3">Visits</span>}
                             </button>
                         </li>
                     )}

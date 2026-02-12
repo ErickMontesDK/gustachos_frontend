@@ -1,0 +1,49 @@
+.row-danger,
+.row-danger td {
+    background-color: var(--danger-subtle);
+}
+
+.cell-green {
+    background-color: var(--success-bg) !important;
+}
+
+.cell-red {
+    background-color: var(--danger-bg) !important;
+}
+
+.header-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+th {
+    vertical-align: middle !important;
+    padding: 0 !important;
+}
+
+z td {
+    padding: 0 !important;
+}
+
+.table-cell-content {
+    max-height: 100px;
+    max-width: 250px;
+    overflow-y: auto;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.boolean .table-cell-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    margin: auto;
+}

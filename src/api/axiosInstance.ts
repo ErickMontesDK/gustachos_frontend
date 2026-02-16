@@ -42,14 +42,14 @@ api.interceptors.response.use((response) => {
             return Promise.reject(error);
         }
 
-        if (originalRequest.url?.includes("token/refresh/")) {
+        if (originalRequest.url?.includes("auth/refresh/")) {
             localStorage.removeItem('access');
             localStorage.removeItem('refresh');
             window.location.href = '/login';
             return Promise.reject(error);
         }
 
-        return publicApi.post("token/refresh/", { refresh: refreshToken })
+        return publicApi.post("auth/refresh/", { refresh: refreshToken })
             .then((response) => {
                 localStorage.setItem('access', response.data.access);
                 localStorage.setItem('refresh', response.data.refresh);

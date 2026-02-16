@@ -33,10 +33,17 @@
 /* Layout styles */
 .main-content {
     flex-grow: 1;
-    padding: 1.5rem;
+    padding: 2rem;
     overflow-y: auto;
     max-height: 100vh;
     transition: margin-left var(--transition-normal);
+}
+
+.main-content .container-fluid {
+    background-color: var(--card-bg);
+    border: 2px solid var(--border-color-light);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
 }
 
 /* Mobile specific styles */
@@ -62,6 +69,10 @@
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     z-index: 1045;
+}
+
+h1 {
+    margin-bottom: 4rem;
 }
 
 @media (max-width: 768px) {

@@ -24,7 +24,7 @@ export default function Login() {
         setIsLoading(true);
         setError("");
 
-        const url = "login/";
+        const url = "auth/login/";
 
         publicApi.post(url, { username, password })
             .then((response) => {

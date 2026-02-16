@@ -18,6 +18,11 @@
     padding: 0.75rem;
 }
 
+.table {
+    table-layout: fixed;
+    width: 100%;
+}
+
 th {
     vertical-align: middle !important;
     padding: 0 !important;

@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { ArrowDownUp, ChevronDown, ChevronUp } from 'lucide-react';
 import './../styles/table.css';
+import { useState } from 'react';
 
 interface TableProps<TData> {
     columns: ColumnDef<TData, any>[];
@@ -20,9 +21,6 @@ export default function TableDisplay<TData>({ columns, data }: TableProps<TData>
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getSortedRowModel: getSortedRowModel(),
     });
 
     return (
@@ -38,11 +36,15 @@ export default function TableDisplay<TData>({ columns, data }: TableProps<TData>
                                             <th
                                                 key={header.id}
                                                 onClick={header.column.getToggleSortingHandler()}
-                                                style={{ cursor: 'pointer' }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    width: header.column.getSize(),
+                                                }}
                                                 className="text-center"
                                             >
                                                 <div className="header-cell">
                                                     {flexRender(header.column.columnDef.header, header.getContext())}
+
                                                     <span className="ms-2">
                                                         {{
                                                             asc: <ChevronUp size={16} className="text-secondary" />,
@@ -62,7 +64,7 @@ export default function TableDisplay<TData>({ columns, data }: TableProps<TData>
                             const rowData: any = row.original;
                             const rowClassName = rowData.rowClassName || '';
                             const cellClassName = rowData.cellClassName || {};
-                            console.log(cellClassName);
+
                             return (
                                 <tr key={row.id} className={rowClassName}>
                                     {row.getVisibleCells().map(cell => {
@@ -72,7 +74,11 @@ export default function TableDisplay<TData>({ columns, data }: TableProps<TData>
                                         }
 
                                         return (
-                                            <td key={cell.id} className={`text-dark text-center ${variantClassName}`}>
+                                            <td
+                                                key={cell.id}
+                                                className={`text-dark text-center ${variantClassName}`}
+                                                style={{ width: cell.column.getSize() }}
+                                            >
                                                 <div className="table-cell-content">
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </div>

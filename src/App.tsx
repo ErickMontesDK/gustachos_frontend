@@ -4,7 +4,8 @@ import Login from './pages/login';
 import Home from './pages/home';
 import RegisterVisit from './components/RegisterVisit';
 import ProtectedRoutes from './components/ProtectedRoutes';
-import VisitsData from './components/VisitsData';
+import VisitsData from './features/visits/components/VisitsData';
+
 
 function App() {
   return (

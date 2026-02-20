@@ -1,6 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { deleteVisit as deleteVisitService, getVisitById, getVisits, updateVisit as updateVisitService } from "../api/visitsService";
+import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";
 
 export interface Visit {

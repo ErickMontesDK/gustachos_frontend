@@ -1,5 +1,4 @@
 import Layout from "../../../components/Layout";
-import { ColumnDef } from '@tanstack/react-table';
 import TableDisplay from '../../../components/TableDisplay';
 import { useEffect, useState } from "react";
 import { api } from "../../../api/axiosInstance";

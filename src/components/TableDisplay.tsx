@@ -9,9 +9,8 @@ import {
     SortingState,
     OnChangeFn,
 } from '@tanstack/react-table';
-import { ArrowDownUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Pencil, Trash } from 'lucide-react';
 import './../styles/table.css';
-import { useState } from 'react';
 
 interface TableProps<TData> {
     columns: ColumnDef<TData, any>[];
@@ -24,6 +23,9 @@ interface TableProps<TData> {
     sorting?: SortingState;
     onSortingChange?: OnChangeFn<SortingState>;
     onPaginationChange?: (updater: any) => void;
+    editEnabled?: boolean;
+    onEdit?: (data: TData) => void;
+    onDelete?: (data: TData) => void;
 }
 
 export default function TableDisplay<TData>({
@@ -33,8 +35,12 @@ export default function TableDisplay<TData>({
     pagination,
     sorting,
     onSortingChange,
-    onPaginationChange
+    onPaginationChange,
+    editEnabled = false,
+    onEdit,
+    onDelete
 }: TableProps<TData>) {
+
     const table = useReactTable({
         data,
         columns,
@@ -60,6 +66,11 @@ export default function TableDisplay<TData>({
                         {table.getHeaderGroups().map(headerGroup => {
                             return (
                                 <tr key={headerGroup.id}>
+                                    {editEnabled && (
+                                        <th className="text-center" style={{ width: '65px' }}>
+                                            Actions
+                                        </th>
+                                    )}
                                     {headerGroup.headers.map(header => {
                                         return (
                                             <th
@@ -98,6 +109,38 @@ export default function TableDisplay<TData>({
 
                             return (
                                 <tr key={row.id} className={rowClassName}>
+                                    {editEnabled && (
+                                        <td className="text-center px-0 py-2">
+                                            <div className="dropdown">
+                                                <button
+                                                    className="btn btn-outline-dark dropdown-toggle"
+                                                    type="button"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false"
+                                                >
+                                                    <EllipsisVertical size={16} />
+                                                </button>
+                                                <ul className="dropdown-menu p-0 rounded-3">
+                                                    <li>
+                                                        <button
+                                                            className="dropdown-item py-2"
+                                                            onClick={() => onEdit?.(rowData)}
+                                                        >
+                                                            Edit <Pencil size={16} />
+                                                        </button>
+                                                    </li>
+                                                    <li className="bg-danger">
+                                                        <button
+                                                            className="dropdown-item text-white py-2"
+                                                            onClick={() => onDelete?.(rowData)}
+                                                        >
+                                                            Delete <Trash size={16} />
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    )}
                                     {row.getVisibleCells().map(cell => {
                                         let variantClassName = ""
                                         if (cell.column.id in cellClassName) {
@@ -136,14 +179,14 @@ export default function TableDisplay<TData>({
                     </div>
                     <div className="btn-group shadow-sm">
                         <button
-                            className="btn btn-outline-primary btn-sm px-3"
+                            className={`btn  btn-sm px-3 ${!table.getCanPreviousPage() ? 'disabled btn-outline-secondary' : 'btn-outline-primary'}`}
                             onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()}
                         >
                             Previous
                         </button>
                         <button
-                            className="btn btn-outline-primary btn-sm px-3"
+                            className={`btn  btn-sm px-3 ${!table.getCanNextPage() ? 'disabled btn-outline-secondary' : 'btn-outline-primary'}`}
                             onClick={() => table.nextPage()}
                             disabled={!table.getCanNextPage()}
                         >
@@ -155,3 +198,4 @@ export default function TableDisplay<TData>({
         </>
     );
 }
+

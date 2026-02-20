@@ -1,4 +1,15 @@
-export default function Modal({ title, message, buttonText1, buttonText2, buttonAction1, buttonAction2, icon }: { title: string, message: string, buttonText1: React.ReactNode, buttonText2: React.ReactNode, buttonAction1: () => void, buttonAction2: () => void, icon: React.ReactNode }) {
+interface ModalProps {
+    title: string;
+    message: string;
+    buttonText1: React.ReactNode;
+    buttonText2: React.ReactNode;
+    buttonAction1: () => void;
+    buttonAction2: () => void;
+    icon?: React.ReactNode | null;
+    children?: React.ReactNode | null;
+}
+
+export default function Modal({ title, message, buttonText1, buttonText2, buttonAction1, buttonAction2, icon, children }: ModalProps) {
     return (
 
         <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
@@ -14,8 +25,9 @@ export default function Modal({ title, message, buttonText1, buttonText2, button
                         <p className="text-muted mb-4">
                             {message}
                         </p>
-                        <div className="d-grid gap-2">
-                            <button className="btn btn-primary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction1}>
+                        {children}
+                        <div className="d-flex justify-content-center gap-2">
+                            <button className="btn btn-primary btn-md fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction1}>
                                 {buttonText1}
                             </button>
                             {buttonText2 &&

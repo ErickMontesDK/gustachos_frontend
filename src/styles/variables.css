@@ -28,6 +28,7 @@
 
     --success-subtle: rgba(25, 135, 84, 0.1);
     --danger-subtle: rgba(220, 53, 69, 0.1);
+    --dark-subtle: rgba(33, 37, 41, 0.1);
 
     /* Typography */
     --font-main: 'Inter', system-ui, -apple-system, sans-serif;

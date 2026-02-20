@@ -31,7 +31,14 @@ api.interceptors.response.use((response) => {
 }, (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response && error.response.data) {
+        const serverMessage = error.response.data.message || error.response.data.error;
+        if (serverMessage) {
+            error.message = serverMessage;
+        }
+    }
+
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
 
         const refreshToken = localStorage.getItem('refresh');

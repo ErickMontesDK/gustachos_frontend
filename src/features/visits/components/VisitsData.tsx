@@ -6,9 +6,11 @@ import { api } from "../../../api/axiosInstance";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import DatePicker from "../../../components/common/inputs/DatePicker";
-import { useVisits } from "../hooks/useVisits";
-import { Visit } from "../hooks/useVisits";
+import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit } from "../hooks/useVisits";
 import { columns } from "./columns";
+import Modal from "../../../components/modal";
+import { Trash } from "lucide-react";
+
 
 
 export default function VisitsData() {
@@ -16,6 +18,11 @@ export default function VisitsData() {
     const name = localStorage.getItem("name") || "User";
 
     const [client_types, setClient_types] = useState([]);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     const {
         visits,
         totalPages,
@@ -24,9 +31,33 @@ export default function VisitsData() {
         filters,
         updateFilters,
         sorting,
-        setSorting
+        setSorting,
+        refresh
     } = useVisits();
 
+    const {
+        notes,
+        setNotes,
+        is_productive,
+        setProductive,
+        is_valid,
+        setValidated,
+        visit: editingVisit,
+        updateVisit
+    } = useUpdateVisitNotes(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
+
+    const { deleteVisit } = useDeleteVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
+
+
+    const cleaningData = () => {
+        setNotes("");
+        setProductive(false);
+        setValidated(false);
+        setSelectedVisit(null);
+        setErrorMessage(null);
+        setShowEditModal(false);
+        setShowDeleteModal(false);
+    }
 
     useEffect(() => {
         api.get("client-types/")
@@ -46,6 +77,14 @@ export default function VisitsData() {
             <div className="animate-fade-in">
                 <h1>Visits Data</h1>
                 <div className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">
+
+                    {errorMessage && (
+                        <div className="alert alert-danger py-2 mb-3" role="alert">
+                            {errorMessage}
+                        </div>
+                    )}
+
+
                     <h5 className="mb-3 text-secondary">Filters</h5>
 
                     <div className="row g-3 mb-4">
@@ -134,8 +173,94 @@ export default function VisitsData() {
                     onPaginationChange={setPagination}
                     sorting={sorting}
                     onSortingChange={setSorting}
+                    editEnabled={true}
+                    onEdit={(visit) => {
+                        setErrorMessage(null);
+                        console.log("raw data", visit)
+                        setSelectedVisit(visit);
+                        setShowEditModal(true);
+                    }}
+                    onDelete={(visit) => {
+                        setErrorMessage(null);
+                        console.log("raw data", visit)
+                        setSelectedVisit(visit);
+                        setShowDeleteModal(true);
+                    }}
                 />
             </div>
+
+            {showEditModal && (
+                <Modal
+                    title="Edit Visit"
+                    message={`Editing visit for client: ${editingVisit?.client__name || '...'}`}
+                    buttonText1="Save Changes"
+                    buttonText2="Cancel"
+                    buttonAction1={() => {
+                        updateVisit();
+                        cleaningData();
+                    }}
+                    buttonAction2={() => {
+                        cleaningData();
+                    }}
+                >
+                    <div className="mb-3">
+                        <label htmlFor="notes" className="form-label font-bold">Notes</label>
+                        <textarea
+                            className="form-control"
+                            id="notes"
+                            rows={3}
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                        />
+                    </div>
+                    <div className="row g-3 mb-3">
+                        <div className="col-6">
+                            <div className="form-check form-switch p-3 border rounded">
+                                <input
+                                    className="form-check-input ms-0 me-2"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="productive"
+                                    checked={is_productive}
+                                    onChange={(e) => setProductive(e.target.checked)}
+                                />
+                                <label className="form-check-label" htmlFor="productive">Productive</label>
+                            </div>
+                        </div>
+                        <div className="col-6">
+                            <div className="form-check form-switch p-3 border rounded">
+                                <input
+                                    className="form-check-input ms-0 me-2"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="validated"
+                                    checked={is_valid}
+                                    onChange={(e) => setValidated(e.target.checked)}
+                                />
+                                <label className="form-check-label" htmlFor="validated">Validated</label>
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
+            {showDeleteModal && (
+                <Modal
+                    title="Delete Visit"
+                    icon={<Trash size={24} />}
+                    message={`Are you sure you want to delete this visit?`}
+                    buttonText1="Delete"
+                    buttonText2="Cancel"
+                    buttonAction1={() => {
+                        deleteVisit();
+                        cleaningData();
+                    }}
+                    buttonAction2={() => {
+                        cleaningData();
+                    }}
+                />
+            )}
         </Layout>
+
     );
 }

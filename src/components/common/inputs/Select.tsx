@@ -36,9 +36,9 @@ const Select: React.FC<SelectProps> = ({
                 onChange={onChange}
                 value={value}
             >
-                {placeholder !== undefined && <option value="">{placeholder}</option>}
-                {options.map((option) => (
-                    <option key={option.id} value={option.id}>
+                {placeholder !== undefined && <option key="default" value="">{placeholder}</option>}
+                {options.map((option, index) => (
+                    <option key={option.id || index} value={option.id}>
                         {option.name}
                     </option>
                 ))}

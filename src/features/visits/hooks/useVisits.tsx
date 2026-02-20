@@ -1,6 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { getVisits } from "../api/visitsService";
+import { deleteVisit as deleteVisitService, getVisitById, getVisits, updateVisit as updateVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";
 
 export interface Visit {
@@ -12,8 +12,10 @@ export interface Visit {
     client_id: number;
     deliverer__last_name: string;
     deliverer_id: number;
-    is_productive: string;
-    is_validated: string;
+    is_productive_label: string;
+    is_validated_label: string;
+    is_productive: boolean;
+    is_validated: boolean;
     notes: string;
     visited_at: string;
     time: string;
@@ -56,13 +58,18 @@ export const useVisits = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [visits, setVisits] = useState<Visit[]>([]);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refresh = () => setRefreshKey(prev => prev + 1);
 
     const updateFilters = <K extends keyof filters>(key: K, value: filters[K]) => {
         setFilters(prev => ({ ...prev, [key]: value }));
         setPagination(prev => ({ ...prev, pageIndex: 0 }));
     }
+    const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
+
     useEffect(() => {
-        const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
+        const controller = new AbortController();
 
         getVisits({
             client_type: filters.client_type || undefined,
@@ -74,17 +81,35 @@ export const useVisits = () => {
             date_to: filters.date_to || undefined,
             page: pagination.pageIndex + 1,
             page_size: pagination.pageSize,
-            sorting: sortingString || undefined
+            sorting: sortingString || undefined,
+            signal: controller.signal
         })
             .then(data => {
                 setVisits(data.results.map(visitMapper));
                 setTotalPages(data.total_pages);
             })
             .catch(error => {
+                if (error.name === 'CanceledError' || error.name === 'AbortError') {
+                    return;
+                }
                 console.error("Error fetching visits:", error);
             });
 
-    }, [sorting, filters, pagination.pageIndex, pagination.pageSize])
+        return () => controller.abort();
+
+    }, [
+        sortingString,
+        filters.client_type,
+        filters.municipality,
+        filters.state,
+        filters.sector,
+        filters.search_term,
+        filters.date_from,
+        filters.date_to,
+        pagination.pageIndex,
+        pagination.pageSize,
+        refreshKey
+    ])
 
     return {
         visits,
@@ -94,6 +119,76 @@ export const useVisits = () => {
         filters,
         updateFilters,
         sorting,
-        setSorting
+        setSorting,
+        refresh
     }
+}
+
+
+
+export const useUpdateVisitNotes = (visit: Visit | null, setVisit: (visit: Visit | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const [notes, setNotes] = useState("");
+    const [is_productive, setProductive] = useState(false);
+    const [is_valid, setValidated] = useState(false);
+
+    useEffect(() => {
+        if (!visit) return;
+
+        setNotes(visit.notes || "");
+        setProductive(visit.is_productive || false);
+        setValidated(visit.is_validated || false);
+
+    }, [visit])
+
+    const updateVisit = () => {
+        updateVisitService(visit!.id, {
+            notes,
+            is_productive,
+            is_valid
+        })
+            .then(() => {
+                setNotes("");
+                setProductive(false);
+                setValidated(false);
+                setVisit(null);
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error updating visit:", error);
+                if (onError) onError(error.message || "Error updating visit");
+            });
+    }
+
+
+    return {
+        visit,
+        notes,
+        setNotes,
+        is_productive,
+        setProductive,
+        is_valid,
+        setValidated,
+        updateVisit
+    };
+}
+
+export const useDeleteVisit = (visit: Visit | null, setVisit: (visit: Visit | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const deleteVisit = () => {
+        if (!visit) return;
+
+        deleteVisitService(visit.id)
+            .then(() => {
+                setVisit(null);
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error deleting visit:", error);
+                if (onError) onError(error.message || "Error deleting visit");
+            });
+    }
+
+
+    return {
+        deleteVisit
+    };
 }

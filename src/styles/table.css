@@ -52,3 +52,19 @@ z td {
     height: 100%;
     margin: auto;
 }
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.dropdown-item:hover {
+    background-color: var(--dark-subtle);
+}
+
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--dark-subtle) !important;
+}

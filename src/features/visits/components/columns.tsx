@@ -11,7 +11,7 @@ export const columns: ColumnDef<Visit>[] = [
     { header: 'Date', accessorKey: 'visited_at', size: 122 },
     { header: 'Time', accessorKey: 'time', size: 108, enableSorting: false },
     { header: 'Address', accessorKey: 'address', size: 250, enableSorting: false },
-    { header: 'Prod.', accessorKey: 'is_productive', size: 80 },
-    { header: 'Valid.', accessorKey: 'is_validated', size: 80 },
+    { id: 'is_productive', header: 'Prod.', accessorKey: 'is_productive_label', size: 80 },
+    { id: 'is_validated', header: 'Valid.', accessorKey: 'is_validated_label', size: 80 },
     { header: 'Notes', accessorKey: 'notes', size: 350, enableSorting: false },
 ];

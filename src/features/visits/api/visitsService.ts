@@ -11,11 +11,13 @@ interface VisitParams {
     page?: number;
     page_size?: number;
     sorting?: string;
+    signal?: AbortSignal;
 }
 
 const getVisits = async (params: VisitParams) => {
     try {
-        const response = await api.get("/visits", { params });
+        const { signal, ...restParams } = params;
+        const response = await api.get("/visits", { params: restParams, signal });
         console.log("response", response.data);
         return response.data as {
             count: number;
@@ -29,4 +31,40 @@ const getVisits = async (params: VisitParams) => {
     }
 }
 
-export { getVisits };
+const getVisitById = async (id: number) => {
+    try {
+        const response = await api.get(`/visits/${id}/`);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error fetching visits:", error);
+        throw error;
+    }
+}
+
+const updateVisit = async (id: number, data: { notes: string, is_productive: boolean, is_valid: boolean }) => {
+    try {
+        const response = await api.patch(`/visits/${id}/`, data);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error updating visit:", error);
+        throw error;
+    }
+}
+
+const deleteVisit = async (id: number) => {
+    try {
+        const response = await api.delete(`/visits/${id}/`);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error deleting visit:", error);
+        throw error;
+    }
+}
+
+export { getVisits, getVisitById, updateVisit, deleteVisit };

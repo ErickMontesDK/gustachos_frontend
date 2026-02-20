@@ -13,9 +13,6 @@ import { Trash } from "lucide-react";
 
 
 export default function VisitsData() {
-    const role = localStorage.getItem("role") || "deliverer";
-    const name = localStorage.getItem("name") || "User";
-
     const [client_types, setClient_types] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -72,7 +69,7 @@ export default function VisitsData() {
 
 
     return (
-        <Layout role={role} name={name}>
+        <Layout>
             <div className="animate-fade-in">
                 <h1>Visits Data</h1>
                 <div className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">

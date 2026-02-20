@@ -5,12 +5,12 @@ import '../styles/layout.css';
 
 interface LayoutVars {
     children: React.ReactNode;
-    role: string;
-    name: string;
 }
 
-export default function Layout({ children, role, name }: LayoutVars) {
+export default function Layout({ children }: LayoutVars) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const role = localStorage.getItem("role")!;
+    const name = localStorage.getItem("name")!;
 
     return (
         <div className="d-flex bg-light min-vh-100 flex-column flex-md-row">

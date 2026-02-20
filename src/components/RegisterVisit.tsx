@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "../api/axiosInstance";
 import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,9 @@ import { QrCode, ClipboardList, MapPin, User, CheckCircle2, AlertCircle, Store, 
 import '../styles/register-visit.css';
 import CodeScannerComponent from "./CodeScanner";
 import Modal from "./modal";
+import { usePermissions } from "../hooks/usePermissions";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { useScanner } from "../hooks/useScanner";
 
 interface DetectedCode {
     format: string;
@@ -15,11 +18,15 @@ interface DetectedCode {
 
 export default function RegisterVisit() {
     const navigate = useNavigate();
-    const role = localStorage.getItem("role") || "deliverer";
-    const name = localStorage.getItem("name") || "User";
 
-    const [permissionsGranted, setPermissionsGranted] = useState<boolean | null>(null);
-    const [permissionError, setPermissionError] = useState("");
+    const { permissionsGranted, permissionError, retryPermissions } = usePermissions();
+    const { latitude, longitude, datetime, gettingGeolocation, gettingDatetime, resetLocation } = useGeolocation();
+    const {
+        isScannerPaused, setIsScannerPaused,
+        isScannerLoading, setIsScannerLoading,
+        isScannerUsed, setIsScannerUsed,
+        startScanner, resetScanner
+    } = useScanner();
 
     const [clientData, setClientData] = useState({
         name: "",
@@ -40,147 +47,11 @@ export default function RegisterVisit() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [isScannerPaused, setIsScannerPaused] = useState(true);
-
-    const [isScannerLoading, setIsScannerLoading] = useState(false);
-    const [isScannerUsed, setIsScannerUsed] = useState(false);
     const [isClientFound, setIsClientFound] = useState(false);
 
-    const [latitude, setLatitude] = useState(0);
-    const [longitude, setLongitude] = useState(0);
-    const [datetime, setDatetime] = useState("");
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const checkPassivePermissions = async () => {
-            setPermissionsGranted(null);
-            try {
-                if (navigator.permissions && navigator.permissions.query) {
-                    const [geoStatus, camStatus] = await Promise.all([
-                        navigator.permissions.query({ name: 'geolocation' as PermissionName }),
-                        // Camera status might not be available in all browsers, default to 'prompt'
-                        navigator.permissions.query({ name: 'camera' as PermissionName }).catch(() => ({ state: 'prompt' }))
-                    ]);
-
-                    if (geoStatus.state === 'granted' && camStatus.state === 'granted') {
-                        if (isMounted) setPermissionsGranted(true);
-                    } else if (geoStatus.state === 'denied' || camStatus.state === 'denied') {
-                        if (isMounted) {
-                            setPermissionError("Permissions are blocked. Click the lock icon (🔒) or settings icon next to the URL to reset and allow them.");
-                            setPermissionsGranted(false);
-                        }
-                    } else {
-                        if (isMounted) {
-                            setPermissionError("Camera and location permissions are required to scan clients.");
-                            setPermissionsGranted(false);
-                        }
-                    }
-                } else {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    stream.getTracks().forEach(track => track.stop());
-
-                    if (isMounted) {
-                        setPermissionError("Touch to verify location permissions.");
-                        setPermissionsGranted(false);
-                    }
-                }
-            } catch (error) {
-                console.error("Passive permission check failed:", error);
-                if (isMounted) {
-                    setPermissionError("Necessary permissions are active or required.");
-                    setPermissionsGranted(false);
-                }
-            }
-        };
-
-        checkPassivePermissions();
-        return () => { isMounted = false; };
-    }, []);
-
-    const retryPermissions = async () => {
-        if (navigator.permissions && navigator.permissions.query) {
-            const [geoStatus, camStatus] = await Promise.all([
-                navigator.permissions.query({ name: 'geolocation' as PermissionName }),
-                navigator.permissions.query({ name: 'camera' as PermissionName }).catch(() => ({ state: 'prompt' }))
-            ]);
-
-            if (geoStatus.state === 'denied' || camStatus.state === 'denied') {
-                setPermissionError("Access is blocked. Please click the lock icon (🔒) in your address bar and reset permissions to 'Allow'.");
-                return;
-            }
-        }
-
-        setPermissionsGranted(null);
-        setPermissionError("");
-
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            stream.getTracks().forEach(track => track.stop());
-
-            navigator.geolocation.getCurrentPosition(
-                () => {
-                    setPermissionsGranted(true);
-                },
-                (err) => {
-                    console.error("Manual GPS failure:", err);
-                    if (err.code === 1) {
-                        setPermissionError("Location access was denied. Please reset it using the lock icon in your browser.");
-                    } else {
-                        setPermissionError("GPS failed. Please ensure location is enabled on your device.");
-                    }
-                    setPermissionsGranted(false);
-                },
-                { timeout: 10000, enableHighAccuracy: true }
-            );
-        } catch (error: any) {
-            console.error("Manual Camera failure:", error);
-            setPermissionError("Camera access failed. Please ensure you have allowed access.");
-            setPermissionsGranted(false);
-        }
-    };
-
     const scannerPressed = () => {
-        setIsScannerPaused(false);
-        setIsScannerUsed(false);
         setIsClientFound(false);
-    }
-
-    const gettingGeolocation = () => {
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-        };
-        navigator.geolocation.getCurrentPosition((position) => {
-            const latitude = parseFloat(position.coords.latitude.toFixed(6));
-            const longitude = parseFloat(position.coords.longitude.toFixed(6));
-            setLatitude(latitude);
-            setLongitude(longitude);
-            console.log("Latitude: " + latitude + " Longitude: " + longitude);
-
-        }, (error) => {
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    console.log("User denied the request for Geolocation.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    console.log("Location information is unavailable.");
-                    break;
-                case error.TIMEOUT:
-                    console.log("The request to get user location timed out.");
-                    break;
-                default:
-                    console.log("An unknown error occurred.");
-                    break;
-            }
-        }, options);
-    }
-
-    const gettingDatetime = () => {
-        const date = new Date();
-        const datetime = date.toISOString();
-        setDatetime(datetime);
+        startScanner();
     }
 
     const handleScan = (detectedCodes: DetectedCode[]) => {
@@ -220,12 +91,10 @@ export default function RegisterVisit() {
         setClientId(null);
         setIsProductive(false);
         setNotes("");
-        setIsScannerUsed(false);
         setIsClientFound(false);
         setIsSuccess(false);
-        setLatitude(0);
-        setLongitude(0);
-        setDatetime("");
+        resetLocation();
+        resetScanner();
         setErrorMessage("");
     }
 
@@ -272,7 +141,7 @@ export default function RegisterVisit() {
     } else {
 
         return (
-            <Layout role={role} name={name}>
+            <Layout>
                 <div className="register-visit-container">
                     <header className="page-header">
                         <h1>Register Visit</h1>

@@ -11,7 +11,6 @@ export default function Home() {
     }
 
     const role = localStorage.getItem("role") || "";
-    const name = localStorage.getItem("name") || "";
 
     const renderContent = () => {
         switch (role.toLowerCase()) {
@@ -30,7 +29,7 @@ export default function Home() {
     }
 
     return (
-        <Layout role={role} name={name}>
+        <Layout>
             {renderContent()}
         </Layout>
     );

@@ -5,7 +5,7 @@ import Home from './pages/home';
 import RegisterVisit from './components/RegisterVisit';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import VisitsData from './features/visits/components/VisitsData';
-
+import RegisterClient from './components/RegisterClient';
 
 function App() {
   return (
@@ -18,6 +18,9 @@ function App() {
         </Route>
         <Route element={<ProtectedRoutes allowedRoles={['admin', 'operator']} />}>
           <Route path="/visits-data" element={<VisitsData />} />
+        </Route>
+        <Route element={<ProtectedRoutes allowedRoles={['delivery']} />}>
+          <Route path="/register-client" element={<RegisterClient />} />
         </Route>
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>

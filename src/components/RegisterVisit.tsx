@@ -59,6 +59,7 @@ export default function RegisterVisit() {
         setIsScannerUsed(true);
         setIsScannerLoading(true);
         const detectedCode = detectedCodes[0].rawValue;
+        console.log(detectedCode);
         setIsScannerPaused(true);
 
         api.get(`/clients/${detectedCode}`)
@@ -134,6 +135,7 @@ export default function RegisterVisit() {
                 buttonAction1={retryPermissions}
                 buttonAction2={() => navigate("/home")}
                 icon={<AlertCircle size={48} />}
+                isVertical={true}
             />
         );
     } else if (permissionsGranted === null) {
@@ -276,6 +278,7 @@ export default function RegisterVisit() {
                             buttonAction1={resetForm}
                             buttonAction2={() => navigate("/home")}
                             icon={<CheckCircle2 size={48} />}
+                            isVertical={true}
                         />
                     )}
 

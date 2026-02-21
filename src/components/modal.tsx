@@ -7,9 +7,10 @@ interface ModalProps {
     buttonAction2: () => void;
     icon?: React.ReactNode | null;
     children?: React.ReactNode | null;
+    isVertical?: boolean;
 }
 
-export default function Modal({ title, message, buttonText1, buttonText2, buttonAction1, buttonAction2, icon, children }: ModalProps) {
+export default function Modal({ title, message, buttonText1, buttonText2, buttonAction1, buttonAction2, icon, children, isVertical = false }: ModalProps) {
     return (
 
         <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
@@ -26,7 +27,7 @@ export default function Modal({ title, message, buttonText1, buttonText2, button
                             {message}
                         </p>
                         {children}
-                        <div className="d-flex justify-content-center gap-2">
+                        <div className={`d-flex ${isVertical ? 'flex-column' : 'flex-row'} justify-content-center gap-2`}>
                             <button className="btn btn-primary btn-md fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction1}>
                                 {buttonText1}
                             </button>

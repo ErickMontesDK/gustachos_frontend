@@ -62,7 +62,7 @@ export default function RegisterVisit() {
         console.log(detectedCode);
         setIsScannerPaused(true);
 
-        api.get(`/clients/${detectedCode}`)
+        api.get(`/clients/code/${detectedCode}`)
             .then(response => {
                 setClientData(response.data);
                 setClientId(parseInt(response.data.id));

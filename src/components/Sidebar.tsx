@@ -84,12 +84,20 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                         </>
                     )}
                     {(role === 'admin' || role === 'operator') && (
-                        <li>
-                            <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/visits-data" ? "active" : ""}`} onClick={() => window.location.href = "/visits-data"}>
-                                <MapPin size={20} className="flex-shrink-0" />
-                                {isOpen && <span className="ms-3">Visits</span>}
-                            </button>
-                        </li>
+                        <>
+                            <li>
+                                <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/visits-data" ? "active" : ""}`} onClick={() => window.location.href = "/visits-data"}>
+                                    <MapPin size={20} className="flex-shrink-0" />
+                                    {isOpen && <span className="ms-3">Visits</span>}
+                                </button>
+                            </li>
+                            <li>
+                                <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/clients-data" ? "active" : ""}`} onClick={() => window.location.href = "/clients-data"}>
+                                    <Store size={20} className="flex-shrink-0" />
+                                    {isOpen && <span className="ms-3">Clients</span>}
+                                </button>
+                            </li>
+                        </>
                     )}
                 </ul>
             </nav>

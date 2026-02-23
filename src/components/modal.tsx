@@ -27,7 +27,7 @@ export default function Modal({ title, message, buttonText1, buttonText2, button
                             {message}
                         </p>
                         {children}
-                        <div className={`d-flex ${isVertical ? 'flex-column' : 'flex-row'} justify-content-center gap-2`}>
+                        <div className={`d-flex ${isVertical ? 'flex-column' : 'flex-row mt-4'} justify-content-center gap-2`}>
                             <button className="btn btn-primary btn-md fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction1}>
                                 {buttonText1}
                             </button>

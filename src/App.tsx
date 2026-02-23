@@ -6,6 +6,7 @@ import RegisterVisit from './components/RegisterVisit';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import VisitsData from './features/visits/components/VisitsData';
 import RegisterClient from './components/RegisterClient';
+import ClientsData from './features/clients/components/ClientsData';
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
         </Route>
         <Route element={<ProtectedRoutes allowedRoles={['admin', 'operator']} />}>
           <Route path="/visits-data" element={<VisitsData />} />
+        </Route>
+        <Route element={<ProtectedRoutes allowedRoles={['admin', 'operator']} />}>
+          <Route path="/clients-data" element={<ClientsData />} />
         </Route>
         <Route element={<ProtectedRoutes allowedRoles={['delivery']} />}>
           <Route path="/register-client" element={<RegisterClient />} />

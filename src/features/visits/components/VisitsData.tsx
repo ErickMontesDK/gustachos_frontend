@@ -191,6 +191,7 @@ export default function VisitsData() {
                     message={`Editing visit for client: ${editingVisit?.client__name || '...'}`}
                     buttonText1="Save Changes"
                     buttonText2="Cancel"
+                    isForm={true}
                     buttonAction1={() => {
                         updateVisit();
                         cleaningData();

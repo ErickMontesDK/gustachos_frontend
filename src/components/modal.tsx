@@ -8,11 +8,57 @@ interface ModalProps {
     icon?: React.ReactNode | null;
     children?: React.ReactNode | null;
     isVertical?: boolean;
+    isForm?: boolean;
+    isSubmitDisabled?: boolean;
 }
 
-export default function Modal({ title, message, buttonText1, buttonText2, buttonAction1, buttonAction2, icon, children, isVertical = false }: ModalProps) {
-    return (
+export default function Modal({
+    title,
+    message,
+    buttonText1,
+    buttonText2,
+    buttonAction1,
+    buttonAction2,
+    icon,
+    children,
+    isVertical = false,
+    isForm = false,
+    isSubmitDisabled = false
+}: ModalProps) {
+    const handleFormSubmit = (e: React.FormEvent) => {
+        if (isForm) {
+            e.preventDefault();
+            buttonAction1();
+        }
+    };
 
+    const Buttons = () => (
+        <div className={`d-flex ${isVertical ? 'flex-column' : 'flex-row mt-4'} justify-content-center gap-2`}>
+            <button
+                id={isForm ? "submit-button" : ""}
+                type={isForm ? "submit" : "button"}
+                disabled={isSubmitDisabled}
+                className="btn btn-primary btn-md fw-bold d-flex align-items-center justify-content-center py-3"
+                style={{ borderRadius: '12px' }}
+                onClick={!isForm ? buttonAction1 : undefined}
+            >
+                {buttonText1}
+            </button>
+            {buttonText2 &&
+                <button
+                    id={isForm ? "cancel-button" : ""}
+                    type="button"
+                    className="btn btn-outline-secondary btn-lg fw-bold d-flex align-items-center justify-content-center py-3"
+                    style={{ borderRadius: '12px' }}
+                    onClick={buttonAction2}
+                >
+                    {buttonText2}
+                </button>
+            }
+        </div>
+    );
+
+    return (
         <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
@@ -26,17 +72,18 @@ export default function Modal({ title, message, buttonText1, buttonText2, button
                         <p className="text-muted mb-4">
                             {message}
                         </p>
-                        {children}
-                        <div className={`d-flex ${isVertical ? 'flex-column' : 'flex-row mt-4'} justify-content-center gap-2`}>
-                            <button className="btn btn-primary btn-md fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction1}>
-                                {buttonText1}
-                            </button>
-                            {buttonText2 &&
-                                <button className="btn btn-outline-secondary btn-lg fw-bold d-flex align-items-center justify-content-center py-3" style={{ borderRadius: '12px' }} onClick={buttonAction2}>
-                                    {buttonText2}
-                                </button>
-                            }
-                        </div>
+
+                        {isForm ? (
+                            <form onSubmit={handleFormSubmit}>
+                                {children}
+                                <Buttons />
+                            </form>
+                        ) : (
+                            <>
+                                {children}
+                                <Buttons />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

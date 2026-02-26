@@ -1,5 +1,5 @@
 import Layout from "../../../components/Layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCreateUser, useDeleteUser, User, useUpdateUser } from "../hooks/useUsers";
 import { useUsers } from "../hooks/useUsers";
 import Select from "../../../components/common/inputs/Select";
@@ -56,6 +56,15 @@ export default function UsersData() {
         new_username, setNewUsername,
         createUser
     } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
+
+    const passwordMatch = (
+        new_password_confirmation !== "" && new_password === new_password_confirmation
+    );
+    const isCreateFormValid = !!(
+        (new_role && new_email && new_first_name && new_last_name && new_password && new_password_confirmation && new_username) &&
+        passwordMatch
+    );
+    const isEditFormValid = !!(role && email && first_name && last_name);
 
     const cleaningData = () => {
         setFirstName("");
@@ -159,6 +168,8 @@ export default function UsersData() {
                     message={`Editing user: ${selectedUser?.full_name || '...'}`}
                     buttonText1="Save Changes"
                     buttonText2="Cancel"
+                    isForm={true}
+                    isSubmitDisabled={!isEditFormValid}
                     buttonAction1={() => {
                         updateUser();
                         cleaningData();
@@ -232,6 +243,8 @@ export default function UsersData() {
                     message={`Creating a new user account`}
                     buttonText1="Create User"
                     buttonText2="Cancel"
+                    isForm={true}
+                    isSubmitDisabled={!isCreateFormValid}
                     buttonAction1={() => {
                         if (!new_first_name || !new_last_name || !new_email || !new_role || !new_password || !new_password_confirmation || !new_username) {
                             setErrorMessage("Please fill in all required fields.");
@@ -310,6 +323,11 @@ export default function UsersData() {
                         <div className="col-12 mt-4">
                             <h6 className="border-bottom pb-2 text-secondary">Security</h6>
                         </div>
+                        {!passwordMatch && new_password_confirmation !== "" && (
+                            <div className="alert alert-danger py-2 mb-3" role="alert">
+                                Passwords do not match
+                            </div>
+                        )}
                         <div className="col-md-6">
                             <label className="form-label font-bold">Password</label>
                             <input
@@ -317,7 +335,7 @@ export default function UsersData() {
                                 className="form-control"
                                 value={new_password}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="••••••••"
+                                placeholder="Password"
                                 required
                             />
                         </div>
@@ -328,11 +346,12 @@ export default function UsersData() {
                                 className="form-control"
                                 value={new_password_confirmation}
                                 onChange={(e) => setNewPasswordConfirmation(e.target.value)}
-                                placeholder="••••••••"
+                                placeholder="Password confirmation"
                                 required
                             />
                         </div>
                     </div>
+
                 </Modal>
             )}
 

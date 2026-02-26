@@ -45,6 +45,8 @@ export default function ClientsData() {
 
     const { deleteClient } = useDeleteClient(selectedClient, setSelectedClient, refresh, (msg) => console.error(msg));
 
+    const isFormValid = !!(code && name && address && client_type);
+
     const cleaningData = () => {
         setCode("");
         setName("");
@@ -212,6 +214,8 @@ export default function ClientsData() {
                     message={`Editing client ${selectedClient?.name} (${selectedClient?.code})`}
                     buttonText1="Save"
                     buttonText2="Cancel"
+                    isForm={true}
+                    isSubmitDisabled={!isFormValid}
                     buttonAction1={() => {
                         updateClient();
                         cleaningData();
@@ -300,25 +304,28 @@ export default function ClientsData() {
                         </div>
                     </div>
                 </Modal>
-            )}
+            )
+            }
 
 
-            {showDeleteModal && (
-                <Modal
-                    title="Delete Client"
-                    icon={<Trash size={24} />}
-                    message={`Are you sure you want to delete this client?`}
-                    buttonText1="Delete"
-                    buttonText2="Cancel"
-                    buttonAction1={() => {
-                        deleteClient();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                />
-            )}
-        </Layout>
+            {
+                showDeleteModal && (
+                    <Modal
+                        title="Delete Client"
+                        icon={<Trash size={24} />}
+                        message={`Are you sure you want to delete this client?`}
+                        buttonText1="Delete"
+                        buttonText2="Cancel"
+                        buttonAction1={() => {
+                            deleteClient();
+                            cleaningData();
+                        }}
+                        buttonAction2={() => {
+                            cleaningData();
+                        }}
+                    />
+                )
+            }
+        </Layout >
     );
 }

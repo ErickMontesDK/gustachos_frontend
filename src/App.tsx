@@ -7,6 +7,7 @@ import ProtectedRoutes from './components/ProtectedRoutes';
 import VisitsData from './features/visits/components/VisitsData';
 import RegisterClient from './components/RegisterClient';
 import ClientsData from './features/clients/components/ClientsData';
+import UsersData from './features/users/components/UsersData';
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
         </Route>
         <Route element={<ProtectedRoutes allowedRoles={['delivery']} />}>
           <Route path="/register-client" element={<RegisterClient />} />
+        </Route>
+        <Route element={<ProtectedRoutes allowedRoles={['admin']} />}>
+          <Route path="/users-data" element={<UsersData />} />
         </Route>
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>

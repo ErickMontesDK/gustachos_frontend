@@ -9,7 +9,7 @@ import RegisterClient from './components/RegisterClient';
 import ClientsData from './features/clients/components/ClientsData';
 import UsersData from './features/users/components/UsersData';
 import Profile from './components/Profile';
-import BusinessData from './components/BusinessData';
+import BusinessData from './features/business/components/BusinessData';
 
 function App() {
   return (

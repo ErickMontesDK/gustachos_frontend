@@ -32,6 +32,8 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
 
     const currentPage = window.location.pathname;
 
+    const normalizedRole = role.toLowerCase();
+
     return (
         <div className={`bg-dark text-white sidebar-container ${isOpen ? 'w-250 open' : 'w-70'}`}>
 
@@ -70,7 +72,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                             {isOpen && <span className="ms-3">Dashboard</span>}
                         </button>
                     </li>
-                    {role === 'delivery' && (
+                    {normalizedRole === 'delivery' && (
                         <>
                             <li>
                                 <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/register-visit" ? "active" : ""}`} onClick={() => window.location.href = "/register-visit"}>
@@ -86,7 +88,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                             </li>
                         </>
                     )}
-                    {(role === 'admin' || role === 'operator') && (
+                    {(normalizedRole === 'admin' || normalizedRole === 'operator') && (
                         <>
                             <li>
                                 <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/visits-data" ? "active" : ""}`} onClick={() => window.location.href = "/visits-data"}>
@@ -103,7 +105,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                         </>
                     )}
 
-                    {role === 'admin' && (
+                    {normalizedRole === 'admin' && (
                         <li>
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/users-data" ? "active" : ""}`} onClick={() => window.location.href = "/users-data"}>
                                 <UsersRound size={20} className="flex-shrink-0" />
@@ -111,7 +113,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                             </button>
                         </li>
                     )}
-                    {role === 'admin' && (
+                    {normalizedRole === 'admin' && (
                         <li>
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/business-data" ? "active" : ""}`} onClick={() => window.location.href = "/business-data"}>
                                 <Briefcase size={20} className="flex-shrink-0" />

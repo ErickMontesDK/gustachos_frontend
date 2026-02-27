@@ -21,7 +21,7 @@ export default function RegisterClient() {
     const navigate = useNavigate();
 
     const { permissionsGranted, permissionError, retryPermissions } = usePermissions();
-    const { latitude, longitude, datetime, gettingGeolocation, gettingDatetime, resetLocation } = useGeolocation();
+    const { latitude, longitude, gettingGeolocation, gettingDatetime, resetLocation } = useGeolocation();
     const [clientCodeAvailable, setClientCodeAvailable] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isFetchingAddress, setIsFetchingAddress] = useState(false);
@@ -362,17 +362,21 @@ export default function RegisterClient() {
                             </div>
                         </div>
 
-                        <button type="submit" className="submit-btn mt-4">
-                            Register Client
+                        <button type="submit" className="submit-btn mt-4" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <><span className="spinner-border spinner-border-sm me-2"></span>Registering...</>
+                            ) : (
+                                "Register Client"
+                            )}
                         </button>
                     </form>
 
                     {isSuccess && (
 
                         <Modal
-                            title="Visit Registered!"
-                            message={`The visit to ${clientData.name} has been successfully recorded.`}
-                            buttonText1={<><RefreshCw size={20} className="me-2" />Register Another Visit</>}
+                            title="Client Registered!"
+                            message={`The client ${clientData.name} has been successfully registered.`}
+                            buttonText1={<><RefreshCw size={20} className="me-2" />Register Another Client</>}
                             buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
                             buttonAction1={resetForm}
                             buttonAction2={() => navigate("/home")}

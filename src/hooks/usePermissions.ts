@@ -10,7 +10,6 @@ export const usePermissions = () => {
             if (navigator.permissions && navigator.permissions.query) {
                 const [geoStatus, camStatus] = await Promise.all([
                     navigator.permissions.query({ name: 'geolocation' as PermissionName }),
-                    // Camera status might not be available in all browsers, default to 'prompt'
                     navigator.permissions.query({ name: 'camera' as PermissionName }).catch(() => ({ state: 'prompt' }))
                 ]);
 

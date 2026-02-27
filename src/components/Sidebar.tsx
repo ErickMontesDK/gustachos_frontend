@@ -6,6 +6,9 @@ import {
     User,
     Menu,
     Store,
+    CircleUser,
+    UsersRound,
+    Briefcase,
 } from 'lucide-react';
 
 import '../styles/layout.css';
@@ -103,11 +106,25 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                     {role === 'admin' && (
                         <li>
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/users-data" ? "active" : ""}`} onClick={() => window.location.href = "/users-data"}>
-                                <User size={20} className="flex-shrink-0" />
+                                <UsersRound size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Users</span>}
                             </button>
                         </li>
                     )}
+                    {role === 'admin' && (
+                        <li>
+                            <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/business-data" ? "active" : ""}`} onClick={() => window.location.href = "/business-data"}>
+                                <Briefcase size={20} className="flex-shrink-0" />
+                                {isOpen && <span className="ms-3">Business</span>}
+                            </button>
+                        </li>
+                    )}
+                    <li>
+                        <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/profile" ? "active" : ""}`} onClick={() => window.location.href = "/profile"}>
+                            <CircleUser size={20} className="flex-shrink-0" />
+                            {isOpen && <span className="ms-3">Profile</span>}
+                        </button>
+                    </li>
                 </ul>
             </nav>
 

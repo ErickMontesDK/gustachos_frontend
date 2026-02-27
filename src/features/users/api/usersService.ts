@@ -59,4 +59,26 @@ const createUser = async (data: any) => {
     }
 }
 
-export { getUsers, updateUser, deleteUser, createUser };
+const getUserProfile = async () => {
+    try {
+        const response = await api.get(`/users/me/`);
+        console.log("response", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        throw error;
+    }
+}
+
+const changePassword = async (data: any) => {
+    try {
+        const response = await api.post(`/users/password/`, data);
+        console.log("response", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error changing password:", error);
+        throw error;
+    }
+}
+
+export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changePassword };

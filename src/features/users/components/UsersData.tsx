@@ -1,6 +1,6 @@
 import Layout from "../../../components/Layout";
 import { useEffect, useState } from "react";
-import { useCreateUser, useDeleteUser, User, useUpdateUser } from "../hooks/useUsers";
+import { useChangePassword, useCreateUser, useDeleteUser, User, useUpdateUser } from "../hooks/useUsers";
 import { useUsers } from "../hooks/useUsers";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
@@ -56,6 +56,7 @@ export default function UsersData() {
         new_username, setNewUsername,
         createUser
     } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
+
 
     const passwordMatch = (
         new_password_confirmation !== "" && new_password === new_password_confirmation
@@ -122,7 +123,7 @@ export default function UsersData() {
                             />
                         </div>
 
-                        <div className="col-md-3 d-flex justify-content-end pt-4">
+                        <div className="col-3 d-flex justify-content-end pt-4">
                             <button
                                 className="btn btn-primary w-50"
                                 onClick={() => {

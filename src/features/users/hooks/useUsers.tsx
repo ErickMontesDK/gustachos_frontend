@@ -1,7 +1,14 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { userMapper } from "../utils/userMappers";
-import { getUsers, updateUser as updateUserService, deleteUser as deleteUserService, createUser as createUserService } from "../api/usersService";
+import {
+    getUsers,
+    updateUser as updateUserService,
+    deleteUser as deleteUserService,
+    createUser as createUserService,
+    getUserProfile,
+    changePassword as changePasswordService
+} from "../api/usersService";
 
 export interface User {
     id: number;
@@ -28,6 +35,28 @@ const DEFAULT_FILTERS: filters = {
     page_size: 10,
     sorting: "",
 };
+
+export const useUserProfile = () => {
+    const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        getUserProfile()
+            .then(data => {
+                setUser(userMapper(data));
+            })
+            .catch(error => {
+                console.error("Error fetching user:", error);
+                setError(error.message || "Error fetching user");
+            });
+
+        return () => controller.abort();
+    }, []);
+
+    return { user, error };
+}
 
 export const useUsers = () => {
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: DEFAULT_FILTERS.page_size });
@@ -195,6 +224,35 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) =>
         new_password, setNewPassword,
         new_password_confirmation, setNewPasswordConfirmation,
         createUser
+    }
+}
+
+export const useChangePassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const [new_password, setNewPassword] = useState("");
+    const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
+
+    const changePassword = () => {
+        if (new_password !== new_password_confirmation) {
+            if (onError) onError("Passwords do not match");
+            return;
+        }
+
+        changePasswordService({
+            password: new_password,
+        })
+            .then(() => {
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error changing password:", error);
+                if (onError) onError(error.message || "Error changing password");
+            });
+    }
+
+    return {
+        new_password, setNewPassword,
+        new_password_confirmation, setNewPasswordConfirmation,
+        changePassword
     }
 }
 

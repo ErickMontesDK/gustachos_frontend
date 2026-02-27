@@ -8,6 +8,8 @@ import VisitsData from './features/visits/components/VisitsData';
 import RegisterClient from './components/RegisterClient';
 import ClientsData from './features/clients/components/ClientsData';
 import UsersData from './features/users/components/UsersData';
+import Profile from './components/Profile';
+import BusinessData from './components/BusinessData';
 
 function App() {
   return (
@@ -30,6 +32,10 @@ function App() {
         <Route element={<ProtectedRoutes allowedRoles={['admin']} />}>
           <Route path="/users-data" element={<UsersData />} />
         </Route>
+        <Route element={<ProtectedRoutes allowedRoles={['admin']} />}>
+          <Route path="/business-data" element={<BusinessData />} />
+        </Route>
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </Router>

@@ -27,7 +27,6 @@ export default function ClientsData() {
     } = useClients();
 
     const {
-        client,
         code, setCode,
         name, setName,
         address, setAddress,
@@ -45,7 +44,7 @@ export default function ClientsData() {
 
     const { deleteClient } = useDeleteClient(selectedClient, setSelectedClient, refresh, (msg) => console.error(msg));
 
-    const isFormValid = !!(code && name && address && client_type);
+    const isFormValid = !!(code && name && address && client_type && latitude && longitude);
 
     const cleaningData = () => {
         setCode("");

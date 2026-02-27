@@ -153,7 +153,6 @@ export const useUpdateUser = (user: User | null, setUser: (user: User | null) =>
     }
 
     return {
-        user,
         role, setRole,
         email, setEmail,
         first_name, setFirstName,
@@ -242,6 +241,7 @@ export const useChangePassword = (onSuccess?: () => void, onError?: (msg: string
         })
             .then(() => {
                 if (onSuccess) onSuccess();
+
             })
             .catch(error => {
                 console.error("Error changing password:", error);

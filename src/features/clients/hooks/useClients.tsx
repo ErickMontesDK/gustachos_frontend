@@ -188,7 +188,6 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
     }
 
     return {
-        client,
         code,
         setCode,
         name,

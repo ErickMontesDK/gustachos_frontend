@@ -3,7 +3,6 @@ import { getBusinessInfo, updateBusinessInfo } from "../api/businessServices";
 import { businessMapper } from "../utils/businessMapper";
 
 export interface Business {
-    id?: number;
     business_name: string;
     time_zone: string;
     locale: string;

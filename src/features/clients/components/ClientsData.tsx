@@ -1,17 +1,17 @@
 import Layout from "../../../components/Layout";
 import { useEffect, useState } from "react";
-import { api } from "../../../api/axiosInstance";
 import { useClients, useUpdateClients, useDeleteClient } from "../hooks/useClients";
 import { Client } from "../hooks/useClients";
 import Searchbar from "../../../components/common/inputs/Searchbar";
-import Select from "../../../components/common/inputs/Select";
+import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
 import { Trash } from "lucide-react";
+import { getClientTypes } from "../../client_types/api/clientTypesService";
 
 export default function ClientsData() {
-    const [client_types, setClient_types] = useState([]);
+    const [client_types, setClient_types] = useState<Option[] | []>([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -66,14 +66,14 @@ export default function ClientsData() {
     }
 
     useEffect(() => {
-        api.get("client-types/")
-            .then((response) => {
-                setClient_types(response.data);
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        getClientTypes().then((data) => {
+            console.log(data);
+            const formattedClientTypes = data.map((client_type) => ({
+                id: client_type.name,
+                name: client_type.name,
+            }));
+            setClient_types(formattedClientTypes);
+        });
     }, []);
 
     return (

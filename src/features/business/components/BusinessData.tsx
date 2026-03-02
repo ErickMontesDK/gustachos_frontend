@@ -131,7 +131,6 @@ export default function BusinessData() {
                 </InfoCard>
             </div>
 
-            {/* Unified Edit Modal */}
             {showEditModal && (
                 <Modal
                     title="Edit Business Configuration"

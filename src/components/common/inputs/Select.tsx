@@ -1,8 +1,9 @@
 import React from 'react';
 
-interface Option {
+export interface Option {
     id: string | number;
     name: string;
+    abbreviation?: string;
 }
 
 interface SelectProps {

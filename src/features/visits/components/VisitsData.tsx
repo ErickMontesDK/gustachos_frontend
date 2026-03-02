@@ -1,7 +1,6 @@
 import Layout from "../../../components/Layout";
 import TableDisplay from '../../../components/TableDisplay';
 import { useEffect, useState } from "react";
-import { api } from "../../../api/axiosInstance";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import DatePicker from "../../../components/common/inputs/DatePicker";
@@ -9,15 +8,19 @@ import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit } from "../hooks/
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
 import { Trash } from "lucide-react";
+import { getClientTypes } from "../../client_types/api/clientTypesService";
+import { Option } from "../../../components/common/inputs/Select";
 
 
 
 export default function VisitsData() {
-    const [client_types, setClient_types] = useState([]);
+    const [client_types, setClient_types] = useState<Option[] | []>([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+
 
     const {
         visits,
@@ -56,14 +59,14 @@ export default function VisitsData() {
     }
 
     useEffect(() => {
-        api.get("client-types/")
-            .then((response) => {
-                setClient_types(response.data);
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        getClientTypes().then((data) => {
+            console.log(data);
+            const formattedClientTypes = data.map((client_type) => ({
+                id: client_type.name,
+                name: client_type.name,
+            }));
+            setClient_types(formattedClientTypes);
+        });
     }, []);
 
 

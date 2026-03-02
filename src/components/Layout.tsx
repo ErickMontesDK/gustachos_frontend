@@ -14,7 +14,7 @@ export default function Layout({ children }: LayoutVars) {
 
     return (
         <div className="d-flex bg-light min-vh-100 flex-column flex-md-row">
-            {/* Mobile Top Bar */}
+
             <header className="mobile-top-bar px-3">
                 <button
                     className="btn btn-link text-dark p-0 me-3"
@@ -25,11 +25,12 @@ export default function Layout({ children }: LayoutVars) {
                 <h5 className="mb-0 fw-bold">EchoRoute</h5>
             </header>
 
-            {/* Backdrop Overlay for Mobile */}
+
             <div
                 className={`sidebar-overlay ${isSidebarOpen ? 'show' : ''}`}
                 onClick={() => setIsSidebarOpen(false)}
-            ></div>
+            >
+            </div>
 
             <Sidebar
                 role={role}

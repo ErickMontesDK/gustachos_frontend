@@ -7,9 +7,10 @@ import DatePicker from "../../../components/common/inputs/DatePicker";
 import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit } from "../hooks/useVisits";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash } from "lucide-react";
+import { Trash, Download } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
+import { getVisitExcel } from "../api/visitsService";
 
 
 
@@ -131,7 +132,7 @@ export default function VisitsData() {
                     </div>
 
                     <div className="row g-3 align-items-end">
-                        <div className="col-md-6">
+                        <div className="col-md-5">
                             <Searchbar
                                 name="search"
                                 id="search"
@@ -141,7 +142,7 @@ export default function VisitsData() {
                                 label="Search Term"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <DatePicker
                                 name="date_from"
                                 id="date_from"
@@ -151,7 +152,7 @@ export default function VisitsData() {
                                 mode="start"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <DatePicker
                                 name="date_to"
                                 id="date_to"
@@ -160,6 +161,21 @@ export default function VisitsData() {
                                 label="Date To"
                                 mode="end"
                             />
+                        </div>
+                        <div className="col-md-3">
+                            <button
+                                className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
+                                style={{ height: '48px', fontWeight: '500' }}
+                                onClick={() => {
+                                    setErrorMessage(null);
+                                    getVisitExcel(filters).catch((err) => {
+                                        setErrorMessage("Error exporting visits: " + (err.message || "Unknown error"));
+                                    });
+                                }}
+                            >
+                                <Download size={20} />
+                                Export to Excel
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -16,8 +16,6 @@ export interface ClientsParams {
 }
 
 const getClients = async (params: ClientsParams) => {
-    console.log("SI LLEGÓ")
-    console.log("params", params);
     try {
         const { signal, ...restParams } = params;
         const response = await api.get("/clients/", {
@@ -85,4 +83,24 @@ const deleteClient = async (id: number) => {
     }
 }
 
-export { getClients, getClientById, updateClient, deleteClient };
+const getClientExcel = async (params: ClientsParams) => {
+    try {
+        const { signal, ...restParams } = params;
+        const response = await api.get("/clients/export/", { params: restParams, signal, responseType: "blob" });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `clients_report_${new Date().toISOString().split("T")[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error("Error fetching clients:", error);
+        throw error;
+    }
+}
+
+export { getClients, getClientById, updateClient, deleteClient, getClientExcel };

@@ -7,8 +7,9 @@ import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash } from "lucide-react";
+import { Trash, Download } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
+import { getClientExcel } from "../api/clientsServices";
 
 export default function ClientsData() {
     const [client_types, setClient_types] = useState<Option[] | []>([]);
@@ -136,7 +137,7 @@ export default function ClientsData() {
                     </div>
 
                     <div className="row g-3 align-items-end">
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <Searchbar
                                 name="client_market"
                                 id="client_market"
@@ -156,7 +157,7 @@ export default function ClientsData() {
                                 label="Address"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <Searchbar
                                 name="client_name"
                                 id="client_name"
@@ -166,7 +167,7 @@ export default function ClientsData() {
                                 label="Name"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <Searchbar
                                 name="client_code"
                                 id="client_code"
@@ -176,8 +177,21 @@ export default function ClientsData() {
                                 label="Code"
                             />
                         </div>
-
-
+                        <div className="col-md-3">
+                            <button
+                                className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
+                                style={{ height: '48px', fontWeight: '500' }}
+                                onClick={() => {
+                                    setErrorMessage(null);
+                                    getClientExcel(filters).catch((err) => {
+                                        setErrorMessage("Error exporting clients: " + (err.message || "Unknown error"));
+                                    });
+                                }}
+                            >
+                                <Download size={20} />
+                                Export to Excel
+                            </button>
+                        </div>
                     </div>
                 </div>
 

@@ -67,4 +67,24 @@ const deleteVisit = async (id: number) => {
     }
 }
 
-export { getVisits, getVisitById, updateVisit, deleteVisit };
+const getVisitExcel = async (params: VisitParams) => {
+    try {
+        const { signal, ...restParams } = params;
+        const response = await api.get("/visits/export/", { params: restParams, signal, responseType: "blob" });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `visits_report_${new Date().toISOString().split("T")[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error("Error fetching visits:", error);
+        throw error;
+    }
+}
+
+export { getVisits, getVisitById, updateVisit, deleteVisit, getVisitExcel };

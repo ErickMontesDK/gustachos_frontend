@@ -1,8 +1,9 @@
 import Layout from "../../../components/Layout";
 import { useState, useEffect } from "react";
-import { Briefcase, Globe, Languages, Ruler, Navigation, Clock, Calendar, Edit3, CircleCheck, Link } from "lucide-react";
+import { Briefcase, Globe, Languages, Ruler, Navigation, Clock, Calendar, Edit3, CircleCheck, Link, Tag, Plus, Trash2 } from "lucide-react";
 import Modal from "../../../components/modal";
 import { useBusiness, useUpdateBusiness } from "../hooks/useBusiness";
+import { ClientType, createClientType, deleteClientType, getClientTypes, updateClientType } from "../../client_types/api/clientTypesService";
 
 
 const InfoCard = ({ title, icon: Icon, children, bgColor = "primary" }: any) => (
@@ -31,7 +32,16 @@ const InfoItem = ({ label, value, icon: Icon, fullWidth = false }: any) => (
 
 export default function BusinessData() {
     const { business: businessInfo, loading, error, refresh } = useBusiness();
+    const [refreshKey, setRefreshKey] = useState(0);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [clientTypes, setClientTypes] = useState<ClientType[]>([]);
+    const [showClientTypeModal, setShowClientTypeModal] = useState(false);
+    const [showDeleteClientTypeModal, setShowDeleteClientTypeModal] = useState(false);
+    const [selectedClientType, setSelectedClientType] = useState<ClientType | null>(null);
+    const [clientTypeForm, setClientTypeForm] = useState<Partial<ClientType>>({
+        name: "",
+        abbreviation: ""
+    });
     const [urlError, setUrlError] = useState("");
     const [imgError, setImgError] = useState(false);
 
@@ -44,6 +54,18 @@ export default function BusinessData() {
         setShowEditModal(false);
         refresh();
     }, (msg) => alert(msg));
+
+    useEffect(() => {
+        const fetchClientTypes = async () => {
+            try {
+                const data = await getClientTypes();
+                setClientTypes(data);
+            } catch (error) {
+                console.error("Error fetching client types:", error);
+            }
+        };
+        fetchClientTypes();
+    }, [refreshKey]);
 
     useEffect(() => { setImgError(false); }, [businessInfo.logo_url]);
 
@@ -72,7 +94,7 @@ export default function BusinessData() {
         <Layout>
             {error && <div className="alert alert-danger mb-4">{error}</div>}
 
-            {/* Header Section */}
+
             <div className="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden bg-white">
                 <div className="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div className="d-flex align-items-center">
@@ -97,7 +119,7 @@ export default function BusinessData() {
                 </div>
             </div>
 
-            {/* Main Content Sections */}
+
             <div className="row g-4">
                 <InfoCard title="Localization & Regional" icon={Globe} bgColor="primary">
                     <InfoItem label="Time Zone" value={businessInfo.time_zone} icon={Clock} />
@@ -126,6 +148,50 @@ export default function BusinessData() {
                         <div className="p-3 rounded-3 d-flex align-items-center text-muted small">
                             <Calendar size={14} className="me-2" />
                             Last sync: {businessInfo.updated_at ? new Date(businessInfo.updated_at).toLocaleString() : '--'}
+                        </div>
+                    </div>
+                </InfoCard>
+
+
+                <InfoCard title="Client Types Management" icon={Tag} bgColor="info">
+                    <div className="col-12">
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <span className="text-muted small fw-bold text-uppercase">Existing Types</span>
+                            <button className="btn btn-sm btn-outline-info d-flex align-items-center gap-1 rounded-pill px-3" onClick={() => {
+                                setSelectedClientType(null);
+                                setClientTypeForm({ name: "", abbreviation: "" });
+                                setShowClientTypeModal(true);
+                            }}>
+                                <Plus size={14} /> Add New
+                            </button>
+                        </div>
+                        <div className="list-group list-group-flush rounded-3 border overflow-hidden border-light shadow-xs">
+
+                            {clientTypes?.map((type, idx) => (
+                                <div key={idx} className="list-group-item d-flex justify-content-between align-items-center py-3 border-light">
+                                    <div className="d-flex align-items-center gap-3">
+                                        <div className="bg-info bg-opacity-10 text-info p-2 rounded-3 small fw-bold" style={{ minWidth: '40px', textAlign: 'center' }}>
+                                            {type.abbreviation}
+                                        </div>
+                                        <div>
+                                            <div className="fw-bold text-dark">{type.name}</div>
+                                            <div className="text-muted extra-small text-uppercase">Type Code: {type.abbreviation}</div>
+                                        </div>
+                                    </div>
+                                    <div className="d-flex gap-2">
+                                        <button className="btn btn-light btn-sm rounded-circle p-2 text-primary border-0" onClick={() => {
+                                            setSelectedClientType(type);
+                                            setClientTypeForm({ ...type });
+                                            setShowClientTypeModal(true);
+                                        }}>
+                                            <Edit3 size={15} />
+                                        </button>
+                                        <button className="btn btn-light btn-sm rounded-circle p-2 text-danger border-0" onClick={() => { setSelectedClientType(type); setShowDeleteClientTypeModal(true); }}>
+                                            <Trash2 size={15} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </InfoCard>
@@ -177,6 +243,79 @@ export default function BusinessData() {
                         </div>
                     </div>
                 </Modal>
+            )}
+
+            {showClientTypeModal && (
+                <Modal
+                    title={selectedClientType ? "Edit Client Type" : "Add Client Type"}
+                    message={selectedClientType ? `Updating details for ${selectedClientType.name}` : "Create a new category for your clients."}
+                    buttonText1={selectedClientType ? "Update Type" : "Create Type"}
+                    buttonText2="Cancel"
+                    isForm={true}
+                    buttonAction1={async () => {
+                        try {
+                            if (selectedClientType) {
+                                await updateClientType({ ...selectedClientType, ...clientTypeForm });
+                            } else {
+                                await createClientType(clientTypeForm as ClientType);
+                            }
+                            setRefreshKey(prev => prev + 1);
+                            setShowClientTypeModal(false);
+                            setSelectedClientType(null);
+                            setClientTypeForm({ name: "", abbreviation: "" });
+                        } catch (err) {
+                            console.error("Critical error in client type operation:", err);
+                        }
+                    }}
+                    buttonAction2={() => setShowClientTypeModal(false)}
+                >
+                    <div className="row g-3 text-start">
+                        <div className="col-12">
+                            <label className="form-label fw-bold">Client Type Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="e.g. Premium Partner"
+                                value={clientTypeForm.name || ""}
+                                onChange={(e) => setClientTypeForm({ ...clientTypeForm, name: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-12">
+                            <label className="form-label fw-bold">Abbreviation / Code</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="e.g. PP"
+                                maxLength={5}
+                                style={{ textTransform: 'uppercase' }}
+                                value={clientTypeForm.abbreviation || ""}
+                                onChange={(e) => setClientTypeForm({ ...clientTypeForm, abbreviation: e.target.value.toUpperCase() })}
+                            />
+                            <div className="form-text small">Short identifier used in tables and tags.</div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+
+            {showDeleteClientTypeModal && (
+                <Modal
+                    title="Delete Client Type"
+                    icon={<Trash2 size={24} />}
+                    message={`Are you sure you want to delete the client type "${selectedClientType?.name}"?`}
+                    buttonText1="Delete"
+                    buttonText2="Cancel"
+                    buttonAction1={async () => {
+                        try {
+                            await deleteClientType(selectedClientType!);
+                            setRefreshKey(prev => prev + 1);
+                            setShowDeleteClientTypeModal(false);
+                            setSelectedClientType(null);
+                        } catch (err) {
+                            console.error("Critical error deleting client type:", err);
+                        }
+                    }}
+                    buttonAction2={() => setShowDeleteClientTypeModal(false)}
+                />
             )}
         </Layout>
     );

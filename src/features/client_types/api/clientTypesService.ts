@@ -28,7 +28,8 @@ export const createClientType = async (clientType: ClientType): Promise<ClientTy
 
 export const updateClientType = async (clientType: ClientType): Promise<ClientType> => {
     try {
-        const response = await api.put(`/client-types/${clientType.id}`, clientType);
+        console.log("Updating client type:", clientType);
+        const response = await api.patch(`/client-types/${clientType.id}/`, clientType);
         return response.data;
     } catch (error) {
         console.error("Error updating client type:", error);
@@ -38,7 +39,7 @@ export const updateClientType = async (clientType: ClientType): Promise<ClientTy
 
 export const deleteClientType = async (clientType: ClientType): Promise<void> => {
     try {
-        await api.delete(`/client-types/${clientType.id}`);
+        await api.delete(`/client-types/${clientType.id}/`);
     } catch (error) {
         console.error("Error deleting client type:", error);
         throw error;

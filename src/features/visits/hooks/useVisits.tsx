@@ -24,6 +24,8 @@ export interface Visit {
         is_productive: string;
         is_validated: string;
     };
+    client_coordinates: [number, number];
+    visit_coordinates: [number, number];
 }
 
 interface filters {
@@ -37,6 +39,7 @@ interface filters {
     page: number;
     page_size: number;
     sorting: string;
+    is_deleted: boolean;
 }
 
 const DEFAULT_FILTERS: filters = {
@@ -50,6 +53,7 @@ const DEFAULT_FILTERS: filters = {
     page: 1,
     page_size: 10,
     sorting: "",
+    is_deleted: false,
 }
 
 export const useVisits = () => {
@@ -82,6 +86,7 @@ export const useVisits = () => {
             page: pagination.pageIndex + 1,
             page_size: pagination.pageSize,
             sorting: sortingString || undefined,
+            is_deleted: filters.is_deleted || undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -106,6 +111,7 @@ export const useVisits = () => {
         filters.search_term,
         filters.date_from,
         filters.date_to,
+        filters.is_deleted,
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey

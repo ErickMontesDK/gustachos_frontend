@@ -1,6 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { getClients, updateClient as updateClientService, deleteClient as deleteClientService } from "../api/clientsServices";
+import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap } from "../api/clientsServices";
 import { clientMapper } from "./../utils/clientMapper";
 
 export interface Client {
@@ -24,6 +24,13 @@ export interface Client {
     }
 }
 
+interface ClientsForMap {
+    id: number;
+    latitude: number;
+    longitude: number;
+    name: string;
+}
+
 interface filters {
     code: string;
     client_type: string;
@@ -36,6 +43,7 @@ interface filters {
     page: number;
     page_size: number;
     sorting: string;
+    is_deleted: boolean;
 }
 
 const DEFAULT_FILTERS: filters = {
@@ -50,6 +58,7 @@ const DEFAULT_FILTERS: filters = {
     page_size: 10,
     sorting: "",
     code: "",
+    is_deleted: false,
 }
 
 export const useClients = () => {
@@ -85,6 +94,7 @@ export const useClients = () => {
             page: pagination.pageIndex + 1,
             page_size: pagination.pageSize,
             sorting: sortingString || undefined,
+            is_deleted: filters.is_deleted || undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -113,6 +123,7 @@ export const useClients = () => {
         filters.address,
         filters.name,
         filters.code,
+        filters.is_deleted,
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey
@@ -128,6 +139,48 @@ export const useClients = () => {
         sorting,
         setSorting,
         refresh
+    }
+}
+
+export const useClientsMap = (filters: filters) => {
+    const [clientsMap, setClientsMap] = useState<ClientsForMap[]>([]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        getClientsMap({
+            client_type: filters.client_type || undefined,
+            municipality: filters.municipality || undefined,
+            state: filters.state || undefined,
+            sector: filters.sector || undefined,
+            market: filters.market || undefined,
+            address: filters.address || undefined,
+            name: filters.name || undefined,
+            code: filters.code || undefined,
+            signal: controller.signal
+        })
+            .then(data => {
+                setClientsMap(data.results.map((client) => ({
+                    id: client.id || 0,
+                    latitude: client.latitude || 0,
+                    longitude: client.longitude || 0,
+                    name: client.name || ""
+                })));
+                console.log("data in useClientsMap", data);
+            })
+            .catch(error => {
+                if (error.name === 'CanceledError' || error.name === 'AbortError') {
+                    return;
+                }
+                console.error("Error fetching clients:", error);
+            });
+
+        return () => controller.abort();
+
+    }, [filters])
+
+    return {
+        clientsMap,
     }
 }
 

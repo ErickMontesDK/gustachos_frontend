@@ -1,6 +1,6 @@
 import Layout from "../../../components/Layout";
 import { useEffect, useState } from "react";
-import { useClients, useUpdateClients, useDeleteClient } from "../hooks/useClients";
+import { useClients, useUpdateClients, useDeleteClient, useClientsMap } from "../hooks/useClients";
 import { Client } from "../hooks/useClients";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import Select, { Option } from "../../../components/common/inputs/Select";
@@ -10,6 +10,8 @@ import Modal from "../../../components/modal";
 import { Trash, Download } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { getClientExcel } from "../api/clientsServices";
+import MapDisplay, { MarkerProps } from "../../../components/MapDisplay";
+
 
 export default function ClientsData() {
     const [client_types, setClient_types] = useState<Option[] | []>([]);
@@ -17,6 +19,10 @@ export default function ClientsData() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
+    const role = localStorage.getItem("role") || "";
+    const isAdmin = role.toLowerCase() === "admin";
+
 
     const {
         clients,
@@ -26,6 +32,8 @@ export default function ClientsData() {
         sorting, setSorting,
         refresh
     } = useClients();
+
+
 
     const {
         code, setCode,
@@ -67,7 +75,17 @@ export default function ClientsData() {
     }
 
     useEffect(() => {
+        const markers: MarkerProps[] = clients.map((client) => ({
+            lat: client.latitude,
+            lng: client.longitude,
+            popup: client.name,
+        }));
+        setMarkers(markers);
+    }, [clients]);
+
+    useEffect(() => {
         getClientTypes().then((data) => {
+
             console.log(data);
             const formattedClientTypes = data.map((client_type) => ({
                 id: client_type.name,
@@ -76,6 +94,15 @@ export default function ClientsData() {
             setClient_types(formattedClientTypes);
         });
     }, []);
+
+    const { clientsMap } = useClientsMap(filters);
+    useEffect(() => {
+        setMarkers(clientsMap.map((client) => ({
+            lat: client.latitude,
+            lng: client.longitude,
+            popup: client.name,
+        })));
+    }, [filters]);
 
     return (
         <Layout>
@@ -147,7 +174,7 @@ export default function ClientsData() {
                                 label="Market"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <Searchbar
                                 name="address"
                                 id="address"
@@ -177,7 +204,22 @@ export default function ClientsData() {
                                 label="Code"
                             />
                         </div>
-                        <div className="col-md-3">
+                        {isAdmin && (
+                            <div className="col-md-2 d-flex align-items-end">
+                                <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
+                                    <input
+                                        className="form-check-input ms-2 me-2"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="show_deleted"
+                                        checked={filters.is_deleted}
+                                        onChange={(e) => updateFilters("is_deleted", e.target.checked)}
+                                    />
+                                    <label className="form-check-label mb-0" htmlFor="show_deleted">Show Deleted</label>
+                                </div>
+                            </div>
+                        )}
+                        <div className={`${isAdmin ? 'col-md-2' : 'col-md-4'}`}>
                             <button
                                 className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
                                 style={{ height: '48px', fontWeight: '500' }}
@@ -194,6 +236,8 @@ export default function ClientsData() {
                         </div>
                     </div>
                 </div>
+
+                <MapDisplay markers={markers} />
 
                 <TableDisplay
                     columns={columns}

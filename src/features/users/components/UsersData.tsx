@@ -20,6 +20,8 @@ export default function UsersData() {
         { id: "DELIVERY", name: "Delivery" },
         { id: "OPERATOR", name: "Operator" },
     ];
+    const current_role = localStorage.getItem("role") || "";
+    const isAdmin = current_role.toLowerCase() === "admin";
 
     const {
         users,
@@ -99,8 +101,8 @@ export default function UsersData() {
 
                     <h5 className="mb-3 text-secondary">Filters</h5>
 
-                    <div className="row g-3 mb-4">
-                        <div className="col-md-3">
+                    <div className="row g-3 mb-4 align-items-end">
+                        <div className="col-md-2">
                             <Select
                                 name="role"
                                 id="role"
@@ -111,7 +113,7 @@ export default function UsersData() {
                                 label="Role"
                             />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <Searchbar
                                 name="search"
                                 id="search"
@@ -122,9 +124,26 @@ export default function UsersData() {
                             />
                         </div>
 
-                        <div className="col-3 d-flex justify-content-end pt-4">
+                        {isAdmin && (
+                            <div className="col-md-3 d-flex align-items-end">
+                                <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
+                                    <input
+                                        className="form-check-input ms-2 me-2"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="show_deleted_users"
+                                        checked={filters.is_deleted}
+                                        onChange={(e) => updateFilters("is_deleted", e.target.checked)}
+                                    />
+                                    <label className="form-check-label mb-0" htmlFor="show_deleted_users">Show Deleted</label>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="col-md-3">
                             <button
-                                className="btn btn-primary w-50"
+                                className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                                style={{ height: '48px', fontWeight: '500' }}
                                 onClick={() => {
                                     setErrorMessage(null);
                                     setShowCreateModal(true);

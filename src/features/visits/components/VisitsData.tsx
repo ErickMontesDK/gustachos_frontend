@@ -11,7 +11,8 @@ import { Trash, Download } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
 import { getVisitExcel } from "../api/visitsService";
-
+import MapDisplay from "../../../components/MapDisplay";
+import { MarkerProps } from "../../../components/MapDisplay";
 
 
 export default function VisitsData() {
@@ -20,8 +21,9 @@ export default function VisitsData() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-
+    const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
+    const role = localStorage.getItem("role") || "";
+    const isAdmin = role.toLowerCase() === "admin";
 
     const {
         visits,
@@ -34,6 +36,20 @@ export default function VisitsData() {
         setSorting,
         refresh
     } = useVisits();
+
+
+    useEffect(() => {
+        const markers = visits.map((visit) => ({
+            lat: visit.client_coordinates[0],
+            lng: visit.client_coordinates[1],
+            popup: visit.client__name,
+        }));
+        setMarkers(markers);
+    }, [visits]);
+
+
+
+    console.log(markers);
 
     const {
         notes,
@@ -132,7 +148,7 @@ export default function VisitsData() {
                     </div>
 
                     <div className="row g-3 align-items-end">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                             <Searchbar
                                 name="search"
                                 id="search"
@@ -162,7 +178,22 @@ export default function VisitsData() {
                                 mode="end"
                             />
                         </div>
-                        <div className="col-md-3">
+                        {isAdmin && (
+                            <div className="col-md-2 d-flex align-items-end">
+                                <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
+                                    <input
+                                        className="form-check-input ms-2 me-2"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="show_deleted_visits"
+                                        checked={filters.is_deleted}
+                                        onChange={(e) => updateFilters("is_deleted", e.target.checked)}
+                                    />
+                                    <label className="form-check-label mb-0" htmlFor="show_deleted_visits">Show Deleted</label>
+                                </div>
+                            </div>
+                        )}
+                        <div className={`${isAdmin ? 'col-md-2' : 'col-md-4'}`}>
                             <button
                                 className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
                                 style={{ height: '48px', fontWeight: '500' }}
@@ -179,6 +210,8 @@ export default function VisitsData() {
                         </div>
                     </div>
                 </div>
+
+                <MapDisplay markers={markers} />
 
                 <TableDisplay
                     columns={columns}

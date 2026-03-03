@@ -12,6 +12,7 @@ export interface ClientsParams {
     page?: number;
     page_size?: number;
     sorting?: string;
+    is_deleted?: boolean;
     signal?: AbortSignal;
 }
 
@@ -19,6 +20,25 @@ const getClients = async (params: ClientsParams) => {
     try {
         const { signal, ...restParams } = params;
         const response = await api.get("/clients/", {
+            params: restParams,
+            signal
+        });
+        console.log("response", response.data);
+        return response.data as {
+            count: number;
+            results: any[];
+            total_pages: number;
+        };
+    } catch (error) {
+        console.error("Error fetching clients:", error);
+        throw error;
+    }
+}
+
+const getClientsMap = async (params: ClientsParams) => {
+    try {
+        const { signal, ...restParams } = params;
+        const response = await api.get("/clients/map/", {
             params: restParams,
             signal
         });
@@ -103,4 +123,4 @@ const getClientExcel = async (params: ClientsParams) => {
     }
 }
 
-export { getClients, getClientById, updateClient, deleteClient, getClientExcel };
+export { getClients, getClientById, updateClient, deleteClient, getClientExcel, getClientsMap };

@@ -39,6 +39,8 @@ export const visitMapper = (visit: any) => {
         cellClassName: {
             is_productive: "boolean " + (visit.is_productive ? "cell-green" : "cell-red"),
             is_validated: "boolean " + (visit.is_valid ? "cell-green" : "cell-red"),
-        }
+        },
+        client_coordinates: [client_details.latitude, client_details.longitude] as [number, number],
+        visit_coordinates: [visit.latitude_recorded, visit.longitude_recorded] as [number, number]
     }
 }

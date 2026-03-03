@@ -11,6 +11,7 @@ interface VisitParams {
     page?: number;
     page_size?: number;
     sorting?: string;
+    is_deleted?: boolean;
     signal?: AbortSignal;
 }
 

@@ -26,6 +26,7 @@ interface filters {
     page: number;
     page_size: number;
     sorting: string;
+    is_deleted: boolean;
 }
 
 const DEFAULT_FILTERS: filters = {
@@ -34,6 +35,7 @@ const DEFAULT_FILTERS: filters = {
     page: 1,
     page_size: 10,
     sorting: "",
+    is_deleted: false,
 };
 
 export const useUserProfile = () => {
@@ -83,6 +85,7 @@ export const useUsers = () => {
             page: pagination.pageIndex + 1,
             page_size: pagination.pageSize,
             sorting: sortingString || undefined,
+            is_deleted: filters.is_deleted || undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -102,6 +105,7 @@ export const useUsers = () => {
         sortingString,
         filters.search_term,
         filters.role,
+        filters.is_deleted,
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey

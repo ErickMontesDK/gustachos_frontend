@@ -9,6 +9,7 @@ export interface Visit {
     client__code: string;
     client__sector: string;
     client__client_type__name: string;
+    client_type_id: number;
     client_id: number;
     deliverer__last_name: string;
     deliverer_id: number;

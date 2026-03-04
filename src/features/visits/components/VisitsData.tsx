@@ -7,7 +7,7 @@ import DatePicker from "../../../components/common/inputs/DatePicker";
 import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash, Download } from "lucide-react";
+import { Trash, Download, Settings } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
 import { getVisitExcel } from "../api/visitsService";
@@ -24,6 +24,9 @@ export default function VisitsData() {
     const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
     const role = localStorage.getItem("role") || "";
     const isAdmin = role.toLowerCase() === "admin";
+    const [clientTypeConfig, setClientTypeConfig] = useState<Record<string, { color: string; icon: string }>>(
+        JSON.parse(localStorage.getItem("clientTypeConfig") || "{}")
+    );
 
     const {
         visits,
@@ -43,13 +46,13 @@ export default function VisitsData() {
             lat: visit.client_coordinates[0],
             lng: visit.client_coordinates[1],
             popup: visit.client__name,
+            type: (visit as any).client_type_id,
         }));
         setMarkers(markers);
     }, [visits]);
 
 
 
-    console.log(markers);
 
     const {
         notes,
@@ -80,7 +83,7 @@ export default function VisitsData() {
         getClientTypes().then((data) => {
             console.log(data);
             const formattedClientTypes = data.map((client_type) => ({
-                id: client_type.name,
+                id: client_type.id,
                 name: client_type.name,
             }));
             setClient_types(formattedClientTypes);
@@ -211,8 +214,58 @@ export default function VisitsData() {
                         </div>
                     </div>
                 </div>
+                <div className="card shadow-sm mb-4 border-0 bg-light animate-fade-in">
+                    <div className="card-body">
+                        <h5 className="card-title d-flex align-items-center gap-2 mb-3 text-secondary">
+                            <Settings size={20} /> Map Configuration by Client Type
+                        </h5>
+                        <div className="row g-3">
+                            {client_types.map((type) => (
+                                <div key={type.id} className="col-md-6 col-lg-4">
+                                    <div className="p-3 border rounded bg-white shadow-sm">
+                                        <div className="fw-bold mb-2 text-dark">{type.name}</div>
+                                        <div className="d-flex gap-3 align-items-center">
+                                            <div className="flex-grow-1">
+                                                <label className="small text-muted d-block mb-1">Color</label>
+                                                <input
+                                                    type="color"
+                                                    className="form-control form-control-sm border-0 p-0"
+                                                    style={{ height: '31px', width: '100%', cursor: 'pointer' }}
+                                                    value={clientTypeConfig[type.id]?.color || "#007bff"}
+                                                    onChange={(e) => {
+                                                        const newConfig = { ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], color: e.target.value } };
+                                                        setClientTypeConfig(newConfig);
+                                                        localStorage.setItem("clientTypeConfig", JSON.stringify(newConfig));
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="small text-muted d-block mb-1">Icon</label>
+                                                <select
+                                                    className="form-select form-select-sm"
+                                                    value={clientTypeConfig[type.id]?.icon || "Store"}
+                                                    onChange={(e) => {
+                                                        const newConfig = { ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], icon: e.target.value } };
+                                                        setClientTypeConfig(newConfig);
+                                                        localStorage.setItem("clientTypeConfig", JSON.stringify(newConfig));
+                                                    }}
+                                                >
+                                                    <option value="Store">Store</option>
+                                                    <option value="Home">Home</option>
+                                                    <option value="MapPin">MapPin</option>
+                                                    <option value="Package">Package</option>
+                                                    <option value="User">User</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-                <MapDisplay markers={markers} />
+                <MapDisplay markers={markers} config={clientTypeConfig} />
 
                 <TableDisplay
                     columns={columns}

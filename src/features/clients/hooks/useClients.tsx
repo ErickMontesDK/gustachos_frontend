@@ -15,6 +15,7 @@ export interface Client {
     sector: string;
     market: string;
     client_type: string;
+    client_type_id: number;
     latitude: number;
     longitude: number;
     is_active: boolean;
@@ -30,6 +31,7 @@ interface ClientsForMap {
     latitude: number;
     longitude: number;
     name: string;
+    client_type: number;
 }
 
 interface filters {
@@ -73,8 +75,6 @@ export const useClients = () => {
     const refresh = () => setRefreshKey(prev => prev + 1);
 
     const updateFilters = <K extends keyof filters>(key: K, value: filters[K]) => {
-        console.log("key", key);
-        console.log("value", value);
         setFilters(prev => ({ ...prev, [key]: value }));
         setPagination(prev => ({ ...prev, pageIndex: 0 }));
     }
@@ -99,10 +99,7 @@ export const useClients = () => {
             signal: controller.signal
         })
             .then(data => {
-
                 setClients(data.results.map(clientMapper));
-                data.results.map(clientMapper);
-                console.log("data in useClients", data);
                 setTotalPages(data.total_pages);
             })
             .catch(error => {
@@ -139,11 +136,12 @@ export const useClients = () => {
         updateFilters,
         sorting,
         setSorting,
-        refresh
-    }
+        refresh,
+        refreshKey
+    };
 }
 
-export const useClientsMap = (filters: filters) => {
+export const useClientsMap = (filters: filters, refreshKey?: any) => {
     const [clientsMap, setClientsMap] = useState<ClientsForMap[]>([]);
 
     useEffect(() => {
@@ -161,13 +159,14 @@ export const useClientsMap = (filters: filters) => {
             signal: controller.signal
         })
             .then(data => {
-                setClientsMap(data.results.map((client) => ({
+                const results = Array.isArray(data) ? data : data.results || [];
+                setClientsMap(results.map((client: any) => ({
                     id: client.id || 0,
                     latitude: client.latitude || 0,
                     longitude: client.longitude || 0,
-                    name: client.name || ""
+                    name: client.name || "",
+                    client_type: client.client_type || 0,
                 })));
-                console.log("data in useClientsMap", data);
             })
             .catch(error => {
                 if (error.name === 'CanceledError' || error.name === 'AbortError') {
@@ -178,7 +177,17 @@ export const useClientsMap = (filters: filters) => {
 
         return () => controller.abort();
 
-    }, [filters])
+    }, [
+        filters.client_type,
+        filters.municipality,
+        filters.state,
+        filters.sector,
+        filters.market,
+        filters.address,
+        filters.name,
+        filters.code,
+        refreshKey
+    ])
 
     return {
         clientsMap,
@@ -194,7 +203,7 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
     const [state, setState] = useState("");
     const [sector, setSector] = useState("");
     const [market, setMarket] = useState("");
-    const [client_type, setClient_type] = useState("");
+    const [client_type_id, setClient_type_id] = useState<number | string>("");
     const [latitude, setLatitude] = useState(0);
     const [longitude, setLongitude] = useState(0);
     const [is_active, setIsActive] = useState(true);
@@ -210,7 +219,7 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
         setState(client.state);
         setSector(client.sector);
         setMarket(client.market);
-        setClient_type(client.client_type);
+        setClient_type_id(client.client_type_id);
         setLatitude(client.latitude);
         setLongitude(client.longitude);
         setIsActive(client.is_active);
@@ -226,7 +235,7 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
             state,
             sector,
             market,
-            client_type,
+            client_type: String(client_type_id),
             latitude,
             longitude,
             is_active
@@ -258,8 +267,8 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
         setSector,
         market,
         setMarket,
-        client_type,
-        setClient_type,
+        client_type: client_type_id,
+        setClient_type: setClient_type_id,
         latitude,
         setLatitude,
         longitude,

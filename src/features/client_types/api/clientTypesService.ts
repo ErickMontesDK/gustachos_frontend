@@ -1,7 +1,7 @@
 import { api } from "../../../api/axiosInstance";
 
 export interface ClientType {
-    id?: number;
+    id: number;
     name: string;
     abbreviation: string;
 }

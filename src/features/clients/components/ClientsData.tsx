@@ -7,7 +7,7 @@ import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash, Download } from "lucide-react";
+import { Trash, Download, Settings } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { getClientExcel } from "../api/clientsServices";
 import MapDisplay, { MarkerProps } from "../../../components/MapDisplay";
@@ -30,7 +30,8 @@ export default function ClientsData() {
         pagination, setPagination,
         filters, updateFilters,
         sorting, setSorting,
-        refresh
+        refresh,
+        refreshKey
     } = useClients();
 
 
@@ -76,36 +77,38 @@ export default function ClientsData() {
         setSelectedClient(null);
     }
 
-    useEffect(() => {
-        const markers: MarkerProps[] = clients.map((client) => ({
-            lat: client.latitude,
-            lng: client.longitude,
-            popup: client.name,
-        }));
-        setMarkers(markers);
-    }, [clients]);
 
     useEffect(() => {
         getClientTypes().then((data) => {
-
-            console.log(data);
             const formattedClientTypes = data.map((client_type) => ({
-                id: client_type.name,
+                id: client_type.id,
                 name: client_type.name,
             }));
             setClient_types(formattedClientTypes);
         });
     }, []);
 
-    const { clientsMap } = useClientsMap(filters);
+    const { clientsMap } = useClientsMap(filters, refreshKey);
 
     useEffect(() => {
         setMarkers(clientsMap.map((client) => ({
             lat: client.latitude,
             lng: client.longitude,
             popup: client.name,
+            type: client.client_type,
         })));
     }, [clientsMap]);
+
+
+
+    const [clientTypeConfig, setClientTypeConfig] = useState<Record<string, { color: string; icon: string }>>(
+        JSON.parse(localStorage.getItem("clientTypeConfig") || "{}")
+    );
+
+
+    useEffect(() => {
+        localStorage.setItem("clientTypeConfig", JSON.stringify(clientTypeConfig));
+    }, [clientTypeConfig]);
 
     return (
         <Layout>
@@ -239,8 +242,51 @@ export default function ClientsData() {
                         </div>
                     </div>
                 </div>
+                <div className="card shadow-sm mb-4 border-0 bg-light animate-fade-in">
+                    <div className="card-body">
+                        <h5 className="card-title d-flex align-items-center gap-2 mb-3 text-secondary">
+                            <Settings size={20} /> Map Configuration by Client Type
+                        </h5>
+                        <div className="row g-3">
+                            {client_types.map((type) => (
+                                <div key={type.id} className="col-md-6 col-lg-4">
+                                    <div className="p-3 border rounded bg-white shadow-sm">
+                                        <div className="fw-bold mb-2 text-dark">{type.name}</div>
+                                        <div className="d-flex gap-3 align-items-center">
+                                            <div className="flex-grow-1">
+                                                <label className="small text-muted d-block mb-1">Color</label>
+                                                <input
+                                                    type="color"
+                                                    className="form-control form-control-sm border-0 p-0"
+                                                    style={{ height: '31px', width: '100%', cursor: 'pointer' }}
+                                                    defaultValue={clientTypeConfig[type.id]?.color || "#007bff"}
+                                                    onBlur={(e) => {
+                                                        const target = e.target as HTMLInputElement;
+                                                        setClientTypeConfig({ ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], color: target.value } });
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="small text-muted d-block mb-1">Icon</label>
+                                                <select className="form-select form-select-sm"
+                                                    defaultValue={clientTypeConfig[type.id]?.icon || "Store"}
+                                                    onChange={(e) => setClientTypeConfig({ ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], icon: e.target.value } })}>
+                                                    <option value="Store">Store</option>
+                                                    <option value="Home">Home</option>
+                                                    <option value="MapPin">MapPin</option>
+                                                    <option value="Package">Package</option>
+                                                    <option value="User">User</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-                <MapDisplay markers={markers} />
+                <MapDisplay markers={markers} config={clientTypeConfig} />
 
                 <TableDisplay
                     columns={columns}

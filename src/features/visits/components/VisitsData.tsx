@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import DatePicker from "../../../components/common/inputs/DatePicker";
-import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit } from "../hooks/useVisits";
+import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
 import { Trash, Download } from "lucide-react";
@@ -58,12 +58,13 @@ export default function VisitsData() {
         setProductive,
         is_valid,
         setValidated,
-        visit: editingVisit,
         updateVisit
     } = useUpdateVisitNotes(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
 
     const { deleteVisit } = useDeleteVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
 
+
+    const { restoreVisit } = useRestoreVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
 
     const cleaningData = () => {
         setNotes("");
@@ -224,15 +225,18 @@ export default function VisitsData() {
                     editEnabled={true}
                     onEdit={(visit) => {
                         setErrorMessage(null);
-                        console.log("raw data", visit)
                         setSelectedVisit(visit);
                         setShowEditModal(true);
                     }}
                     onDelete={(visit) => {
                         setErrorMessage(null);
-                        console.log("raw data", visit)
                         setSelectedVisit(visit);
                         setShowDeleteModal(true);
+                    }}
+                    onRestore={(visit) => {
+                        setErrorMessage(null);
+                        setSelectedVisit(visit);
+                        restoreVisit(visit);
                     }}
                 />
             </div>
@@ -240,7 +244,7 @@ export default function VisitsData() {
             {showEditModal && (
                 <Modal
                     title="Edit Visit"
-                    message={`Editing visit for client: ${editingVisit?.client__name || '...'}`}
+                    message={`Editing visit for client: ${selectedVisit?.client__name || '...'}`}
                     buttonText1="Save Changes"
                     buttonText2="Cancel"
                     isForm={true}

@@ -1,6 +1,6 @@
 import Layout from "../../../components/Layout";
 import { useEffect, useState } from "react";
-import { useClients, useUpdateClients, useDeleteClient, useClientsMap } from "../hooks/useClients";
+import { useClients, useUpdateClients, useDeleteClient, useClientsMap, useRestoreClient } from "../hooks/useClients";
 import { Client } from "../hooks/useClients";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import Select, { Option } from "../../../components/common/inputs/Select";
@@ -53,6 +53,8 @@ export default function ClientsData() {
 
     const { deleteClient } = useDeleteClient(selectedClient, setSelectedClient, refresh, (msg) => console.error(msg));
 
+    const { restoreClient } = useRestoreClient(selectedClient, setSelectedClient, refresh, (msg) => setErrorMessage(msg));
+
     const isFormValid = !!(code && name && address && client_type && latitude && longitude);
 
     const cleaningData = () => {
@@ -96,13 +98,14 @@ export default function ClientsData() {
     }, []);
 
     const { clientsMap } = useClientsMap(filters);
+
     useEffect(() => {
         setMarkers(clientsMap.map((client) => ({
             lat: client.latitude,
             lng: client.longitude,
             popup: client.name,
         })));
-    }, [filters]);
+    }, [clientsMap]);
 
     return (
         <Layout>
@@ -250,15 +253,18 @@ export default function ClientsData() {
                     editEnabled={true}
                     onEdit={(client) => {
                         setErrorMessage(null);
-                        console.log("raw data", client)
                         setSelectedClient(client);
                         setShowEditModal(true);
                     }}
                     onDelete={(client) => {
                         setErrorMessage(null);
-                        console.log("raw data", client)
                         setSelectedClient(client);
                         setShowDeleteModal(true);
+                    }}
+                    onRestore={(client) => {
+                        setErrorMessage(null);
+                        setSelectedClient(client);
+                        restoreClient(client);
                     }}
                 />
 

@@ -30,6 +30,11 @@
     background-color: var(--primary-color) !important;
 }
 
+.filters-card {
+    position: relative;
+    z-index: 1000;
+}
+
 /* Layout styles */
 .main-content {
     flex-grow: 1;

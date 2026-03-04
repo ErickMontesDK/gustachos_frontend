@@ -1,6 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService } from "../api/visitsService";
+import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService, restoreVisit as restoreVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";
 
 export interface Visit {
@@ -26,6 +26,7 @@ export interface Visit {
     };
     client_coordinates: [number, number];
     visit_coordinates: [number, number];
+    isDeleted: boolean;
 }
 
 interface filters {
@@ -196,5 +197,26 @@ export const useDeleteVisit = (visit: Visit | null, setVisit: (visit: Visit | nu
 
     return {
         deleteVisit
+    };
+}
+
+export const useRestoreVisit = (visitState: Visit | null, setVisit: (visit: Visit | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const restoreVisit = (visitToRestore?: Visit) => {
+        const targetVisit = visitToRestore || visitState;
+        if (!targetVisit) return;
+
+        restoreVisitService(targetVisit.id)
+            .then(() => {
+                setVisit(null);
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error restoring visit:", error);
+                if (onError) onError(error.message || "Error restoring visit");
+            });
+    }
+
+    return {
+        restoreVisit
     };
 }

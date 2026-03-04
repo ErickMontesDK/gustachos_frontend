@@ -1,6 +1,6 @@
 import Layout from "../../../components/Layout";
 import { useState } from "react";
-import { useCreateUser, useDeleteUser, User, useUpdateUser } from "../hooks/useUsers";
+import { useCreateUser, useDeleteUser, User, useUpdateUser, useRestoreUser } from "../hooks/useUsers";
 import { useUsers } from "../hooks/useUsers";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
@@ -46,6 +46,10 @@ export default function UsersData() {
     const {
         deleteUser
     } = useDeleteUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
+
+    const {
+        restoreUser
+    } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
 
     const {
         new_role, setNewRole,
@@ -176,6 +180,11 @@ export default function UsersData() {
                         setErrorMessage(null);
                         setSelectedUser(user);
                         setShowDeleteModal(true);
+                    }}
+                    onRestore={(user) => {
+                        setErrorMessage(null);
+                        setSelectedUser(user);
+                        restoreUser(user);
                     }}
                 />
 

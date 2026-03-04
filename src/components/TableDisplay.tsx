@@ -6,7 +6,7 @@ import {
     SortingState,
     OnChangeFn,
 } from '@tanstack/react-table';
-import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Pencil, Trash } from 'lucide-react';
+import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Pencil, RotateCcw, Trash } from 'lucide-react';
 import './../styles/table.css';
 
 interface TableProps<TData> {
@@ -23,6 +23,7 @@ interface TableProps<TData> {
     editEnabled?: boolean;
     onEdit?: (data: TData) => void;
     onDelete?: (data: TData) => void;
+    onRestore?: (data: TData) => void;
 }
 
 export default function TableDisplay<TData>({
@@ -35,7 +36,8 @@ export default function TableDisplay<TData>({
     onPaginationChange,
     editEnabled = false,
     onEdit,
-    onDelete
+    onDelete,
+    onRestore
 }: TableProps<TData>) {
 
     const table = useReactTable({
@@ -113,27 +115,44 @@ export default function TableDisplay<TData>({
                                                     className="btn btn-outline-dark dropdown-toggle"
                                                     type="button"
                                                     data-bs-toggle="dropdown"
+                                                    data-bs-boundary="viewport"
                                                     aria-expanded="false"
                                                 >
                                                     <EllipsisVertical size={16} />
                                                 </button>
                                                 <ul className="dropdown-menu p-0 rounded-3">
-                                                    <li>
-                                                        <button
-                                                            className="dropdown-item py-2"
-                                                            onClick={() => onEdit?.(rowData)}
-                                                        >
-                                                            Edit <Pencil size={16} />
-                                                        </button>
-                                                    </li>
-                                                    <li className="bg-danger">
-                                                        <button
-                                                            className="dropdown-item text-white py-2"
-                                                            onClick={() => onDelete?.(rowData)}
-                                                        >
-                                                            Delete <Trash size={16} />
-                                                        </button>
-                                                    </li>
+                                                    {rowData.isDeleted && (
+                                                        <li>
+                                                            <button
+                                                                className="dropdown-item py-2"
+                                                                onClick={() => onRestore?.(rowData)}
+                                                            >
+                                                                Restore <RotateCcw size={16} />
+                                                            </button>
+                                                        </li>
+                                                    )}
+                                                    {!rowData.isDeleted && (
+                                                        <>
+                                                            <li>
+                                                                <button
+                                                                    className="dropdown-item py-2"
+                                                                    onClick={() => onEdit?.(rowData)}
+                                                                >
+                                                                    Edit <Pencil size={16} />
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button
+                                                                    className="dropdown-item text-white bg-danger py-2"
+                                                                    onClick={() => onDelete?.(rowData)}
+                                                                >
+                                                                    Delete <Trash size={16} />
+                                                                </button>
+                                                            </li>
+                                                        </>
+                                                    )}
+
+
                                                 </ul>
                                             </div>
                                         </td>

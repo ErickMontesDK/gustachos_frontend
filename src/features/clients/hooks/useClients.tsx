@@ -1,6 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap } from "../api/clientsServices";
+import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap, restoreClient as restoreClientService } from "../api/clientsServices";
 import { clientMapper } from "./../utils/clientMapper";
 
 export interface Client {
@@ -19,6 +19,7 @@ export interface Client {
     longitude: number;
     is_active: boolean;
     is_active_label: string;
+    isDeleted: boolean;
     cellClassName?: {
         is_active?: string;
     }
@@ -286,5 +287,26 @@ export const useDeleteClient = (client: Client | null, setClient: (client: Clien
 
     return {
         deleteClient
+    };
+}
+
+export const useRestoreClient = (clientState: Client | null, setClient: (client: Client | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const restoreClient = (clientToRestore?: Client) => {
+        const targetClient = clientToRestore || clientState;
+        if (!targetClient) return;
+
+        restoreClientService(targetClient.id)
+            .then(() => {
+                setClient(null);
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error restoring client:", error);
+                if (onError) onError(error.message || "Error restoring client");
+            });
+    }
+
+    return {
+        restoreClient
     };
 }

@@ -17,6 +17,7 @@ export const clientMapper = (client: any): Client => {
         state: client.state ?? "Unknown",
         is_active: client.is_active ?? false,
         is_active_label: client.is_active ? "✅" : "❌",
+        isDeleted: client.is_deleted ?? false,
         cellClassName: {
             is_active: "boolean " + (client.is_active ? "cell-green" : "cell-red"),
         }

@@ -7,5 +7,6 @@ export const userMapper = (user: any) => {
         full_name: user.full_name,
         email: user.email,
         role: user.role,
+        isDeleted: user.is_deleted ?? false,
     }
 }

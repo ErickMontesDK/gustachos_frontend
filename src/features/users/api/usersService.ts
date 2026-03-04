@@ -38,6 +38,18 @@ const updateUser = async (id: number, data: any) => {
     }
 }
 
+const restoreUser = async (id: number) => {
+    try {
+        const response = await api.patch(`/users/restore/${id}/`);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error restoring user:", error);
+        throw error;
+    }
+}
+
 const deleteUser = async (id: number) => {
     try {
         const response = await api.delete(`/users/${id}/`);
@@ -82,4 +94,4 @@ const changePassword = async (data: any) => {
     }
 }
 
-export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changePassword };
+export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changePassword, restoreUser };

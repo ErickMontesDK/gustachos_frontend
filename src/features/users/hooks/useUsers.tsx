@@ -7,7 +7,8 @@ import {
     deleteUser as deleteUserService,
     createUser as createUserService,
     getUserProfile,
-    changePassword as changePasswordService
+    changePassword as changePasswordService,
+    restoreUser as restoreUserService
 } from "../api/usersService";
 
 export interface User {
@@ -18,6 +19,7 @@ export interface User {
     full_name: string;
     email: string;
     role: string;
+    isDeleted: boolean;
 }
 
 interface filters {
@@ -257,6 +259,27 @@ export const useChangePassword = (onSuccess?: () => void, onError?: (msg: string
         new_password, setNewPassword,
         new_password_confirmation, setNewPasswordConfirmation,
         changePassword
+    }
+}
+
+export const useRestoreUser = (userState: User | null, setUser: (user: User | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const restoreUser = (userToRestore?: User) => {
+        const targetUser = userToRestore || userState;
+        if (!targetUser) return;
+
+        restoreUserService(targetUser.id)
+            .then(() => {
+                setUser(null);
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error restoring user:", error);
+                if (onError) onError(error.message || "Error restoring user");
+            });
+    }
+
+    return {
+        restoreUser
     }
 }
 

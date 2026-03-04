@@ -44,7 +44,7 @@ const getVisitById = async (id: number) => {
     }
 }
 
-const updateVisit = async (id: number, data: { notes: string, is_productive: boolean, is_valid: boolean }) => {
+const updateVisit = async (id: number, data: { notes?: string, is_productive?: boolean, is_valid?: boolean }) => {
     try {
         const response = await api.patch(`/visits/${id}/`, data);
         console.log("response", response.data);
@@ -52,6 +52,18 @@ const updateVisit = async (id: number, data: { notes: string, is_productive: boo
 
     } catch (error) {
         console.error("Error updating visit:", error);
+        throw error;
+    }
+}
+
+const restoreVisit = async (id: number) => {
+    try {
+        const response = await api.patch(`/visits/restore/${id}/`);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error restoring visit:", error);
         throw error;
     }
 }
@@ -88,4 +100,4 @@ const getVisitExcel = async (params: VisitParams) => {
     }
 }
 
-export { getVisits, getVisitById, updateVisit, deleteVisit, getVisitExcel };
+export { getVisits, getVisitById, updateVisit, deleteVisit, getVisitExcel, restoreVisit };

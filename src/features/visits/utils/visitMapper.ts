@@ -36,6 +36,7 @@ export const visitMapper = (visit: any) => {
         visited_at: formattedDate,
         time: formattedTime,
         address: client_details.full_address ?? "Unknown",
+        isDeleted: visit.is_deleted ?? false,
         cellClassName: {
             is_productive: "boolean " + (visit.is_productive ? "cell-green" : "cell-red"),
             is_validated: "boolean " + (visit.is_valid ? "cell-green" : "cell-red"),

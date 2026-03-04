@@ -67,18 +67,18 @@ const getClientById = async (id: number) => {
 }
 
 const updateClient = async (id: number, data: {
-    code: string,
-    name: string,
-    address: string,
-    neighborhood: string,
-    municipality: string,
-    state: string,
-    sector: string,
-    market: string,
-    client_type: string,
-    latitude: number,
-    longitude: number,
-    is_active: boolean
+    code?: string,
+    name?: string,
+    address?: string,
+    neighborhood?: string,
+    municipality?: string,
+    state?: string,
+    sector?: string,
+    market?: string,
+    client_type?: string,
+    latitude?: number,
+    longitude?: number,
+    is_active?: boolean,
 }) => {
     try {
         const response = await api.patch(`/clients/${id}/`, data);
@@ -87,6 +87,18 @@ const updateClient = async (id: number, data: {
 
     } catch (error) {
         console.error("Error updating client:", error);
+        throw error;
+    }
+}
+
+const restoreClient = async (id: number) => {
+    try {
+        const response = await api.patch(`/clients/restore/${id}/`);
+        console.log("response", response.data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error restoring client:", error);
         throw error;
     }
 }
@@ -123,4 +135,4 @@ const getClientExcel = async (params: ClientsParams) => {
     }
 }
 
-export { getClients, getClientById, updateClient, deleteClient, getClientExcel, getClientsMap };
+export { getClients, getClientById, updateClient, deleteClient, getClientExcel, getClientsMap, restoreClient };

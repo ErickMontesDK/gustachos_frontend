@@ -7,7 +7,8 @@ import {
     deleteUser as deleteUserService,
     createUser as createUserService,
     getUserProfile,
-    changePassword as changePasswordService,
+    changeOwnPassword as changeOwnPasswordService,
+    changeUserPassword as changeUserPasswordService,
     restoreUser as restoreUserService
 } from "../api/usersService";
 
@@ -232,33 +233,46 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) =>
     }
 }
 
-export const useChangePassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+export const useChangeOwnPassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const [old_password, setOldPassword] = useState("");
     const [new_password, setNewPassword] = useState("");
     const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
 
-    const changePassword = () => {
+    const changeOwnPassword = () => {
         if (new_password !== new_password_confirmation) {
             if (onError) onError("Passwords do not match");
             return;
         }
 
-        changePasswordService({
-            password: new_password,
+        changeOwnPasswordService({
+            old_password: old_password,
+            new_password: new_password,
         })
             .then(() => {
                 if (onSuccess) onSuccess();
-
+                setOldPassword("");
+                setNewPassword("");
+                setNewPasswordConfirmation("");
             })
             .catch(error => {
                 console.error("Error changing password:", error);
-                if (onError) onError(error.message || "Error changing password");
+
+                if (error.message && typeof error.message === 'object' && error.message.old_password) {
+                    const msg = Array.isArray(error.message.old_password)
+                        ? error.message.old_password[0]
+                        : error.message.old_password;
+                    if (onError) onError(msg);
+                } else {
+                    if (onError) onError(error.message || "Error changing password");
+                }
             });
     }
 
     return {
+        old_password, setOldPassword,
         new_password, setNewPassword,
         new_password_confirmation, setNewPasswordConfirmation,
-        changePassword
+        changeOwnPassword
     }
 }
 
@@ -280,6 +294,40 @@ export const useRestoreUser = (userState: User | null, setUser: (user: User | nu
 
     return {
         restoreUser
+    }
+}
+
+export const useChangeUserPassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const [new_password, setNewPassword] = useState("");
+    const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
+
+    const changeUserPassword = (id: number) => {
+        if (!new_password) {
+            if (onError) onError("Please enter a new password");
+            return;
+        }
+
+        if (new_password !== new_password_confirmation) {
+            if (onError) onError("Passwords do not match");
+            return;
+        }
+
+        changeUserPasswordService(id, {
+            new_password: new_password,
+        })
+            .then(() => {
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                console.error("Error changing user password:", error);
+                if (onError) onError(error.message || "Error changing user password");
+            });
+    }
+
+    return {
+        new_password, setNewPassword,
+        new_password_confirmation, setNewPasswordConfirmation,
+        changeUserPassword
     }
 }
 

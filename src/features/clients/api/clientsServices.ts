@@ -93,7 +93,7 @@ const updateClient = async (id: number, data: {
 
 const restoreClient = async (id: number) => {
     try {
-        const response = await api.patch(`/clients/restore/${id}/`);
+        const response = await api.patch(`/clients/${id}/restore/`);
         console.log("response", response.data);
         return response.data
 

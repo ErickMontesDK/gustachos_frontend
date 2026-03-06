@@ -31,7 +31,7 @@ export default function Login() {
                 localStorage.setItem("access", response.data.access);
                 localStorage.setItem("refresh", response.data.refresh);
 
-                const decodedToken: any = jwtDecode(response.data.access); //TODO: check the type of the token
+                const decodedToken: any = jwtDecode(response.data.access);
                 localStorage.setItem("role", decodedToken.role.toLowerCase());
                 localStorage.setItem("name", decodedToken.name);
                 localStorage.setItem("id", decodedToken.user_id);

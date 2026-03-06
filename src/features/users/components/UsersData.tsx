@@ -1,19 +1,21 @@
 import Layout from "../../../components/Layout";
 import { useState } from "react";
-import { useCreateUser, useDeleteUser, User, useUpdateUser, useRestoreUser } from "../hooks/useUsers";
+import { useCreateUser, useDeleteUser, User, useUpdateUser, useRestoreUser, useChangeUserPassword } from "../hooks/useUsers";
 import { useUsers } from "../hooks/useUsers";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, Key, RefreshCw, Copy, Check } from "lucide-react";
 
 export default function UsersData() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [copied, setCopied] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const userRoles = [
         { id: "ADMIN", name: "Admin" },
@@ -62,6 +64,14 @@ export default function UsersData() {
         createUser
     } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
 
+    const {
+        new_password: pass_new, setNewPassword: setPassNew,
+        new_password_confirmation: pass_confirm, setNewPasswordConfirmation: setPassConfirm,
+        changeUserPassword
+    } = useChangeUserPassword(() => {
+        cleaningData();
+    }, (msg) => setErrorMessage(msg));
+
 
     const passwordMatch = (
         new_password_confirmation !== "" && new_password === new_password_confirmation
@@ -80,14 +90,35 @@ export default function UsersData() {
         setShowEditModal(false);
         setShowDeleteModal(false);
         setShowCreateModal(false);
+        setShowPasswordModal(false);
         setSelectedUser(null);
         setErrorMessage(null);
+        setPassNew("");
+        setPassConfirm("");
+        setCopied(false);
         setNewFirstName("");
         setNewLastName("");
         setNewEmail("");
         setNewRole("");
         setNewPassword("");
         setNewPasswordConfirmation("");
+    }
+
+    const generatePassword = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        const passwordLength = 12;
+        let password = "";
+        for (let i = 0; i < passwordLength; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setPassNew(password);
+        setPassConfirm(password);
+    }
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(pass_new);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     }
 
     return (
@@ -185,6 +216,11 @@ export default function UsersData() {
                         setErrorMessage(null);
                         setSelectedUser(user);
                         restoreUser(user);
+                    }}
+                    onChangePassword={(user) => {
+                        setErrorMessage(null);
+                        setSelectedUser(user);
+                        setShowPasswordModal(true);
                     }}
                 />
 
@@ -380,6 +416,73 @@ export default function UsersData() {
                         </div>
                     </div>
 
+                </Modal>
+            )}
+
+            {showPasswordModal && (
+                <Modal
+                    title="Change User Password"
+                    icon={<Key size={24} />}
+                    message={`Set a new password for ${selectedUser?.full_name}`}
+                    buttonText1="Save Password"
+                    buttonText2="Cancel"
+                    isForm={true}
+                    isSubmitDisabled={!pass_new || pass_new !== pass_confirm}
+                    buttonAction1={() => {
+                        if (selectedUser) {
+                            changeUserPassword(selectedUser.id);
+                        }
+                    }}
+                    buttonAction2={() => {
+                        cleaningData();
+                    }}
+                >
+                    <div className="row g-3">
+                        <div className="col-12">
+                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                <label className="form-label font-bold mb-0">New Password</label>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                                    onClick={generatePassword}
+                                >
+                                    <RefreshCw size={14} /> Generate
+                                </button>
+                            </div>
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={pass_new}
+                                    onChange={(e) => setPassNew(e.target.value)}
+                                    placeholder="Enter or generate password"
+                                />
+                                {pass_new && (
+                                    <button
+                                        className="btn btn-outline-secondary"
+                                        type="button"
+                                        onClick={copyToClipboard}
+                                        title="Copy to clipboard"
+                                    >
+                                        {copied ? <Check size={16} color="green" /> : <Copy size={16} />}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="col-12">
+                            <label className="form-label font-bold">Confirm Password</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                value={pass_confirm}
+                                onChange={(e) => setPassConfirm(e.target.value)}
+                                placeholder="Confirm new password"
+                            />
+                            {pass_new !== pass_confirm && pass_confirm !== "" && (
+                                <div className="text-danger small mt-1">Passwords do not match</div>
+                            )}
+                        </div>
+                    </div>
                 </Modal>
             )}
 

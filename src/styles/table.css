@@ -60,7 +60,8 @@ z td {
 .dropdown-item {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    gap: .7rem;
 }
 
 .dropdown-item:hover {

@@ -1,5 +1,5 @@
 import Layout from "./Layout";
-import { useChangePassword, useUserProfile } from "../features/users/hooks/useUsers";
+import { useChangeOwnPassword, useUserProfile } from "../features/users/hooks/useUsers";
 import { User, Mail, Shield, Fingerprint, Lock, CircleUser } from "lucide-react";
 import { useState } from "react";
 import Modal from "./modal";
@@ -12,14 +12,16 @@ export default function Profile() {
         message: ""
     });
 
-    const { new_password, setNewPassword,
+    const { old_password, setOldPassword,
+        new_password, setNewPassword,
         new_password_confirmation, setNewPasswordConfirmation,
-        changePassword } = useChangePassword(
+        changeOwnPassword } = useChangeOwnPassword(
             () => {
                 setPasswordMessage({
                     error: false,
                     message: "Password updated successfully!"
                 });
+                setShowPasswordModal(false);
             },
             (msg) => {
                 setPasswordMessage({
@@ -160,24 +162,30 @@ export default function Profile() {
             {showPasswordModal && (
                 <Modal
                     title="Change Password"
-                    message={`Are you sure you want to change the password for ${user.full_name}?`}
+                    message={`Please enter your current password and your new password below.`}
                     buttonText1="Update Password"
                     buttonText2="Cancel"
                     isForm={true}
-                    isSubmitDisabled={!isFormValid || !passwordMatch || new_password_confirmation === ""}
+                    isSubmitDisabled={!isFormValid || !passwordMatch || new_password_confirmation === "" || !old_password}
                     buttonAction1={() => {
-                        changePassword();
-                        setShowPasswordModal(false);
-                        setNewPassword("");
-                        setNewPasswordConfirmation("");
+                        changeOwnPassword();
                     }}
                     buttonAction2={() => {
                         setShowPasswordModal(false);
+                        setOldPassword("");
                         setNewPassword("");
                         setNewPasswordConfirmation("");
+                        setPasswordMessage({ error: false, message: "" });
                     }}
                 >
                     <div className="row g-3 text-start">
+                        {passwordMessage.error && (
+                            <div className="col-12">
+                                <div className="alert alert-danger py-2 mb-0" role="alert">
+                                    {passwordMessage.message}
+                                </div>
+                            </div>
+                        )}
                         {!passwordMatch && new_password_confirmation !== "" && (
                             <div className="col-12">
                                 <div className="alert alert-danger py-2 mb-0" role="alert">
@@ -186,7 +194,18 @@ export default function Profile() {
                             </div>
                         )}
                         <div className="col-12">
-                            <label className="form-label font-bold">New Password</label>
+                            <label className="form-label font-bold text-dark">Current Password</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                value={old_password}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                placeholder="Enter current password"
+                                required
+                            />
+                        </div>
+                        <div className="col-12">
+                            <label className="form-label font-bold text-dark">New Password</label>
                             <input
                                 type="password"
                                 className="form-control"
@@ -199,8 +218,8 @@ export default function Profile() {
                                 Minimum 6 characters required.
                             </div>
                         </div>
-                        <div className="col-12 mt-6">
-                            <label className="form-label font-bold">Confirm Password</label>
+                        <div className="col-12">
+                            <label className="form-label font-bold text-dark">Confirm Password</label>
                             <input
                                 type="password"
                                 className="form-control"

@@ -166,7 +166,7 @@ export default function RegisterClient() {
         setIsScannerLoading(true);
         setIsScannerPaused(true);
 
-        api.get(`/clients/code-available/?code=${detectedCode}`)
+        api.get(`/clients/check-code/?code=${detectedCode}`)
             .then(response => {
                 console.log(response.data);
                 if (response.data.available) {

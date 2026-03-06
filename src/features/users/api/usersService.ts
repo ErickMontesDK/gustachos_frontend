@@ -40,7 +40,7 @@ const updateUser = async (id: number, data: any) => {
 
 const restoreUser = async (id: number) => {
     try {
-        const response = await api.patch(`/users/restore/${id}/`);
+        const response = await api.patch(`/users/${id}/restore/`);
         console.log("response", response.data);
         return response.data
 
@@ -83,10 +83,9 @@ const getUserProfile = async () => {
     }
 }
 
-const changePassword = async (data: any) => {
+const changeOwnPassword = async (data: any) => {
     try {
-        const response = await api.post(`/users/password/`, data);
-        console.log("response", response.data);
+        const response = await api.post(`/users/me/change-password/`, data);
         return response.data;
     } catch (error) {
         console.error("Error changing password:", error);
@@ -94,4 +93,14 @@ const changePassword = async (data: any) => {
     }
 }
 
-export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changePassword, restoreUser };
+const changeUserPassword = async (id: number, data: any) => {
+    try {
+        const response = await api.post(`/users/${id}/change-password/`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error changing user password:", error);
+        throw error;
+    }
+}
+
+export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changeOwnPassword, changeUserPassword, restoreUser };

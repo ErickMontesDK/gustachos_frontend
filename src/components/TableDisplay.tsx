@@ -6,7 +6,7 @@ import {
     SortingState,
     OnChangeFn,
 } from '@tanstack/react-table';
-import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Pencil, RotateCcw, Trash } from 'lucide-react';
+import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Key, Pencil, RotateCcw, Trash } from 'lucide-react';
 import './../styles/table.css';
 
 interface TableProps<TData> {
@@ -24,6 +24,7 @@ interface TableProps<TData> {
     onEdit?: (data: TData) => void;
     onDelete?: (data: TData) => void;
     onRestore?: (data: TData) => void;
+    onChangePassword?: (data: TData) => void;
 }
 
 export default function TableDisplay<TData>({
@@ -37,9 +38,10 @@ export default function TableDisplay<TData>({
     editEnabled = false,
     onEdit,
     onDelete,
-    onRestore
+    onRestore,
+    onChangePassword
 }: TableProps<TData>) {
-
+    const user_id = localStorage.getItem('user_id');
     const table = useReactTable({
         data,
         columns,
@@ -109,7 +111,7 @@ export default function TableDisplay<TData>({
                             return (
                                 <tr key={row.id} className={rowClassName}>
                                     {editEnabled && (
-                                        <td className="text-center px-0 py-2">
+                                        <td className="text-center px-0 py-">
                                             <div className="dropdown">
                                                 <button
                                                     className="btn btn-outline-dark dropdown-toggle"
@@ -117,6 +119,7 @@ export default function TableDisplay<TData>({
                                                     data-bs-toggle="dropdown"
                                                     data-bs-boundary="viewport"
                                                     aria-expanded="false"
+                                                    disabled={parseInt(user_id || "") == parseInt(rowData.id || "")}
                                                 >
                                                     <EllipsisVertical size={16} />
                                                 </button>
@@ -131,7 +134,7 @@ export default function TableDisplay<TData>({
                                                             </button>
                                                         </li>
                                                     )}
-                                                    {!rowData.isDeleted && (
+                                                    {!rowData.isDeleted && (parseInt(user_id || "") !== rowData.id) && (
                                                         <>
                                                             <li>
                                                                 <button
@@ -141,6 +144,16 @@ export default function TableDisplay<TData>({
                                                                     Edit <Pencil size={16} />
                                                                 </button>
                                                             </li>
+                                                            {onChangePassword && (
+                                                                <li>
+                                                                    <button
+                                                                        className="dropdown-item py-2"
+                                                                        onClick={() => onChangePassword(rowData)}
+                                                                    >
+                                                                        Change Password <Key size={16} />
+                                                                    </button>
+                                                                </li>
+                                                            )}
                                                             <li>
                                                                 <button
                                                                     className="dropdown-item text-white bg-danger py-2"

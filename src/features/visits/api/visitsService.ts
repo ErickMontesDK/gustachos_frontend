@@ -58,7 +58,7 @@ const updateVisit = async (id: number, data: { notes?: string, is_productive?: b
 
 const restoreVisit = async (id: number) => {
     try {
-        const response = await api.patch(`/visits/restore/${id}/`);
+        const response = await api.patch(`/visits/${id}/restore/`);
         console.log("response", response.data);
         return response.data
 

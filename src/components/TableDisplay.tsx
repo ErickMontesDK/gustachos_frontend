@@ -119,7 +119,7 @@ export default function TableDisplay<TData>({
                                                     data-bs-toggle="dropdown"
                                                     data-bs-boundary="viewport"
                                                     aria-expanded="false"
-                                                    disabled={parseInt(user_id || "") == parseInt(rowData.id || "")}
+                                                    disabled={parseInt(user_id || "") === parseInt(rowData.id || "")}
                                                 >
                                                     <EllipsisVertical size={16} />
                                                 </button>

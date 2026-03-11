@@ -19,7 +19,6 @@ const getVisits = async (params: VisitParams) => {
     try {
         const { signal, ...restParams } = params;
         const response = await api.get("/visits", { params: restParams, signal });
-        console.log("response", response.data);
         return response.data as {
             count: number;
             results: any[];
@@ -35,7 +34,6 @@ const getVisits = async (params: VisitParams) => {
 const getVisitById = async (id: number) => {
     try {
         const response = await api.get(`/visits/${id}/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -47,7 +45,6 @@ const getVisitById = async (id: number) => {
 const updateVisit = async (id: number, data: { notes?: string, is_productive?: boolean, is_valid?: boolean }) => {
     try {
         const response = await api.patch(`/visits/${id}/`, data);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -59,7 +56,6 @@ const updateVisit = async (id: number, data: { notes?: string, is_productive?: b
 const restoreVisit = async (id: number) => {
     try {
         const response = await api.patch(`/visits/${id}/restore/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -71,7 +67,6 @@ const restoreVisit = async (id: number) => {
 const deleteVisit = async (id: number) => {
     try {
         const response = await api.delete(`/visits/${id}/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {

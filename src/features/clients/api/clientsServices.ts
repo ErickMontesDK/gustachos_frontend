@@ -23,7 +23,6 @@ const getClients = async (params: ClientsParams) => {
             params: restParams,
             signal
         });
-        console.log("response", response.data);
         return response.data as {
             count: number;
             results: any[];
@@ -42,7 +41,6 @@ const getClientsMap = async (params: ClientsParams) => {
             params: restParams,
             signal
         });
-        console.log("response", response.data);
         return response.data as {
             count: number;
             results: any[];
@@ -57,7 +55,6 @@ const getClientsMap = async (params: ClientsParams) => {
 const getClientById = async (id: number) => {
     try {
         const response = await api.get(`/clients/${id}/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -82,7 +79,6 @@ const updateClient = async (id: number, data: {
 }) => {
     try {
         const response = await api.patch(`/clients/${id}/`, data);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -94,7 +90,6 @@ const updateClient = async (id: number, data: {
 const restoreClient = async (id: number) => {
     try {
         const response = await api.patch(`/clients/${id}/restore/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -106,7 +101,6 @@ const restoreClient = async (id: number) => {
 const deleteClient = async (id: number) => {
     try {
         const response = await api.delete(`/clients/${id}/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {

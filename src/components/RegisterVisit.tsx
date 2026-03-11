@@ -59,7 +59,6 @@ export default function RegisterVisit() {
         setIsScannerUsed(true);
         setIsScannerLoading(true);
         const detectedCode = detectedCodes[0].rawValue;
-        console.log(detectedCode);
         setIsScannerPaused(true);
 
         api.get(`/clients/code/${detectedCode}`)
@@ -113,7 +112,7 @@ export default function RegisterVisit() {
             notes: notes,
         })
             .then(response => {
-                console.log("Visit registered successfully: ", response.data);
+                // console.log("Visit registered successfully: ", response.data);
                 setIsSuccess(true);
             })
             .catch(error => {

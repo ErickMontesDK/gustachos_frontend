@@ -77,7 +77,6 @@ export default function RegisterClient() {
         e.preventDefault();
         setError(null);
 
-        // Manual validation for read-only fields
         if (!clientData.code) {
             setError("Please scan the client code before registering.");
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -91,11 +90,9 @@ export default function RegisterClient() {
         }
 
         setIsSubmitting(true);
-        console.log("Submitting client data:", clientData);
 
         api.post('/clients/', clientData)
             .then(response => {
-                console.log("Client registered successfully:", response.data);
                 setError(null);
                 resetScanner();
                 setClientData({
@@ -134,7 +131,6 @@ export default function RegisterClient() {
             }
         })
             .then(response => {
-                console.log("Geocoding response:", response.data);
                 const full_address = response.data.address;
                 if (!full_address) return;
 
@@ -161,14 +157,12 @@ export default function RegisterClient() {
     const handleScan = (detectedCodes: DetectedCode[]) => {
         const detectedCode = detectedCodes[0].rawValue;
         setError(null);
-        // gettingGeolocation((lat, lon) => fetchAddress(lat, lon));
         setIsScannerUsed(true);
         setIsScannerLoading(true);
         setIsScannerPaused(true);
 
         api.get(`/clients/check-code/?code=${detectedCode}`)
             .then(response => {
-                console.log(response.data);
                 if (response.data.available) {
                     setClientCodeAvailable(true);
                     gettingDatetime();

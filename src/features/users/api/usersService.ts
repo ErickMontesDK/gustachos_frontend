@@ -14,7 +14,6 @@ const getUsers = async (params: UserParams) => {
     try {
         const { signal, ...restParams } = params;
         const response = await api.get("/users/", { params: restParams, signal });
-        console.log("response", response.data);
         return response.data as {
             count: number;
             results: any[];
@@ -30,7 +29,6 @@ const getUsers = async (params: UserParams) => {
 const updateUser = async (id: number, data: any) => {
     try {
         const response = await api.patch(`/users/${id}/`, data);
-        console.log("response", response.data);
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);
@@ -41,7 +39,6 @@ const updateUser = async (id: number, data: any) => {
 const restoreUser = async (id: number) => {
     try {
         const response = await api.patch(`/users/${id}/restore/`);
-        console.log("response", response.data);
         return response.data
 
     } catch (error) {
@@ -53,7 +50,6 @@ const restoreUser = async (id: number) => {
 const deleteUser = async (id: number) => {
     try {
         const response = await api.delete(`/users/${id}/`);
-        console.log("response", response.data);
         return response.data;
     } catch (error) {
         console.error("Error deleting user:", error);
@@ -64,7 +60,6 @@ const deleteUser = async (id: number) => {
 const createUser = async (data: any) => {
     try {
         const response = await api.post("/users/", data);
-        console.log("response", response.data);
         return response.data;
     } catch (error) {
         console.error("Error creating user:", error);
@@ -75,7 +70,6 @@ const createUser = async (data: any) => {
 const getUserProfile = async () => {
     try {
         const response = await api.get(`/users/me/`);
-        console.log("response", response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching user:", error);

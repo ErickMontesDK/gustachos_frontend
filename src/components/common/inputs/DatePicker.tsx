@@ -5,8 +5,8 @@ import { TIMEZONE } from '../../../config';
 interface DatePickerProps {
     name: string;
     id?: string;
-    value: string; // Recibe el valor en formato ISO
-    onChange: (isoValue: string) => void; // Solo devuelve el ISO
+    value: string;
+    onChange: (isoValue: string) => void;
     label?: string;
     className?: string;
     mode?: 'start' | 'end';
@@ -21,7 +21,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     className = "form-control",
     mode = 'start'
 }) => {
-    // Convertimos el ISO que llega por prop a formato YYYY-MM-DD para el input browser
+
     const rawValue = value ? DateTime.fromISO(value, { zone: TIMEZONE }).toISODate() : "";
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {

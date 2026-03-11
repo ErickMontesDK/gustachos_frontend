@@ -16,7 +16,6 @@ export const useGeolocation = () => {
             const lon = parseFloat(position.coords.longitude.toFixed(6));
             setLatitude(lat);
             setLongitude(lon);
-            console.log("Latitude: " + lat + " Longitude: " + lon);
             if (onSuccess) onSuccess(lat, lon);
 
         }, (error) => {

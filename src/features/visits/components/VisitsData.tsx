@@ -81,7 +81,6 @@ export default function VisitsData() {
 
     useEffect(() => {
         getClientTypes().then((data) => {
-            console.log(data);
             const formattedClientTypes = data.map((client_type) => ({
                 id: client_type.id,
                 name: client_type.name,

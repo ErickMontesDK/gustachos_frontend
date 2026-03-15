@@ -4,13 +4,11 @@ import DeliveryHome from "../components/DeliveryHome";
 import AdminDashboard from "../components/AdminDashboard";
 
 export default function Home() {
-    const access = localStorage.getItem("access");
+    const role = localStorage.getItem("role");
 
-    if (access === null) {
+    if (role === null) {
         return <Navigate to="/login" />
     }
-
-    const role = localStorage.getItem("role") || "";
 
     const renderContent = () => {
         switch (role.toLowerCase()) {

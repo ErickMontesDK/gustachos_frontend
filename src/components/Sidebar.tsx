@@ -22,11 +22,11 @@ interface SidebarVars {
 
 export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) {
     const handleLogout = () => {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+
         localStorage.removeItem("role");
         localStorage.removeItem("name");
-        localStorage.removeItem("id");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("username");
         window.location.href = "/login";
     };
 

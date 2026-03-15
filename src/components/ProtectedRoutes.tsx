@@ -2,9 +2,9 @@ import { Navigate, Outlet } from "react-router-dom";
 
 export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string[] }) {
     const role = localStorage.getItem("role") as string;
-    const token = localStorage.getItem("access") as string;
+    console.log("Role: ", role);
 
-    if (!token) {
+    if (!role) {
         return <Navigate to="/login" />;
     }
 

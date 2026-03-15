@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import '../styles/login.css';
-import axios from 'axios';
 import { api } from '../api/axiosInstance';
 
 export default function Login() {
@@ -14,8 +12,8 @@ export default function Login() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const access = localStorage.getItem("access");
-        if (access) {
+        const role = localStorage.getItem("role");
+        if (role) {
             navigate("/home");
         }
     }, [navigate]);
@@ -29,21 +27,17 @@ export default function Login() {
 
         try {
             const response = await api.post(url, { username, password });
-            console.log("Response: ", response.data);
 
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             const userData = await api.get("users/me/");
-            console.log("User data: ", userData.data);
 
-            localStorage.setItem("role", userData.data.role);
+            localStorage.setItem("role", userData.data.role.toLowerCase());
             localStorage.setItem("name", userData.data.full_name);
-            localStorage.setItem("id", userData.data.id);
+            localStorage.setItem("user_id", userData.data.id);
             localStorage.setItem("username", userData.data.username);
 
-            setTimeout(() => {
-                navigate("/home");
-            }, 10000);
+            navigate("/home");
         } catch (error) {
             console.error(error);
             setError("Wrong username or password");

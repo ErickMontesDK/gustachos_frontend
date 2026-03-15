@@ -26,7 +26,7 @@ export default function Login() {
         const url = "auth/login/";
 
         try {
-            const response = await api.post(url, { username, password });
+            await api.post(url, { username, password });
 
             await new Promise((resolve) => setTimeout(resolve, 1000));
 

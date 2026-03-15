@@ -32,7 +32,7 @@ export default function RegisterVisit() {
         name: "",
         code: "",
         address: "",
-        client_type: "",
+        client_type_name: "",
         neighborhood: "",
         municipality: "",
         state: "",
@@ -83,7 +83,7 @@ export default function RegisterVisit() {
             name: "",
             code: "",
             address: "",
-            client_type: "",
+            client_type_name: "",
             neighborhood: "",
             municipality: "",
             state: "",
@@ -193,7 +193,7 @@ export default function RegisterVisit() {
                                                 <Store size={14} className="me-1" />
                                                 Client Type
                                             </span>
-                                            <input type="text" className="info-value" value={clientData.client_type} readOnly />
+                                            <input type="text" className="info-value" value={clientData.client_type_name} readOnly />
                                         </div>
                                         <div className="info-item">
                                             <span className="info-label">

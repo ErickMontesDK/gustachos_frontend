@@ -28,7 +28,6 @@ export const createClientType = async (clientType: ClientType): Promise<ClientTy
 
 export const updateClientType = async (clientType: ClientType): Promise<ClientType> => {
     try {
-        console.log("Updating client type:", clientType);
         const response = await api.patch(`/client-types/${clientType.id}/`, clientType);
         return response.data;
     } catch (error) {

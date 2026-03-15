@@ -3,7 +3,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import '../styles/login.css';
-import { publicApi } from '../api/axiosInstance';
+import axios from 'axios';
+import { api } from '../api/axiosInstance';
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -19,32 +20,34 @@ export default function Login() {
         }
     }, [navigate]);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
 
         const url = "auth/login/";
 
-        publicApi.post(url, { username, password })
-            .then((response) => {
-                localStorage.setItem("access", response.data.access);
-                localStorage.setItem("refresh", response.data.refresh);
+        try {
+            const response = await api.post(url, { username, password });
+            console.log("Response: ", response.data);
 
-                const decodedToken: any = jwtDecode(response.data.access);
-                localStorage.setItem("role", decodedToken.role.toLowerCase());
-                localStorage.setItem("name", decodedToken.name);
-                localStorage.setItem("id", decodedToken.user_id);
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
+            const userData = await api.get("users/me/");
+            console.log("User data: ", userData.data);
+
+            localStorage.setItem("role", userData.data.role);
+            localStorage.setItem("name", userData.data.full_name);
+            localStorage.setItem("id", userData.data.id);
+            localStorage.setItem("username", userData.data.username);
+
+            setTimeout(() => {
                 navigate("/home");
-            })
-            .catch((error) => {
-                console.error(error);
-                setError("Wrong username or password");
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+            }, 10000);
+        } catch (error) {
+            console.error(error);
+            setError("Wrong username or password");
+        }
     }
 
     return (

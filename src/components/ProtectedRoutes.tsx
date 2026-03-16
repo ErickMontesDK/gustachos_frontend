@@ -7,14 +7,11 @@ export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string
 
     const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    // localStorage.removeItem("role");
 
     useEffect(() => {
         api.get("/users/me/")
             .then((res) => {
-                console.log(res.data);
                 setRole(res.data.role.toLowerCase());
-                // localStorage.setItem("role", res.data.role.toLowerCase());
 
                 const businessData = localStorage.getItem("business_data");
                 if (!businessData || businessData === "") {

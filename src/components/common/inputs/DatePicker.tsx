@@ -1,6 +1,8 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import { TIMEZONE } from '../../../config';
+
+const business = localStorage.getItem("business_data");
+const timezone = business ? JSON.parse(business).time_zone : "America/Mexico_City";
 
 interface DatePickerProps {
     name: string;
@@ -22,7 +24,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
     mode = 'start'
 }) => {
 
-    const rawValue = value ? DateTime.fromISO(value, { zone: TIMEZONE }).toISODate() : "";
+    const rawValue = value ? DateTime.fromISO(value, { zone: timezone }).toISODate() : "";
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedValue = e.target.value;
@@ -31,7 +33,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             return;
         }
 
-        let dateTranslated = DateTime.fromISO(selectedValue, { zone: TIMEZONE });
+        let dateTranslated = DateTime.fromISO(selectedValue, { zone: timezone });
         if (mode === 'start') {
             dateTranslated = dateTranslated.startOf('day');
         } else {

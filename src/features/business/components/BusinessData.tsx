@@ -44,6 +44,9 @@ export default function BusinessData() {
     });
     const [urlError, setUrlError] = useState("");
     const [imgError, setImgError] = useState(false);
+    const business = localStorage.getItem("business_data");
+    const timezone = business ? JSON.parse(business).time_zone : "America/Mexico_City";
+    const locale = business ? JSON.parse(business).locale : "es-ES";
 
     const {
         business: formData,
@@ -147,7 +150,7 @@ export default function BusinessData() {
                     <div className="col-12 mt-2">
                         <div className="p-3 rounded-3 d-flex align-items-center text-muted small">
                             <Calendar size={14} className="me-2" />
-                            Last sync: {businessInfo.updated_at ? new Date(businessInfo.updated_at).toLocaleString() : '--'}
+                            Last sync: {businessInfo.updated_at ? new Date(businessInfo.updated_at).toLocaleString(locale, { timeZone: timezone }) : '--'}
                         </div>
                     </div>
                 </InfoCard>
@@ -221,24 +224,39 @@ export default function BusinessData() {
                         <div className="col-md-6">
                             <label className="form-label fw-bold">Time Zone</label>
                             <select className="form-select" value={formData.time_zone} onChange={(e) => setFormData({ ...formData, time_zone: e.target.value })} required>
-                                <option value="UTC">UTC (Universal)</option>
-                                <option value="America/Mexico_City">Mexico City</option>
-                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Vancouver">Vancouver (PT)</option>
+                                <option value="America/Mexico_City">Mexico City (CST)</option>
+                                <option value="America/New_York">New York (ET)</option>
+                                <option value="Europe/London">London (GMT)</option>
+                                <option value="Europe/Madrid">Madrid / Paris (CET)</option>
+                                <option value="Asia/Tokyo">Tokyo (JST)</option>
+                                <option value="Asia/Shanghai">Shanghai (CST)</option>
+                                <option value="America/Sao_Paulo">São Paulo (BRT)</option>
+                                <option value="Asia/Kolkata">India (IST)</option>
+                                <option value="Australia/Sydney">Sydney (AET)</option>
+                                <option value="UTC">UTC (Universal Time)</option>
                             </select>
                         </div>
                         <div className="col-md-6">
-                            <label className="form-label fw-bold">Distance Unit</label>
+                            <label className="form-label fw-bold">Locale</label>
+                            <select className="form-select" value={formData.locale} onChange={(e) => setFormData({ ...formData, locale: e.target.value })} required>
+                                <option value="es-419">Spanish (Latin America)</option>
+                                <option value="en-ca">English (Canada)</option>
+                            </select>
+                        </div>
+                        <div className="col-md-4">
+                            <label className="form-label fw-bold">Distance <br />Unit</label>
                             <select className="form-select" value={formData.distance_unit} onChange={(e) => setFormData({ ...formData, distance_unit: e.target.value })} required>
-                                <option value="m">International (m)</option>
-                                <option value="km">English (ft)</option>
+                                <option value="m">Metric (m)</option>
+                                <option value="ft">Imperial (ft)</option>
                             </select>
                         </div>
-                        <div className="col-md-6">
-                            <label className="form-label fw-bold">Max Distance ({formData.distance_unit})</label>
+                        <div className="col-md-4">
+                            <label className="form-label fw-bold">Max Distance <br /> ({formData.distance_unit})</label>
                             <input type="number" className="form-control" value={formData.max_valid_distance} onChange={(e) => setFormData({ ...formData, max_valid_distance: Number(e.target.value) })} min="0" required />
                         </div>
-                        <div className="col-md-6">
-                            <label className="form-label fw-bold">Min Time (min)</label>
+                        <div className="col-md-4">
+                            <label className="form-label fw-bold">Min Time <br /> (min)</label>
                             <input type="number" className="form-control" value={formData.min_time_between_visits} onChange={(e) => setFormData({ ...formData, min_time_between_visits: Number(e.target.value) })} min="0" required />
                         </div>
                     </div>

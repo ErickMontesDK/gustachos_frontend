@@ -31,6 +31,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
         localStorage.removeItem("username");
         localStorage.removeItem("business_name");
         localStorage.removeItem("logo_url");
+        localStorage.removeItem("business_data");
         window.location.href = "/login";
     };
 

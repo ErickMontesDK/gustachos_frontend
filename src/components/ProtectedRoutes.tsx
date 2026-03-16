@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { api } from "../api/axiosInstance";
+import { getBusinessInfo } from "../features/business/api/businessServices";
 
 export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string[] }) {
 
@@ -14,6 +15,17 @@ export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string
                 console.log(res.data);
                 setRole(res.data.role.toLowerCase());
                 // localStorage.setItem("role", res.data.role.toLowerCase());
+
+                const businessData = localStorage.getItem("business_data");
+                if (!businessData || businessData === "") {
+                    getBusinessInfo()
+                        .then((res) => {
+                            localStorage.setItem("business_data", JSON.stringify(res.data));
+                        })
+                        .catch(() => {
+                            console.error("Error fetching business data");
+                        });
+                }
             })
             .catch(() => {
                 setRole(null);
@@ -21,6 +33,8 @@ export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string
             .finally(() => {
                 setLoading(false);
             });
+
+
     }, []);
 
     if (loading) {
@@ -34,6 +48,7 @@ export default function ProtectedRoutes({ allowedRoles }: { allowedRoles: string
         localStorage.removeItem("username");
         localStorage.removeItem("business_name");
         localStorage.removeItem("logo_url");
+        localStorage.removeItem("business_data");
         return <Navigate to="/login" />;
     }
 

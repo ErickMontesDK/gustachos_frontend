@@ -12,7 +12,10 @@ const getBusinessInfo = async () => {
 
 const updateBusinessInfo = async (businessInfo: any) => {
     try {
+        console.log("businessInfo papaya", businessInfo);
         const response = await api.patch(`/business-config/`, businessInfo);
+        console.log("response papaya", response.data);
+        localStorage.setItem("business_data", JSON.stringify(response.data));
         return response.data;
     } catch (error) {
         console.error("Error updating business info:", error);

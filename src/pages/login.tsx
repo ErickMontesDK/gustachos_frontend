@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn } from 'lucide-react';
 import '../styles/login.css';
 import { api } from '../api/axiosInstance';
+import { getBusinessInfo } from '../features/business/api/businessServices';
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -57,6 +58,8 @@ export default function Login() {
             localStorage.setItem("business_name", businessInfo.name);
             localStorage.setItem("logo_url", businessInfo.logo);
 
+            const businessData = await getBusinessInfo();
+            localStorage.setItem("business_data", JSON.stringify(businessData));
             navigate("/home");
         } catch (error) {
             console.error(error);

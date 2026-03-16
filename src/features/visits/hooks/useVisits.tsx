@@ -57,6 +57,9 @@ const DEFAULT_FILTERS: filters = {
     sorting: "",
     is_deleted: false,
 }
+const business = localStorage.getItem("business_data");
+const timezone = business ? JSON.parse(business).time_zone : "America/Mexico_City";
+const locale = business ? JSON.parse(business).locale : "es-ES";
 
 export const useVisits = () => {
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: DEFAULT_FILTERS.page_size });
@@ -65,6 +68,7 @@ export const useVisits = () => {
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [visits, setVisits] = useState<Visit[]>([]);
     const [refreshKey, setRefreshKey] = useState(0);
+
 
     const refresh = () => setRefreshKey(prev => prev + 1);
 
@@ -92,7 +96,7 @@ export const useVisits = () => {
             signal: controller.signal
         })
             .then(data => {
-                setVisits(data.results.map(visitMapper));
+                setVisits(data.results.map((visit: any) => visitMapper(visit, timezone, locale)));
                 setTotalPages(data.total_pages);
             })
             .catch(error => {

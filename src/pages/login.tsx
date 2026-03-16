@@ -7,6 +7,10 @@ import { api } from '../api/axiosInstance';
 export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [businessInfo, setBusinessInfo] = useState({
+        name: "EchoRoute",
+        logo: "./images/logo-simple.png"
+    });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -17,6 +21,20 @@ export default function Login() {
             navigate("/home");
         }
     }, [navigate]);
+
+    useEffect(() => {
+        api.get("public-business-config/")
+            .then((response) => {
+                console.log(response.data);
+                setBusinessInfo({
+                    name: response.data.business_name,
+                    logo: response.data.logo_url
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -36,6 +54,8 @@ export default function Login() {
             localStorage.setItem("name", userData.data.full_name);
             localStorage.setItem("user_id", userData.data.id);
             localStorage.setItem("username", userData.data.username);
+            localStorage.setItem("business_name", businessInfo.name);
+            localStorage.setItem("logo_url", businessInfo.logo);
 
             navigate("/home");
         } catch (error) {
@@ -48,8 +68,8 @@ export default function Login() {
         <div className="login-container">
             <div className="login-card">
                 <div className="login-header">
-                    <img src="./images/logo-simple.png" alt="Logo" className="login-logo" />
-                    <h2 className="fw-bold mb-0">EchoRoute</h2>
+                    <img src={businessInfo.logo} alt="Logo" className="login-logo" />
+                    <h2 className="fw-bold mb-0">{businessInfo.name}</h2>
                     <p className="small text-secondary mb-0 opacity-75 mt-2">Login to continue</p>
                 </div>
                 <div className="login-body">

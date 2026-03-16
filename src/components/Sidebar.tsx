@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     LayoutDashboard,
     MapPin,
@@ -7,8 +6,9 @@ import {
     Menu,
     Store,
     CircleUser,
-    UsersRound,
-    Briefcase,
+    Building2,
+    ClipboardList,
+    Users
 } from 'lucide-react';
 
 import '../styles/layout.css';
@@ -21,12 +21,16 @@ interface SidebarVars {
 }
 
 export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) {
+    const businessName = localStorage.getItem("business_name") || "EchoRoute";
+    const logoUrl = localStorage.getItem("logo_url") || "./images/logo-simple.png";
     const handleLogout = () => {
 
         localStorage.removeItem("role");
         localStorage.removeItem("name");
         localStorage.removeItem("user_id");
         localStorage.removeItem("username");
+        localStorage.removeItem("business_name");
+        localStorage.removeItem("logo_url");
         window.location.href = "/login";
     };
 
@@ -39,7 +43,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
 
 
             <div className="p-3 d-flex align-items-center justify-content-between border-bottom border-secondary">
-                {isOpen && <h5 className="mb-0 fw-bold text-truncate">EchoRoute</h5>}
+                {isOpen && <h5 className="mb-0 fw-bold text-truncate">{businessName}</h5>}
                 <button
                     className="btn btn-outline-light border-0 p-1 d-md-block"
                     onClick={() => setIsOpen(!isOpen)}
@@ -92,7 +96,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                         <>
                             <li>
                                 <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/visits-data" ? "active" : ""}`} onClick={() => window.location.href = "/visits-data"}>
-                                    <MapPin size={20} className="flex-shrink-0" />
+                                    <ClipboardList size={20} className="flex-shrink-0" />
                                     {isOpen && <span className="ms-3">Visits</span>}
                                 </button>
                             </li>
@@ -108,7 +112,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                     {normalizedRole === 'admin' && (
                         <li>
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/users-data" ? "active" : ""}`} onClick={() => window.location.href = "/users-data"}>
-                                <UsersRound size={20} className="flex-shrink-0" />
+                                <Users size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Users</span>}
                             </button>
                         </li>
@@ -116,7 +120,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                     {normalizedRole === 'admin' && (
                         <li>
                             <button className={`btn btn-dark w-100 text-start d-flex align-items-center py-3 px-3 mb-1 nav-link-custom ${currentPage === "/business-data" ? "active" : ""}`} onClick={() => window.location.href = "/business-data"}>
-                                <Briefcase size={20} className="flex-shrink-0" />
+                                <Building2 size={20} className="flex-shrink-0" />
                                 {isOpen && <span className="ms-3">Business</span>}
                             </button>
                         </li>
@@ -129,6 +133,18 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                     </li>
                 </ul>
             </nav>
+
+            <div className={`p-3 d-flex justify-content-center ${isOpen ? "" : "px-1"}`}>
+                <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="img-fluid border border-secondary border-2 rounded"
+                    style={{
+                        maxHeight: isOpen ? '80px' : '30px',
+                        objectFit: 'contain'
+                    }}
+                />
+            </div>
 
 
             <div className="p-3 border-top border-secondary">

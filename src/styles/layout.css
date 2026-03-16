@@ -97,7 +97,6 @@ h1 {
 
     .sidebar-container.w-70 {
         left: -250px;
-        /* Hide completely when "closed" on mobile */
     }
 
     .sidebar-overlay.show {
@@ -106,5 +105,7 @@ h1 {
 
     .main-content {
         padding-top: 1rem;
+        padding-left: .25rem;
+        padding-right: .25rem;
     }
 }

@@ -53,7 +53,7 @@ const DEFAULT_FILTERS: filters = {
     date_from: "",
     date_to: "",
     page: 1,
-    page_size: 10,
+    page_size: 15,
     sorting: "",
     is_deleted: false,
 }

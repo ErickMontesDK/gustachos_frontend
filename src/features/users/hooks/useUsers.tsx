@@ -36,7 +36,7 @@ const DEFAULT_FILTERS: filters = {
     search_term: "",
     role: "",
     page: 1,
-    page_size: 10,
+    page_size: 15,
     sorting: "",
     is_deleted: false,
 };

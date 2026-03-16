@@ -154,7 +154,7 @@ export default function UsersData() {
                                 id="search"
                                 value={filters.search_term}
                                 onChange={(e) => updateFilters("search_term", e.target.value)}
-                                placeholder="Search by name, code, address..."
+                                placeholder="Search by name, username, email..."
                                 label="Search Term"
                             />
                         </div>

@@ -58,7 +58,7 @@ const DEFAULT_FILTERS: filters = {
     address: "",
     name: "",
     page: 1,
-    page_size: 10,
+    page_size: 15,
     sorting: "",
     code: "",
     is_deleted: false,

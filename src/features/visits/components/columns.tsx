@@ -4,7 +4,7 @@ import { Visit } from "../hooks/useVisits";
 export const columns: ColumnDef<Visit>[] = [
     { header: 'ID', accessorKey: 'id', size: 50 },
     { header: 'Client', accessorKey: 'client__name', size: 150 },
-    { header: 'Code', accessorKey: 'client__code', size: 100 },
+    { header: 'Code', accessorKey: 'client__code', size: 120 },
     { header: 'Type', accessorKey: 'client__client_type__name', size: 120 },
     { header: 'Sector', accessorKey: 'client__sector', size: 120 },
     { header: 'Deliverer', accessorKey: 'deliverer__last_name', size: 150 },

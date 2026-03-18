@@ -126,16 +126,18 @@ export default function RegisterVisit() {
 
     if (permissionsGranted === false) {
         return (
-            <Modal
-                title="Necessary permissions"
-                message={permissionError}
-                buttonText1={<><RefreshCw size={20} className="me-2" />Try Again</>}
-                buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
-                buttonAction1={retryPermissions}
-                buttonAction2={() => navigate("/home")}
-                icon={<AlertCircle size={48} />}
-                isVertical={true}
-            />
+            <Layout>
+                <Modal
+                    title="Necessary permissions"
+                    message={permissionError}
+                    buttonText1={<><RefreshCw size={20} className="me-2" />Try Again</>}
+                    buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
+                    buttonAction1={retryPermissions}
+                    buttonAction2={() => navigate("/home")}
+                    icon={<AlertCircle size={48} />}
+                    isVertical={true}
+                />
+            </Layout>
         );
     } else if (permissionsGranted === null) {
         return <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>;
@@ -206,10 +208,6 @@ export default function RegisterVisit() {
                                                     .join(", ")
                                             } readOnly />
                                         </div>
-                                        <input type="hidden" name="client" value={clientId || 0} readOnly />
-                                        <input type="hidden" name="datetime" value={datetime} readOnly />
-                                        <input type="hidden" name="latitude" value={latitude} readOnly />
-                                        <input type="hidden" name="longitude" value={longitude} readOnly />
                                     </>
                                 )}
                                 <div className="info-item">

@@ -150,9 +150,7 @@ export default function Profile() {
                                     <Lock size={16} className="me-2" />
                                     Change Password
                                 </button>
-                                <div className="text-center mt-3">
-                                    <span className="text-muted smaller">Last access: {new Date().toLocaleDateString()}</span>
-                                </div>
+
                             </div>
                         </div>
                     </div>

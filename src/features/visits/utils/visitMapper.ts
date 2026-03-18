@@ -1,23 +1,12 @@
+import { formatDatetime } from "../../../utils/formatDatetime";
 const TIMEZONE = "America/Mexico_City";
 const LOCALE = "es-ES";
-const HOUR12 = true;
 
 export const visitMapper = (visit: any, timezone: string = TIMEZONE, locale: string = LOCALE) => {
     const datetime = visit.visited_at;
-    const dateObj = new Date(datetime);
 
-    const formattedDate = dateObj.toLocaleDateString(locale, {
-        timeZone: timezone,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    });
-    const formattedTime = dateObj.toLocaleTimeString(locale, {
-        timeZone: timezone,
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: HOUR12,
-    });
+    const { formattedDate, formattedTime } = formatDatetime(datetime, timezone, locale);
+
     const client_details = visit.client_details || {};
     const deliverer_details = visit.deliverer_details || {};
 

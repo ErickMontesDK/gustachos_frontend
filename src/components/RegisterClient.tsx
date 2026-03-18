@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useScanner } from "../hooks/useScanner";
 import { api } from "../api/axiosInstance";
 import CodeScannerComponent from "./CodeScanner";
-import { AlertCircle, CheckCircle2, QrCode, User, MapPin, Navigation, RefreshCw, Home } from "lucide-react";
+import { AlertCircle, CheckCircle2, QrCode, User, MapPin, Navigation, RefreshCw, Home, Store } from "lucide-react";
 import '../styles/register-visit.css';
 import axios from "axios";
 import Modal from "./../components/modal";
@@ -43,10 +43,6 @@ export default function RegisterClient() {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-
-    }, [clientData])
 
     useEffect(() => {
         setClientData(prev => ({
@@ -110,6 +106,7 @@ export default function RegisterClient() {
             .catch(error => {
                 setError(error.response?.data?.message || "An error occurred while registering the client. Please try again.");
                 console.error("Error registering client: ", error);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             })
             .finally(() => {
                 setIsSubmitting(false);
@@ -143,7 +140,7 @@ export default function RegisterClient() {
                 }));
             })
             .catch(error => {
-                console.error("Error fetching address data: ", error);
+                setError(error.response?.data?.message || "An error occurred while fetching the address. Please try again.");
             })
             .finally(() => {
                 setIsFetchingAddress(false);
@@ -185,25 +182,31 @@ export default function RegisterClient() {
 
     if (permissionsGranted === false) {
         return (
-            <Modal
-                title="Location Permission Required"
-                message={permissionError}
-                buttonText1={<><RefreshCw size={20} className="me-2" />Retry</>}
-                buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
-                buttonAction1={retryPermissions}
-                buttonAction2={() => navigate("/home")}
-                icon={<AlertCircle size={48} />}
-                isVertical={true}
-            />
+            <Layout>
+                <Modal
+                    title="Location Permission Required"
+                    message={permissionError}
+                    buttonText1={<><RefreshCw size={20} className="me-2" />Retry</>}
+                    buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
+                    buttonAction1={retryPermissions}
+                    buttonAction2={() => navigate("/home")}
+                    icon={<AlertCircle size={48} />}
+                    isVertical={true}
+                />
+            </Layout>
         );
     } else if (permissionsGranted === null) {
-        return <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>;
+        return (
+            <Layout>
+                <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>
+            </Layout>
+        );
     } else {
         return (
             <Layout>
                 <div className="register-visit-container">
                     <header className="page-header">
-                        <h1>Register Client</h1>
+                        <h1><Store size={30} className="flex-shrink-0 me-2 text-primary mb-1" />Register Client</h1>
                         <p>New client check-in</p>
                     </header>
 
@@ -265,7 +268,7 @@ export default function RegisterClient() {
                                         />
                                         <button
                                             type="button"
-                                            className={`btn btn-lg btn-outline-primary ms-1 p-1 ${isFetchingAddress ? 'disabled' : ''}`}
+                                            className={`btn btn-lg btn-outline-primary ms-2 p-2 ${isFetchingAddress ? 'disabled' : ''}`}
                                             onClick={() => !isFetchingAddress && gettingGeolocation((lat, lon) => fetchAddress(lat, lon))}
                                             disabled={isFetchingAddress}
                                             title="Recalculate coordinates and address"

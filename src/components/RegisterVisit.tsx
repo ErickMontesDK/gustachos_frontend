@@ -48,9 +48,11 @@ export default function RegisterVisit() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [isClientFound, setIsClientFound] = useState(false);
+    const [scanError, setScanError] = useState("");
 
     const scannerPressed = () => {
         setIsClientFound(false);
+        setScanError("");
         startScanner();
     }
 
@@ -71,6 +73,7 @@ export default function RegisterVisit() {
             })
             .catch(error => {
                 console.error("Error fetching client data: ", error);
+                setScanError(error.response?.data?.detail || "Client not found or network error.");
             })
             .finally(() => {
                 setIsScannerLoading(false);
@@ -96,6 +99,7 @@ export default function RegisterVisit() {
         resetLocation();
         resetScanner();
         setErrorMessage("");
+        setScanError("");
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -112,11 +116,9 @@ export default function RegisterVisit() {
             notes: notes,
         })
             .then(response => {
-                // console.log("Visit registered successfully: ", response.data);
                 setIsSuccess(true);
             })
             .catch(error => {
-                console.error("Error registering visit: ", error.response?.data || error.message);
                 setErrorMessage(error.response?.data?.detail || "An error occurred while registering the visit. Please try again.");
             })
             .finally(() => {
@@ -140,14 +142,18 @@ export default function RegisterVisit() {
             </Layout>
         );
     } else if (permissionsGranted === null) {
-        return <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>;
+        return (
+            <Layout>
+                <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>
+            </Layout>
+        );
     } else {
 
         return (
             <Layout>
                 <div className="register-visit-container">
                     <header className="page-header">
-                        <h1>Register Visit</h1>
+                        <h1><MapPin size={30} className="flex-shrink-0 me-2 text-primary mb-1" />Register Visit</h1>
                         <p>Client check-in</p>
                     </header>
 
@@ -168,6 +174,12 @@ export default function RegisterVisit() {
                             </button>
                         )}
                         {!isScannerPaused && <CodeScannerComponent isPaused={isScannerPaused} setIsPaused={setIsScannerPaused} handleScan={handleScan} />}
+                        {scanError && isScannerPaused && !isScannerLoading && (
+                            <div className="alert alert-danger mt-3 py-2 text-center d-flex align-items-center justify-content-center" role="alert">
+                                <AlertCircle size={18} className="me-2" />
+                                <span>{scanError}</span>
+                            </div>
+                        )}
                     </section>
 
                     <form onSubmit={handleSubmit} className="form-section">

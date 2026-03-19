@@ -13,6 +13,7 @@ export interface ClientsParams {
     page_size?: number;
     sorting?: string;
     is_deleted?: boolean;
+    is_active?: boolean;
     signal?: AbortSignal;
 }
 

@@ -47,6 +47,7 @@ interface filters {
     page_size: number;
     sorting: string;
     is_deleted: boolean;
+    is_active: string;
 }
 
 const DEFAULT_FILTERS: filters = {
@@ -62,6 +63,7 @@ const DEFAULT_FILTERS: filters = {
     sorting: "",
     code: "",
     is_deleted: false,
+    is_active: "",
 }
 
 export const useClients = () => {
@@ -96,6 +98,7 @@ export const useClients = () => {
             page_size: pagination.pageSize,
             sorting: sortingString || undefined,
             is_deleted: filters.is_deleted || undefined,
+            is_active: filters.is_active === "true" ? true : filters.is_active === "false" ? false : undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -122,6 +125,7 @@ export const useClients = () => {
         filters.name,
         filters.code,
         filters.is_deleted,
+        filters.is_active,
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey
@@ -156,6 +160,7 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
             address: filters.address || undefined,
             name: filters.name || undefined,
             code: filters.code || undefined,
+            is_active: filters.is_active === "true" ? true : filters.is_active === "false" ? false : undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -186,6 +191,7 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
         filters.address,
         filters.name,
         filters.code,
+        filters.is_active,
         refreshKey
     ])
 

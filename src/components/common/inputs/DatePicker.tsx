@@ -40,7 +40,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             dateTranslated = dateTranslated.endOf('day');
         }
 
-        onChange(dateTranslated.toISO() || "");
+        onChange(dateTranslated.toFormat('yyyy-MM-dd') || "");
     };
 
     return (

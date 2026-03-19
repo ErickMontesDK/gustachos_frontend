@@ -7,12 +7,23 @@ import DatePicker from "../../../components/common/inputs/DatePicker";
 import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash, Download, Settings } from "lucide-react";
+import { Trash, Download, Settings, MapPin } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
 import { getVisitExcel } from "../api/visitsService";
 import MapDisplay from "../../../components/MapDisplay";
 import { MarkerProps } from "../../../components/MapDisplay";
+
+
+const productivityOptions: Option[] = [
+    { id: "true", name: "Productive" },
+    { id: "false", name: "Non-Productive" },
+];
+
+const validationOptions: Option[] = [
+    { id: "true", name: "Valid" },
+    { id: "false", name: "Invalid" },
+];
 
 
 export default function VisitsData() {
@@ -39,6 +50,50 @@ export default function VisitsData() {
         setSorting,
         refresh
     } = useVisits();
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const client_type = params.get("client_type");
+        const municipality = params.get("municipality");
+        const state = params.get("state");
+        const sector = params.get("sector");
+        const search_term = params.get("search_term");
+        const date_from = params.get("date_from");
+        const date_to = params.get("date_to");
+        const is_deleted = params.get("is_deleted") === "true" ? true : false;
+        const is_productive = params.get("is_productive");
+        const is_valid = params.get("is_valid");
+        if (client_type) {
+            updateFilters("client_type", client_type);
+        }
+        if (municipality) {
+            updateFilters("municipality", municipality);
+        }
+        if (state) {
+            updateFilters("state", state);
+        }
+        if (sector) {
+            updateFilters("sector", sector);
+        }
+        if (search_term) {
+            updateFilters("search_term", search_term);
+        }
+        if (date_from) {
+            updateFilters("date_from", date_from);
+        }
+        if (date_to) {
+            updateFilters("date_to", date_to);
+        }
+        if (is_deleted) {
+            updateFilters("is_deleted", is_deleted);
+        }
+        if (is_productive) {
+            updateFilters("is_productive", is_productive);
+        }
+        if (is_valid) {
+            updateFilters("is_valid", is_valid);
+        }
+    }, [updateFilters]);
 
 
     useEffect(() => {
@@ -94,7 +149,7 @@ export default function VisitsData() {
     return (
         <Layout>
             <div className="animate-fade-in">
-                <h1>Visits Data</h1>
+                <h1><MapPin size={34} className="flex-shrink-0 me-2 text-primary mb-1" />Visits Data</h1>
                 <div className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">
 
                     {errorMessage && (
@@ -107,7 +162,7 @@ export default function VisitsData() {
                     <h5 className="mb-3 text-secondary">Filters</h5>
 
                     <div className="row g-3 mb-4">
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Select
                                 name="client_type"
                                 id="client_type"
@@ -118,7 +173,7 @@ export default function VisitsData() {
                                 label="Client Type"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_municipality"
                                 id="client_municipality"
@@ -128,7 +183,7 @@ export default function VisitsData() {
                                 label="Municipality"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_state"
                                 id="client_state"
@@ -138,7 +193,7 @@ export default function VisitsData() {
                                 label="State"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_sector"
                                 id="client_sector"
@@ -148,20 +203,30 @@ export default function VisitsData() {
                                 label="Sector"
                             />
                         </div>
-                    </div>
 
-                    <div className="row g-3 align-items-end">
-                        <div className="col-md-4">
-                            <Searchbar
-                                name="search"
-                                id="search"
-                                value={filters.search_term}
-                                onChange={(e) => updateFilters("search_term", e.target.value)}
-                                placeholder="Search by name, code, address..."
-                                label="Search Term"
+                        <div className="col-md-4 col-lg-3">
+                            <Select
+                                name="is_productive"
+                                id="is_productive"
+                                value={filters.is_productive}
+                                onChange={(e) => updateFilters("is_productive", e.target.value)}
+                                options={productivityOptions}
+                                placeholder="All Status"
+                                label="Productivity"
                             />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
+                            <Select
+                                name="is_valid"
+                                id="is_valid"
+                                value={filters.is_valid}
+                                onChange={(e) => updateFilters("is_valid", e.target.value)}
+                                options={validationOptions}
+                                placeholder="All Status"
+                                label="Validation"
+                            />
+                        </div>
+                        <div className="col-md-4 col-lg-3">
                             <DatePicker
                                 name="date_from"
                                 id="date_from"
@@ -171,7 +236,7 @@ export default function VisitsData() {
                                 mode="start"
                             />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
                             <DatePicker
                                 name="date_to"
                                 id="date_to"
@@ -181,8 +246,19 @@ export default function VisitsData() {
                                 mode="end"
                             />
                         </div>
+
+                        <div className="col-md-8 col-lg-6">
+                            <Searchbar
+                                name="search"
+                                id="search"
+                                value={filters.search_term}
+                                onChange={(e) => updateFilters("search_term", e.target.value)}
+                                placeholder="Search by name, code, address..."
+                                label="Search Term"
+                            />
+                        </div>
                         {isAdmin && (
-                            <div className="col-md-2 d-flex align-items-end">
+                            <div className="col-md-4 col-lg-3 d-flex align-items-end">
                                 <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
                                     <input
                                         className="form-check-input ms-2 me-2"
@@ -196,13 +272,17 @@ export default function VisitsData() {
                                 </div>
                             </div>
                         )}
-                        <div className={`${isAdmin ? 'col-md-2' : 'col-md-4'}`}>
+                        <div className={`col-md-4 col-lg-3 d-flex align-items-end`}>
                             <button
                                 className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
                                 style={{ height: '48px', fontWeight: '500' }}
                                 onClick={() => {
                                     setErrorMessage(null);
-                                    getVisitExcel(filters).catch((err) => {
+                                    getVisitExcel({
+                                        ...filters,
+                                        is_productive: filters.is_productive === "true" ? true : filters.is_productive === "false" ? false : undefined,
+                                        is_valid: filters.is_valid === "true" ? true : filters.is_valid === "false" ? false : undefined,
+                                    }).catch((err) => {
                                         setErrorMessage("Error exporting visits: " + (err.message || "Unknown error"));
                                     });
                                 }}

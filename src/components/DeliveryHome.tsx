@@ -208,7 +208,7 @@ export default function DeliveryHome() {
                                     </div>
                                 </div>
                                 <div className="text-end ms-3">
-                                    <small className="text-muted d-block whitespace-nowrap"><Clock size={12} className="me-1" />{formatTimestamp(item.timestamp)}</small>
+                                    <small className="text-muted d-block text-nowrap"><Clock size={12} className="me-1" />{formatTimestamp(item.timestamp)}</small>
                                 </div>
                             </li>
                         ))

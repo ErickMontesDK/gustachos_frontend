@@ -42,6 +42,8 @@ interface filters {
     page_size: number;
     sorting: string;
     is_deleted: boolean;
+    is_productive: string;
+    is_valid: string;
 }
 
 const DEFAULT_FILTERS: filters = {
@@ -56,6 +58,8 @@ const DEFAULT_FILTERS: filters = {
     page_size: 15,
     sorting: "",
     is_deleted: false,
+    is_productive: "",
+    is_valid: "",
 }
 const business = localStorage.getItem("business_data");
 const timezone = business ? JSON.parse(business).time_zone : "America/Mexico_City";
@@ -93,6 +97,8 @@ export const useVisits = () => {
             page_size: pagination.pageSize,
             sorting: sortingString || undefined,
             is_deleted: filters.is_deleted || undefined,
+            is_productive: filters.is_productive === "true" ? true : filters.is_productive === "false" ? false : undefined,
+            is_valid: filters.is_valid === "true" ? true : filters.is_valid === "false" ? false : undefined,
             signal: controller.signal
         })
             .then(data => {
@@ -118,6 +124,8 @@ export const useVisits = () => {
         filters.date_from,
         filters.date_to,
         filters.is_deleted,
+        filters.is_productive,
+        filters.is_valid,
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey

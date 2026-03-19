@@ -7,10 +7,17 @@ import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Trash, Download, Settings } from "lucide-react";
+import { Trash, Download, Settings, Store } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { getClientExcel } from "../api/clientsServices";
 import MapDisplay, { MarkerProps } from "../../../components/MapDisplay";
+
+
+const activeOptions: Option[] = [
+    { id: "true", name: "Active" },
+    { id: "false", name: "Inactive" },
+];
+
 
 
 export default function ClientsData() {
@@ -56,7 +63,7 @@ export default function ClientsData() {
 
     const { restoreClient } = useRestoreClient(selectedClient, setSelectedClient, refresh, (msg) => setErrorMessage(msg));
 
-    const isFormValid = !!(code && name && address && client_type && latitude && longitude);
+    const isFormValid = !!(code && name && address && latitude && longitude);
 
     const cleaningData = () => {
         setCode("");
@@ -76,6 +83,31 @@ export default function ClientsData() {
         setShowDeleteModal(false);
         setSelectedClient(null);
     }
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const client_type = params.get("client_type");
+        const municipality = params.get("municipality");
+        const state = params.get("state");
+        const sector = params.get("sector");
+        const market = params.get("market");
+        const address = params.get("address");
+        const name = params.get("name");
+        const is_deleted = params.get("is_deleted") === "true";
+        const is_active = params.get("is_active");
+
+        if (code) updateFilters("code", code);
+        if (client_type) updateFilters("client_type", client_type);
+        if (municipality) updateFilters("municipality", municipality);
+        if (state) updateFilters("state", state);
+        if (sector) updateFilters("sector", sector);
+        if (market) updateFilters("market", market);
+        if (address) updateFilters("address", address);
+        if (name) updateFilters("name", name);
+        if (is_deleted) updateFilters("is_deleted", is_deleted);
+        if (is_active) updateFilters("is_active", is_active);
+    }, [updateFilters]);
 
 
     useEffect(() => {
@@ -113,7 +145,7 @@ export default function ClientsData() {
     return (
         <Layout>
             <div className="animate-fade-in">
-                <h1>Clients Data</h1>
+                <h1><Store size={34} className="flex-shrink-0 me-2 text-primary mb-1" />Clients Data</h1>
                 <div className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">
 
                     {errorMessage && (
@@ -126,7 +158,7 @@ export default function ClientsData() {
                     <h5 className="mb-3 text-secondary">Filters</h5>
 
                     <div className="row g-3 mb-4">
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Select
                                 name="client_type"
                                 id="client_type"
@@ -137,7 +169,7 @@ export default function ClientsData() {
                                 label="Client Type"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_municipality"
                                 id="client_municipality"
@@ -147,7 +179,7 @@ export default function ClientsData() {
                                 label="Municipality"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_state"
                                 id="client_state"
@@ -157,7 +189,7 @@ export default function ClientsData() {
                                 label="State"
                             />
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_sector"
                                 id="client_sector"
@@ -167,10 +199,8 @@ export default function ClientsData() {
                                 label="Sector"
                             />
                         </div>
-                    </div>
 
-                    <div className="row g-3 align-items-end">
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_market"
                                 id="client_market"
@@ -180,7 +210,7 @@ export default function ClientsData() {
                                 label="Market"
                             />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="address"
                                 id="address"
@@ -190,7 +220,7 @@ export default function ClientsData() {
                                 label="Address"
                             />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_name"
                                 id="client_name"
@@ -200,7 +230,7 @@ export default function ClientsData() {
                                 label="Name"
                             />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-4 col-lg-3">
                             <Searchbar
                                 name="client_code"
                                 id="client_code"
@@ -210,8 +240,20 @@ export default function ClientsData() {
                                 label="Code"
                             />
                         </div>
+
+                        <div className="col-md-4 col-lg-3">
+                            <Select
+                                name="is_active"
+                                id="is_active"
+                                value={filters.is_active}
+                                onChange={(e) => updateFilters("is_active", e.target.value)}
+                                options={activeOptions}
+                                placeholder="All Status"
+                                label="Active Status"
+                            />
+                        </div>
                         {isAdmin && (
-                            <div className="col-md-2 d-flex align-items-end">
+                            <div className="col-md-4 col-lg-3 d-flex align-items-end">
                                 <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
                                     <input
                                         className="form-check-input ms-2 me-2"
@@ -225,13 +267,16 @@ export default function ClientsData() {
                                 </div>
                             </div>
                         )}
-                        <div className={`${isAdmin ? 'col-md-2' : 'col-md-4'}`}>
+                        <div className={`col-md-4 col-lg-3 d-flex align-items-end`}>
                             <button
                                 className="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm"
                                 style={{ height: '48px', fontWeight: '500' }}
                                 onClick={() => {
                                     setErrorMessage(null);
-                                    getClientExcel(filters).catch((err) => {
+                                    getClientExcel({
+                                        ...filters,
+                                        is_active: filters.is_active === "true" ? true : filters.is_active === "false" ? false : undefined,
+                                    }).catch((err) => {
                                         setErrorMessage("Error exporting clients: " + (err.message || "Unknown error"));
                                     });
                                 }}

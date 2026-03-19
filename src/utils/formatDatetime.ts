@@ -1,21 +1,24 @@
-const TIMEZONE = "America/Mexico_City";
-const LOCALE = "es-ES";
-const HOUR12 = true;
+const businessDataStr = localStorage.getItem("business_data");
+const businessData = businessDataStr ? JSON.parse(businessDataStr) : null;
 
-export function formatDatetime(datetime: string, timezone: string = TIMEZONE, locale: string = LOCALE) {
-    const dateObj = new Date(datetime);
-    const formattedDate = dateObj.toLocaleDateString(locale, {
+const DEFAULT_TIMEZONE = businessData?.time_zone || localStorage.getItem("timezone") || "America/Mexico_City";
+const DEFAULT_LOCALE = businessData?.locale || localStorage.getItem("locale") || "es-ES";
+
+export function formatDatetime(datetime: string, timezone: string = DEFAULT_TIMEZONE, locale: string = DEFAULT_LOCALE) {
+    const date = new Date(datetime);
+    const formatDate = new Intl.DateTimeFormat(locale, {
         timeZone: timezone,
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
     });
-    const formattedTime = dateObj.toLocaleTimeString(locale, {
+    const formatTime = new Intl.DateTimeFormat(locale, {
         timeZone: timezone,
         hour: '2-digit',
         minute: '2-digit',
-        hour12: HOUR12,
+        hour12: true,
     });
 
-    return ({ formattedDate, formattedTime });
+    return { formattedDate: formatDate.format(date), formattedTime: formatTime.format(date) };
 }
+

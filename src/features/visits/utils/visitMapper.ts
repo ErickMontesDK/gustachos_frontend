@@ -1,8 +1,11 @@
 import { formatDatetime } from "../../../utils/formatDatetime";
-const TIMEZONE = "America/Mexico_City";
-const LOCALE = "es-ES";
+const businessDataStr = localStorage.getItem("business_data");
+const businessData = businessDataStr ? JSON.parse(businessDataStr) : null;
 
-export const visitMapper = (visit: any, timezone: string = TIMEZONE, locale: string = LOCALE) => {
+const DEFAULT_TIMEZONE = businessData?.time_zone || localStorage.getItem("timezone") || "America/Mexico_City";
+const DEFAULT_LOCALE = businessData?.locale || localStorage.getItem("locale") || "es-ES";
+
+export const visitMapper = (visit: any, timezone: string = DEFAULT_TIMEZONE, locale: string = DEFAULT_LOCALE) => {
     const datetime = visit.visited_at;
 
     const { formattedDate, formattedTime } = formatDatetime(datetime, timezone, locale);

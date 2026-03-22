@@ -28,10 +28,15 @@ export interface Client {
 
 interface ClientsForMap {
     id: number;
+    code: string; // <-- NEW
     latitude: number;
     longitude: number;
     name: string;
-    client_type: number;
+    client_type: string;
+    address: string;
+    sector: string;
+    market: string;
+    is_active: boolean;
 }
 
 interface filters {
@@ -167,10 +172,15 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
                 const results = Array.isArray(data) ? data : data.results || [];
                 setClientsMap(results.map((client: any) => ({
                     id: client.id || 0,
+                    code: client.code || "not defined",
                     latitude: client.latitude || 0,
                     longitude: client.longitude || 0,
-                    name: client.name || "",
-                    client_type: client.client_type || 0,
+                    name: client.name || "not defined",
+                    client_type: client.client_type || "not defined",
+                    address: client.address || "not defined",
+                    sector: client.sector || "not defined",
+                    market: client.market || "not defined",
+                    is_active: client.is_active ?? true,
                 })));
             })
             .catch(error => {

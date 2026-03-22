@@ -128,6 +128,12 @@ export default function ClientsData() {
             lng: client.longitude,
             popup: client.name,
             type: client.client_type,
+            code: client.code,
+            id: client.id,
+            address: client.address,
+            sector: client.sector,
+            market: client.market,
+            is_active: client.is_active,
         })));
     }, [clientsMap]);
 

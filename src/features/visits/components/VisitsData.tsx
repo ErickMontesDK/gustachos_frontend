@@ -97,11 +97,21 @@ export default function VisitsData() {
 
 
     useEffect(() => {
-        const markers = visits.map((visit) => ({
+        const markers: MarkerProps[] = visits.map((visit) => ({
             lat: visit.client_coordinates[0],
             lng: visit.client_coordinates[1],
             popup: visit.client__name,
-            type: (visit as any).client_type_id,
+            type: visit.client_type_id.toString(),
+            code: visit.client__code,
+            id: visit.client_id,
+            visit_id: visit.id,
+            visit_date: visit.visited_at,
+            visit_time: visit.time,
+            is_productive: visit.is_productive,
+            notes: visit.notes,
+            deliverer_name: `${visit.deliverer__last_name}`,
+            address: visit.address,
+            sector: visit.client__sector,
         }));
         setMarkers(markers);
     }, [visits]);

@@ -1,6 +1,7 @@
 import { Home, MapPin, Package, Store, User, X, Navigation, Settings, Check, Activity, Briefcase, Layers, Globe, Clock, Calendar } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { formatDatetime } from '../utils/formatDatetime';
 import { getVisits } from '../features/visits/api/visitsService';
 import { getClientById } from '../features/clients/api/clientsServices';
 
@@ -17,7 +18,13 @@ export interface MarkerProps {
     sector?: string;
     market?: string;
     is_active?: boolean;
-    id?: number; // <-- Added
+    id?: number; // Client ID
+    visit_id?: number;
+    visit_date?: string;
+    visit_time?: string;
+    is_productive?: boolean;
+    notes?: string;
+    deliverer_name?: string;
 }
 
 export interface MapDisplayProps {
@@ -33,6 +40,7 @@ const DEFAULT_VISIBLE_FIELDS = {
     market: true,
     coordinates: true,
     recentVisits: true,
+    visitDetails: true,
 };
 
 export default function MapDisplay({ markers, config }: MapDisplayProps) {
@@ -44,7 +52,8 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
     const [showSettings, setShowSettings] = useState(false);
     const [visibleFields, setVisibleFields] = useState(() => {
         const saved = localStorage.getItem('mapPopupPreferences');
-        return saved ? JSON.parse(saved) : DEFAULT_VISIBLE_FIELDS;
+        const parsed = saved ? JSON.parse(saved) : {};
+        return { ...DEFAULT_VISIBLE_FIELDS, ...parsed };
     });
 
     const [visits, setVisits] = useState<any[]>([]);
@@ -54,9 +63,32 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
 
     const selectedMarkerRef = useRef<MarkerProps | null>(null);
 
+    // Effect 1: Handle marker selection and fetch client details
     useEffect(() => {
         selectedMarkerRef.current = selectedMarker;
 
+        // Reset states and loading immediately
+        setVisits([]);
+        setLoadingVisits(false);
+        setFullDetail(null);
+        setLoadingDetail(false);
+
+        if (selectedMarker?.id) {
+            setLoadingDetail(true);
+            getClientById(selectedMarker.id)
+                .then((data: any) => {
+                    setFullDetail(data);
+                    setLoadingDetail(false);
+                })
+                .catch((err: any) => {
+                    console.error("Error fetching client details for map popup:", err);
+                    setLoadingDetail(false);
+                });
+        }
+    }, [selectedMarker]);
+
+    // Effect 2: Fetch visits once client code is available
+    useEffect(() => {
         if (fullDetail?.code) {
             setLoadingVisits(true);
             setVisits([]);
@@ -74,21 +106,7 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                     setLoadingVisits(false);
                 });
         }
-
-        if (selectedMarker?.id) {
-            setLoadingDetail(true);
-            setFullDetail(null);
-            getClientById(selectedMarker.id)
-                .then((data: any) => {
-                    setFullDetail(data);
-                    setLoadingDetail(false);
-                })
-                .catch((err: any) => {
-                    console.error("Error fetching client details for map popup:", err);
-                    setLoadingDetail(false);
-                });
-        }
-    }, [selectedMarker]);
+    }, [fullDetail?.code]);
 
     useEffect(() => {
         localStorage.setItem('mapPopupPreferences', JSON.stringify(visibleFields));
@@ -260,6 +278,7 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                                         {fullDetail?.client_type_name}
                                     </span>
                                 )}
+
                             </div>
                         </div>
 
@@ -281,30 +300,34 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                         </div>
                     </div>
 
-                    {/* Content or Settings */}
                     {showSettings ? (
                         <div style={{ padding: '16px', background: '#fafafa', overflowY: 'auto', flex: 1 }}>
                             <h6 style={{ margin: '0 0 14px', fontSize: 12, fontWeight: 700, color: '#666', letterSpacing: '0.5px' }}>DISPLAY SETTINGS</h6>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                {Object.keys(DEFAULT_VISIBLE_FIELDS).map((field) => (
-                                    <div key={field} className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id={`field-${field}`}
-                                            checked={visibleFields[field]}
-                                            onChange={() => toggleField(field as any)}
-                                            style={{ cursor: 'pointer' }}
-                                        />
-                                        <label
-                                            className="form-check-label text-capitalize"
-                                            htmlFor={`field-${field}`}
-                                            style={{ fontSize: 13, cursor: 'pointer', color: '#444' }}
-                                        >
-                                            {field === 'recentVisits' ? 'Recent Visits' : field}
-                                        </label>
-                                    </div>
-                                ))}
+                                {Object.keys(DEFAULT_VISIBLE_FIELDS).map((field) => {
+                                    if (field === 'recentVisits' && selectedMarker?.visit_id) return null;
+                                    if (field === 'visitDetails' && !selectedMarker?.visit_id) return null;
+
+                                    return (
+                                        <div key={field} className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={`field-${field}`}
+                                                checked={visibleFields[field]}
+                                                onChange={() => toggleField(field as any)}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                            <label
+                                                className="form-check-label text-capitalize"
+                                                htmlFor={`field-${field}`}
+                                                style={{ fontSize: 13, cursor: 'pointer', color: '#444' }}
+                                            >
+                                                {field === 'recentVisits' ? 'Recent Visits' : field === 'visitDetails' ? 'Visit Details' : field}
+                                            </label>
+                                        </div>
+                                    );
+                                })}
                             </div>
                             <button
                                 onClick={() => setShowSettings(false)}
@@ -382,14 +405,62 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                                     <div>
                                         <div style={{ fontSize: 11, color: '#888', fontWeight: 600, marginBottom: 2 }}>COORDINATES</div>
                                         <div style={{ fontSize: 13, color: '#333', fontFamily: 'monospace' }}>
-                                            {Number(selectedMarker.lat).toFixed(6)}, {Number(selectedMarker.lng).toFixed(6)}
+                                            {Number(selectedMarker?.lat).toFixed(6)}, {Number(selectedMarker?.lng).toFixed(6)}
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Recent Visits Section */}
-                            {visibleFields.recentVisits && (
+                            {/* Contextual Section: Recent Visits (Client Mode) or Visit Details (Visit Mode) */}
+                            {selectedMarker.visit_id ? (
+                                visibleFields.visitDetails && (
+                                    <div style={{ borderTop: '1px dashed #f0f0f0', paddingTop: 14 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                            <Activity size={16} color="#444" />
+                                            <span style={{ fontSize: 12, fontWeight: 700, color: '#444' }}>VISIT DETAILS</span>
+                                            <div style={{ marginLeft: 'auto' }}>
+                                                <a
+                                                    href={`/clients-data?code=${selectedMarker?.code}`}
+                                                    className="btn btn-sm btn-outline-primary"
+                                                    style={{ fontSize: 10, fontWeight: 700, borderRadius: 6, padding: '2px 8px' }}
+                                                >
+                                                    View Profile
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: selectedMarker?.is_productive ? '#ebfbee' : '#fff5f5', borderRadius: 8, border: `1px solid ${selectedMarker?.is_productive ? '#d3f9d8' : '#ffe3e3'}` }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <Calendar size={12} color="#888" />
+                                                    <span style={{ fontSize: 12, color: '#333', fontWeight: 600 }}>
+                                                        {selectedMarker?.visit_date ? (selectedMarker.visit_date.includes('T') ? formatDatetime(selectedMarker.visit_date).formattedDate : selectedMarker.visit_date) : 'N/A'} {selectedMarker?.visit_time && `- ${selectedMarker.visit_time}`}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: 10, fontWeight: 800, color: selectedMarker?.is_productive ? '#099268' : '#fa5252', textTransform: 'uppercase' }}>
+                                                    {selectedMarker?.is_productive ? 'Productive' : 'No Sale'}
+                                                </div>
+                                            </div>
+
+                                            {selectedMarker?.notes && (
+                                                <div style={{ padding: '10px 12px', background: '#f8f9fa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
+                                                    <div style={{ fontSize: 10, color: '#888', fontWeight: 700, marginBottom: 4, textTransform: 'uppercase' }}>NOTES</div>
+                                                    <div style={{ fontSize: 12, color: '#444', fontStyle: 'italic', lineHeight: 1.4 }}>
+                                                        "{selectedMarker.notes}"
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {selectedMarker?.deliverer_name && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                                                    <User size={14} color="#888" />
+                                                    <span style={{ fontSize: 11, color: '#666' }}>Visited by: <small style={{ fontWeight: 700 }}>{selectedMarker.deliverer_name}</small></span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )
+                            ) : visibleFields.recentVisits && (
                                 <div style={{ borderTop: '1px dashed #f0f0f0', paddingTop: 14 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                                         <Clock size={16} color="#444" />
@@ -424,7 +495,7 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                                         <Calendar size={12} color="#888" />
                                                         <span style={{ fontSize: 12, color: '#333', fontWeight: 500 }}>
-                                                            {new Date(visit.visited_at).toLocaleDateString()}
+                                                            {formatDatetime(visit.visited_at).formattedDate}
                                                         </span>
                                                     </div>
                                                     <div style={{

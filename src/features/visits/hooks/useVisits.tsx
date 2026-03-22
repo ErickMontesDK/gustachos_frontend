@@ -1,5 +1,5 @@
 import { SortingState } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService, restoreVisit as restoreVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";
 
@@ -74,12 +74,12 @@ export const useVisits = () => {
     const [refreshKey, setRefreshKey] = useState(0);
 
 
-    const refresh = () => setRefreshKey(prev => prev + 1);
+    const refresh = useCallback(() => setRefreshKey(prev => prev + 1), []);
 
-    const updateFilters = <K extends keyof filters>(key: K, value: filters[K]) => {
+    const updateFilters = useCallback(<K extends keyof filters>(key: K, value: filters[K]) => {
         setFilters(prev => ({ ...prev, [key]: value }));
         setPagination(prev => ({ ...prev, pageIndex: 0 }));
-    }
+    }, []);
     const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
 
     useEffect(() => {

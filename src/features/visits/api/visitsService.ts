@@ -77,6 +77,24 @@ const deleteVisit = async (id: number) => {
     }
 }
 
+export const registerVisit = async (data: {
+    client: number,
+    visited_at: string,
+    latitude_recorded: number,
+    longitude_recorded: number,
+    is_productive: boolean,
+    notes: string,
+}) => {
+    try {
+        const response = await api.post("/visits/", data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error registering visit:", error);
+        throw error;
+    }
+}
+
 const getVisitExcel = async (params: VisitParams) => {
     try {
         const { signal, ...restParams } = params;

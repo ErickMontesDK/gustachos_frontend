@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { api } from "../api/axiosInstance";
 import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
 import { QrCode, ClipboardList, MapPin, User, CheckCircle2, AlertCircle, Store, Home, RefreshCw } from "lucide-react";
 import '../styles/register-visit.css';
 import CodeScannerComponent from "./CodeScanner";
 import Modal from "./modal";
-import { usePermissions } from "../hooks/usePermissions";
+import PermissionGate from "./PermissionGate";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useScanner } from "../hooks/useScanner";
+import { getClientByCode } from "../features/clients/api/clientsServices";
+import { registerVisit } from "../features/visits/api/visitsService";
 
 interface DetectedCode {
     format: string;
@@ -19,7 +20,6 @@ interface DetectedCode {
 export default function RegisterVisit() {
     const navigate = useNavigate();
 
-    const { permissionsGranted, permissionError, retryPermissions } = usePermissions();
     const { latitude, longitude, datetime, gettingGeolocation, gettingDatetime, resetLocation } = useGeolocation();
     const {
         isScannerPaused, setIsScannerPaused,
@@ -63,16 +63,15 @@ export default function RegisterVisit() {
         const detectedCode = detectedCodes[0].rawValue;
         setIsScannerPaused(true);
 
-        api.get(`/clients/code/${detectedCode}`)
-            .then(response => {
-                setClientData(response.data);
-                setClientId(parseInt(response.data.id));
+        getClientByCode(detectedCode)
+            .then(data => {
+                setClientData(data);
+                setClientId(parseInt(data.id));
                 gettingDatetime();
 
                 setIsClientFound(true);
             })
             .catch(error => {
-                console.error("Error fetching client data: ", error);
                 setScanError(error.response?.data?.detail || "Client not found or network error.");
             })
             .finally(() => {
@@ -104,10 +103,16 @@ export default function RegisterVisit() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!clientId) return;
+        setErrorMessage("");
+
+        if (!isClientFound || !clientId) {
+            setErrorMessage("Please scan a client code before registering.");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
 
         setIsSubmitting(true);
-        api.post("/visits/", {
+        registerVisit({
             client: clientId,
             visited_at: datetime,
             latitude_recorded: latitude,
@@ -115,7 +120,7 @@ export default function RegisterVisit() {
             is_productive: isProductive,
             notes: notes,
         })
-            .then(response => {
+            .then(() => {
                 setIsSuccess(true);
             })
             .catch(error => {
@@ -126,30 +131,10 @@ export default function RegisterVisit() {
             });
     }
 
-    if (permissionsGranted === false) {
-        return (
-            <Layout>
-                <Modal
-                    title="Necessary permissions"
-                    message={permissionError}
-                    buttonText1={<><RefreshCw size={20} className="me-2" />Try Again</>}
-                    buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
-                    buttonAction1={retryPermissions}
-                    buttonAction2={() => navigate("/home")}
-                    icon={<AlertCircle size={48} />}
-                    isVertical={true}
-                />
-            </Layout>
-        );
-    } else if (permissionsGranted === null) {
-        return (
-            <Layout>
-                <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>
-            </Layout>
-        );
-    } else {
+    const isFormValid = isClientFound && clientId && latitude && longitude && delivererName && datetime;
 
-        return (
+    return (
+        <PermissionGate>
             <Layout>
                 <div className="register-visit-container">
                     <header className="page-header">
@@ -170,10 +155,12 @@ export default function RegisterVisit() {
                                         <AlertCircle size={48} strokeWidth={1.5} className="text-danger" />
                                     )
                                 )}
-                                {!isScannerLoading && isScannerUsed ? isClientFound ? "Client Found" : "Client Not Found. Retry?" : isScannerLoading ? "Scanning..." : "Scan Client Code"}
+                                {!isScannerLoading && isScannerUsed ? isClientFound ? "Client Found" : "Client Not Found. Retry?" : isScannerLoading ? "Scanning..." : "Press to Scan Code"}
                             </button>
                         )}
-                        {!isScannerPaused && <CodeScannerComponent isPaused={isScannerPaused} setIsPaused={setIsScannerPaused} handleScan={handleScan} />}
+                        {!isScannerPaused &&
+                            <CodeScannerComponent isPaused={isScannerPaused} setIsPaused={setIsScannerPaused} handleScan={handleScan} />
+                        }
                         {scanError && isScannerPaused && !isScannerLoading && (
                             <div className="alert alert-danger mt-3 py-2 text-center d-flex align-items-center justify-content-center" role="alert">
                                 <AlertCircle size={18} className="me-2" />
@@ -183,6 +170,12 @@ export default function RegisterVisit() {
                     </section>
 
                     <form onSubmit={handleSubmit} className="form-section">
+                        {errorMessage && (
+                            <div className="alert alert-danger form-error-alert" role="alert">
+                                <AlertCircle size={18} className="me-2 flex-shrink-0" />
+                                <div>{errorMessage}</div>
+                            </div>
+                        )}
                         <div className="info-card">
                             <div className="info-grid">
                                 <div className="info-item">
@@ -239,35 +232,32 @@ export default function RegisterVisit() {
                             </label>
                             <textarea
                                 id="notes"
-                                className="form-control"
+                                className="form-control visit-notes-textarea"
                                 rows={4}
                                 placeholder="Describe any relevant details about the visit..."
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                style={{ borderRadius: '12px' }}
                             />
                         </div>
 
-                        <div className="card border-0 bg-light p-3 mb-4" style={{ borderRadius: '16px' }}>
+                        <div className="card border-0 bg-light p-3 mb-4 productive-switch-card">
                             <div className="form-check form-switch d-flex justify-content-between align-items-center ps-0">
                                 <label className="form-check-label h6 mb-0 d-flex align-items-center" htmlFor="productiveSwitch">
                                     <CheckCircle2 size={18} className="me-2 text-success" />
                                     Productive Visit?
                                 </label>
                                 <input
-                                    className="form-check-input ms-0"
+                                    className="form-check-input ms-0 productive-switch-input"
                                     type="checkbox"
                                     role="switch"
                                     id="productiveSwitch"
-                                    style={{ width: '2.5em', height: '1.25em', cursor: 'pointer' }}
                                     checked={isProductive}
                                     onChange={(e) => setIsProductive(e.target.checked)}
                                 />
                             </div>
                         </div>
 
-
-                        <button type="submit" className="submit-btn" disabled={isSubmitting || !isClientFound}>
+                        <button type="submit" className="submit-btn" disabled={isSubmitting || !isFormValid}>
                             {isSubmitting ? (
                                 <>
                                     <span className="spinner-border spinner-border-sm me-2"></span>
@@ -278,7 +268,6 @@ export default function RegisterVisit() {
                     </form>
 
                     {isSuccess && (
-
                         <Modal
                             title="Visit Registered!"
                             message={`The visit to ${clientData.name} has been successfully recorded.`}
@@ -292,7 +281,6 @@ export default function RegisterVisit() {
                     )}
 
                     {errorMessage && (
-
                         <Modal
                             title="Oops! Something went wrong"
                             message={errorMessage}
@@ -305,7 +293,6 @@ export default function RegisterVisit() {
                     )}
                 </div>
             </Layout>
-        );
-    }
-
+        </PermissionGate>
+    );
 }

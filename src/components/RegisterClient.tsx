@@ -1,15 +1,15 @@
 import Layout from "./Layout";
-import { usePermissions } from "../hooks/usePermissions";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useEffect, useState } from "react";
 import { useScanner } from "../hooks/useScanner";
-import { api } from "../api/axiosInstance";
 import CodeScannerComponent from "./CodeScanner";
 import { AlertCircle, CheckCircle2, QrCode, User, MapPin, Navigation, RefreshCw, Home, Store } from "lucide-react";
 import '../styles/register-visit.css';
 import axios from "axios";
 import Modal from "./../components/modal";
 import { useNavigate } from "react-router-dom";
+import { checkClientCode, createClient } from "../features/clients/api/clientsServices";
+import PermissionGate from "./PermissionGate";
 
 
 interface DetectedCode {
@@ -20,7 +20,6 @@ interface DetectedCode {
 export default function RegisterClient() {
     const navigate = useNavigate();
 
-    const { permissionsGranted, permissionError, retryPermissions } = usePermissions();
     const { latitude, longitude, gettingGeolocation, gettingDatetime, resetLocation } = useGeolocation();
     const [clientCodeAvailable, setClientCodeAvailable] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -87,8 +86,8 @@ export default function RegisterClient() {
 
         setIsSubmitting(true);
 
-        api.post('/clients/', clientData)
-            .then(response => {
+        createClient(clientData)
+            .then(() => {
                 setError(null);
                 resetScanner();
                 setClientData({
@@ -105,13 +104,16 @@ export default function RegisterClient() {
             })
             .catch(error => {
                 setError(error.response?.data?.message || "An error occurred while registering the client. Please try again.");
-                console.error("Error registering client: ", error);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             })
             .finally(() => {
                 setIsSubmitting(false);
             });
     }
+
+    const isFormValid = clientData.code && clientData.name && clientData.address
+        && clientData.neighborhood && clientData.municipality && clientData.state
+        && latitude && longitude;
 
     const fetchAddress = (lat: number, lon: number) => {
         if (!lat || !lon || isFetchingAddress) return;
@@ -158,9 +160,9 @@ export default function RegisterClient() {
         setIsScannerLoading(true);
         setIsScannerPaused(true);
 
-        api.get(`/clients/check-code/?code=${detectedCode}`)
-            .then(response => {
-                if (response.data.available) {
+        checkClientCode(detectedCode)
+            .then((data) => {
+                if (data.available) {
                     setClientCodeAvailable(true);
                     gettingDatetime();
                     setClientData(prev => ({
@@ -173,36 +175,14 @@ export default function RegisterClient() {
             })
             .catch(error => {
                 setError(error.response?.data?.message || "An error occurred while fetching client data. Please try again.");
-                console.error("Error fetching client data: ", error);
             })
             .finally(() => {
                 setIsScannerLoading(false);
             });
     }
 
-    if (permissionsGranted === false) {
-        return (
-            <Layout>
-                <Modal
-                    title="Location Permission Required"
-                    message={permissionError}
-                    buttonText1={<><RefreshCw size={20} className="me-2" />Retry</>}
-                    buttonText2={<><Home size={20} className="me-2" />Back to Home</>}
-                    buttonAction1={retryPermissions}
-                    buttonAction2={() => navigate("/home")}
-                    icon={<AlertCircle size={48} />}
-                    isVertical={true}
-                />
-            </Layout>
-        );
-    } else if (permissionsGranted === null) {
-        return (
-            <Layout>
-                <div className="p-5 text-center">Verifying hardware (GPS/Camera)...</div>
-            </Layout>
-        );
-    } else {
-        return (
+    return (
+        <PermissionGate>
             <Layout>
                 <div className="register-visit-container">
                     <header className="page-header">
@@ -223,15 +203,17 @@ export default function RegisterClient() {
                                         <AlertCircle size={48} strokeWidth={1.5} className="text-danger" />
                                     )
                                 )}
-                                {!isScannerLoading && isScannerUsed ? clientCodeAvailable ? "Client Code Available" : "Client Code Not Available. Retry?" : isScannerLoading ? "Scanning..." : "Scan Client Code"}
+                                {!isScannerLoading && isScannerUsed ? clientCodeAvailable ? "Client Code Available" : "Client Code Not Available. Retry?" : isScannerLoading ? "Scanning..." : "Press to Scan Code"}
                             </button>
                         )}
-                        {!isScannerPaused && <CodeScannerComponent isPaused={isScannerPaused} setIsPaused={setIsScannerPaused} handleScan={handleScan} />}
+                        {!isScannerPaused &&
+                            <CodeScannerComponent isPaused={isScannerPaused} setIsPaused={setIsScannerPaused} handleScan={handleScan} />
+                        }
                     </section>
 
                     <form className="form-section" onSubmit={onSubmit}>
                         {error && (
-                            <div className="alert alert-danger d-flex align-items-center mb-4 py-2 px-3 m-0 rounded-3 shadow-sm border-0 bg-danger bg-opacity-10 text-danger fw-medium" role="alert">
+                            <div className="alert alert-danger form-error-alert" role="alert">
                                 <AlertCircle size={18} className="me-2 flex-shrink-0" />
                                 <div>{error}</div>
                             </div>
@@ -359,7 +341,7 @@ export default function RegisterClient() {
                             </div>
                         </div>
 
-                        <button type="submit" className="submit-btn mt-4" disabled={isSubmitting}>
+                        <button type="submit" className="submit-btn mt-4" disabled={isSubmitting || !isFormValid}>
                             {isSubmitting ? (
                                 <><span className="spinner-border spinner-border-sm me-2"></span>Registering...</>
                             ) : (
@@ -369,7 +351,6 @@ export default function RegisterClient() {
                     </form>
 
                     {isSuccess && (
-
                         <Modal
                             title="Client Registered!"
                             message={`The client ${clientData.name} has been successfully registered.`}
@@ -384,7 +365,6 @@ export default function RegisterClient() {
 
                 </div>
             </Layout>
-        );
-    }
-
+        </PermissionGate>
+    );
 }

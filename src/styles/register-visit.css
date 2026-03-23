@@ -1,3 +1,11 @@
+/* ========================================
+   REGISTER-VISIT.CSS — Registration Pages
+   (Shared by RegisterVisit & RegisterClient)
+   ======================================== */
+
+/* ----------------------------------------
+   1. Layout & Container
+   ---------------------------------------- */
 .register-visit-container {
   padding: 1.5rem;
   max-width: 500px;
@@ -23,7 +31,10 @@
   font-size: 0.95rem;
 }
 
-/* Scanner Section */
+
+/* ----------------------------------------
+   2. Scanner
+   ---------------------------------------- */
 .scanner-card {
   background: var(--card-bg-solid);
   border: 1px solid var(--border-color);
@@ -69,13 +80,13 @@
   position: relative;
   width: 100%;
   height: 500px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   overflow: hidden;
 }
 
 .scanner-element {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -88,20 +99,21 @@
 
 .scanner-finder {
   border: 2px solid var(--primary-color) !important;
-  border-radius: 12px;
+  border-radius: var(--border-radius-md);
 }
 
-.scanner-mask {
-  background: rgba(0, 0, 0, 0.5);
-}
-
+.scanner-mask,
 .scanner-overlay {
   background: rgba(0, 0, 0, 0.5);
 }
 
+
+/* ----------------------------------------
+   3. Client Info Card
+   ---------------------------------------- */
 .info-card {
   background: var(--card-bg-solid);
-  border-radius: 20px;
+  border-radius: var(--border-radius-xl);
   padding: 1.5rem;
   box-shadow: var(--shadow-md);
   margin-bottom: 1.5rem;
@@ -134,9 +146,9 @@
   color: var(--text-main);
   font-weight: 500;
   padding: 0.75rem;
-  background: rgb(248, 249, 250);
+  background: var(--bg-main);
   border-radius: var(--border-radius-md);
-  border: 1px solid rgb(233, 236, 239);
+  border: 1px solid var(--border-color);
 }
 
 .info-value-textarea {
@@ -144,6 +156,41 @@
   min-height: 100px;
 }
 
+
+/* ----------------------------------------
+   4. Form Elements
+   ---------------------------------------- */
+.visit-notes-textarea {
+  border-radius: var(--border-radius-md);
+}
+
+.productive-switch-card {
+  border-radius: var(--border-radius-lg);
+}
+
+.productive-switch-input {
+  width: 2.5em;
+  height: 1.25em;
+  cursor: pointer;
+}
+
+.form-error-alert {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border: none;
+  box-shadow: var(--shadow-sm);
+  background-color: var(--danger-subtle);
+  color: var(--danger-color);
+  font-weight: 500;
+}
+
+
+/* ----------------------------------------
+   5. Submit Button
+   ---------------------------------------- */
 .submit-btn {
   width: 100%;
   background: var(--primary-color);
@@ -157,16 +204,25 @@
   transition: all var(--transition-fast);
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: var(--primary-hover);
   transform: translateY(var(--btn-hover-translate));
 }
 
-.submit-btn:active {
+.submit-btn:active:not(:disabled) {
   transform: scale(var(--btn-hover-scale));
 }
 
-/* Mobile adjustments */
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--text-muted);
+}
+
+
+/* ----------------------------------------
+   6. Responsive
+   ---------------------------------------- */
 @media (max-width: 500px) {
   .register-visit-container {
     padding: 1rem;

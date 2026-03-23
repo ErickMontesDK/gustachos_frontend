@@ -107,4 +107,13 @@ const getDashboardStats = async () => {
     }
 }
 
-export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changeOwnPassword, changeUserPassword, restoreUser, getDashboardStats };
+const getDeliveryStats = async () => {
+    try {
+        const response = await api.get(`/users/me/dashboard/`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching delivery stats:", error);
+        throw error;
+    }
+}
+export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changeOwnPassword, changeUserPassword, restoreUser, getDashboardStats, getDeliveryStats };

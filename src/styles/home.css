@@ -1,4 +1,10 @@
-/* General Home components styles */
+/* ========================================
+   HOME.CSS — Dashboard Styles
+   ======================================== */
+
+/* ----------------------------------------
+   1. Animations
+   ---------------------------------------- */
 .animate-fade-in {
     animation: fadeIn var(--transition-fast);
 }
@@ -15,11 +21,24 @@
     }
 }
 
+
+/* ----------------------------------------
+   2. Layout & Containers
+   ---------------------------------------- */
 .dashboard-container {
     max-width: 1100px;
     margin: 0 auto;
 }
 
+.delivery-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+/* ----------------------------------------
+   3. KPI Cards
+   ---------------------------------------- */
 .kpi-card {
     text-decoration: none;
 }
@@ -29,9 +48,8 @@
     transition: var(--transition-normal);
 }
 
-
 .kpi-card:hover .kpi-card-inner {
-    background-color: var(--primary-subtle);
+    background-color: var(--primary-subtle) !important;
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg) !important;
 }
@@ -45,55 +63,7 @@
     margin-bottom: 0.75rem;
 }
 
-.activity-card-list {
-    background: var(--card-bg-solid);
-    border-radius: var(--border-radius-xl);
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-}
-
-.activity-item {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border-color-light);
-    transition: var(--transition-fast);
-}
-
-.activity-item:hover {
-    background-color: var(--info-subtle);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg) !important;
-}
-
-.activity-icon-container {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.activity-icon-primary {
-    background-color: var(--primary-subtle);
-    color: var(--primary-color);
-}
-
-.activity-icon-success {
-    background-color: var(--success-subtle);
-    color: var(--success-color);
-}
-
-.activity-icon-danger {
-    background-color: var(--danger-subtle);
-    color: var(--danger-color);
-}
-
-.activity-icon-warning {
-    background-color: var(--warning-subtle);
-    color: var(--warning-color);
-}
-
+/* KPI background colors */
 .kpi-bg-primary {
     background-color: var(--primary-subtle);
 }
@@ -114,6 +84,87 @@
     background-color: var(--info-subtle);
 }
 
+
+/* ----------------------------------------
+   4. Activity Feed
+   ---------------------------------------- */
+.activity-card-list {
+    background: var(--card-bg-solid);
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.activity-item {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: var(--transition-fast);
+}
+
+.activity-item:hover {
+    background-color: var(--info-subtle);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Activity icon container */
+.activity-icon-container {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Activity icon color variants */
+.activity-icon-primary {
+    background-color: var(--primary-subtle);
+    color: var(--primary-color);
+}
+
+.activity-icon-success {
+    background-color: var(--success-subtle);
+    color: var(--success-color);
+}
+
+.activity-icon-danger {
+    background-color: var(--danger-subtle);
+    color: var(--danger-color);
+}
+
+.activity-icon-warning {
+    background-color: var(--warning-subtle);
+    color: var(--warning-color);
+}
+
+/* Description box inside activity items */
+.description-box {
+    background: var(--bg-main);
+    border-radius: var(--border-radius-sm);
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--border-color);
+}
+
+
+/* ----------------------------------------
+   5. Daily Performance Cards
+   ---------------------------------------- */
+.daily-performance:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg) !important;
+    background-color: var(--primary-subtle) !important;
+    transition: var(--transition-normal);
+}
+
+
+/* ----------------------------------------
+   6. Quick Action Buttons
+   ---------------------------------------- */
 .quick-btn {
     background: var(--card-bg-solid);
     border: 1px solid var(--border-color-light);
@@ -133,16 +184,38 @@
     color: var(--primary-color);
 }
 
-.description-box {
-    background: var(--bg-main);
-    border-radius: var(--border-radius-sm);
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    border-left: 3px solid var(--border-color);
+
+/* ----------------------------------------
+   7. Action Cards (Delivery)
+   ---------------------------------------- */
+.action-card {
+    transition: var(--transition-normal);
+    cursor: pointer;
 }
 
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg) !important;
+    background-color: var(--primary-subtle) !important;
+}
+
+
+/* ----------------------------------------
+   8. Summary Cards (Delivery)
+   ---------------------------------------- */
+.summary-card {
+    border-radius: 12px;
+    transition: var(--transition-fast);
+}
+
+.summary-card:hover {
+    background-color: var(--bg-main);
+}
+
+
+/* ----------------------------------------
+   9. Badges & Utilities
+   ---------------------------------------- */
 .badge-custom {
     font-size: 0.7rem;
     font-weight: 600;
@@ -155,15 +228,20 @@
     border-radius: var(--border-radius-lg) !important;
 }
 
+.radius-xl {
+    border-radius: var(--border-radius-xl) !important;
+}
+
+.radius-2xl {
+    border-radius: 24px !important;
+}
+
+
+/* ----------------------------------------
+   10. Responsive
+   ---------------------------------------- */
 @media (max-width: 768px) {
     .dashboard-container {
         padding: 1rem;
     }
-}
-
-.daily-performance:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg) !important;
-    background-color: var(--primary-subtle) !important;
-    transition: var(--transition-normal);
 }

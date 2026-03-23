@@ -35,6 +35,37 @@ const getClients = async (params: ClientsParams) => {
     }
 }
 
+export const createClient = async (data: {
+    code: string,
+    name: string,
+    address: string,
+    neighborhood: string,
+    municipality: string,
+    state: string,
+    latitude: number,
+    longitude: number,
+}) => {
+    try {
+        const response = await api.post("/clients/", data);
+        return response.data
+
+    } catch (error) {
+        console.error("Error creating client:", error);
+        throw error;
+    }
+}
+
+export const checkClientCode = async (code: string) => {
+    try {
+        const response = await api.get(`/clients/check-code/?code=${code}`);
+        return response.data
+
+    } catch (error) {
+        console.error("Error checking client code:", error);
+        throw error;
+    }
+}
+
 const getClientsMap = async (params: ClientsParams) => {
     try {
         const { signal, ...restParams } = params;
@@ -56,6 +87,17 @@ const getClientsMap = async (params: ClientsParams) => {
 const getClientById = async (id: number) => {
     try {
         const response = await api.get(`/clients/${id}/`);
+        return response.data
+
+    } catch (error) {
+        console.error("Error fetching client:", error);
+        throw error;
+    }
+}
+
+const getClientByCode = async (code: string) => {
+    try {
+        const response = await api.get(`/clients/code/${code}/`);
         return response.data
 
     } catch (error) {
@@ -130,4 +172,4 @@ const getClientExcel = async (params: ClientsParams) => {
     }
 }
 
-export { getClients, getClientById, updateClient, deleteClient, getClientExcel, getClientsMap, restoreClient };
+export { getClients, getClientById, updateClient, deleteClient, getClientExcel, getClientsMap, restoreClient, getClientByCode };

@@ -139,7 +139,7 @@ export default function Sidebar({ role, name, isOpen, setIsOpen }: SidebarVars) 
                 <img
                     src={logoUrl}
                     alt="Logo"
-                    className="img-fluid border border-secondary border-2 rounded"
+                    className="img-fluid rounded"
                     style={{
                         maxHeight: isOpen ? '80px' : '30px',
                         objectFit: 'contain'

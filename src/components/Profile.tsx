@@ -3,6 +3,7 @@ import { useChangeOwnPassword, useUserProfile } from "../features/users/hooks/us
 import { User, Mail, Shield, Fingerprint, Lock, CircleUser } from "lucide-react";
 import { useState } from "react";
 import Modal from "./modal";
+import '../styles/profile.css';
 
 export default function Profile() {
     const { user, error } = useUserProfile();
@@ -30,6 +31,7 @@ export default function Profile() {
                 });
             }
         );
+
     const passwordMatch = new_password === new_password_confirmation;
     const isFormValid = new_password.length >= 6;
 
@@ -52,7 +54,7 @@ export default function Profile() {
     if (!user) {
         return (
             <Layout>
-                <div className="d-flex flex-column justify-content-center align-items-center py-5" style={{ minHeight: '60vh' }}>
+                <div className="d-flex flex-column justify-content-center align-items-center py-5 profile-loading">
                     <div className="spinner-border text-primary mb-3" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
@@ -64,97 +66,101 @@ export default function Profile() {
 
     return (
         <Layout>
-            <div className="animate-fade-in p-2">
-                {/* Header Header */}
-                <div className="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+            <div className="profile-container animate-fade-in">
+                {/* Profile Header */}
+                <header className="profile-header-card card">
                     <div className="card-body p-4 d-flex align-items-center">
-                        <div className="bg-primary bg-opacity-10 p-3 rounded-circle me-4 text-primary d-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px' }}>
+                        <div className="profile-avatar me-4">
                             <CircleUser size={40} />
                         </div>
                         <div>
-                            <h1 className="h2 mb-1 fw-bold text-dark">{user.full_name}</h1>
+                            <h1 className="h2 profile-name">{user.full_name}</h1>
                             <div className="d-flex align-items-center gap-2">
-                                <span className="badge bg-primary rounded-pill px-3">{user.role}</span>
-                                <span className="text-secondary small">@{user.username}</span>
+                                <span className="profile-role-badge">{user.role}</span>
+                                <span className="profile-username">@{user.username}</span>
                             </div>
-                            {passwordMessage.error && <div className="text-danger small">{passwordMessage.message}</div>}
-                            {!passwordMessage.error && <div className="text-success small">{passwordMessage.message}</div>}
+                            {passwordMessage.message && (
+                                <div className={`small mt-1 ${passwordMessage.error ? 'text-danger' : 'text-success'}`}>
+                                    {passwordMessage.message}
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
+                </header>
 
-                <div className="row g-4">
-                    {/* Information Section */}
+                <main className="row g-4">
+                    {/* Personal Details */}
                     <div className="col-lg-8">
-                        <div className="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white bg-opacity-75" style={{ backdropFilter: 'blur(8px)' }}>
-                            <h5 className="mb-4 fw-bold d-flex align-items-center">
+                        <section className="profile-detail-card">
+                            <h5 className="d-flex align-items-center">
                                 <User size={20} className="text-primary me-2" />
                                 Personal Details
                             </h5>
 
                             <div className="row g-3">
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-light rounded-3 border border-light">
-                                        <label className="text-muted small fw-bold text-uppercase d-block mb-1">First Name</label>
-                                        <div className="fw-semibold text-dark">{user.first_name}</div>
+                                    <div className="profile-field">
+                                        <label className="profile-field-label d-block">First Name</label>
+                                        <div className="profile-field-value">{user.first_name}</div>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-light rounded-3 border border-light">
-                                        <label className="text-muted small fw-bold text-uppercase d-block mb-1">Last Name</label>
-                                        <div className="fw-semibold text-dark">{user.last_name}</div>
+                                    <div className="profile-field">
+                                        <label className="profile-field-label d-block">Last Name</label>
+                                        <div className="profile-field-value">{user.last_name}</div>
                                     </div>
                                 </div>
                                 <div className="col-12">
-                                    <div className="p-3 bg-light rounded-3 border border-light d-flex align-items-center">
+                                    <div className="profile-field d-flex align-items-center">
                                         <Mail size={18} className="text-primary me-3" />
                                         <div>
-                                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Email</label>
-                                            <div className="fw-semibold text-dark">{user.email}</div>
+                                            <label className="profile-field-label d-block">Email</label>
+                                            <div className={`profile-field-value ${!user.email ? 'empty' : ''}`}>
+                                                {user.email || "No email registered"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
 
-                    {/* Account Section */}
+                    {/* Account Security */}
                     <div className="col-lg-4">
-                        <div className="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white bg-opacity-75" style={{ backdropFilter: 'blur(8px)' }}>
-                            <h5 className="mb-4 fw-bold d-flex align-items-center">
+                        <section className="profile-detail-card">
+                            <h5 className="d-flex align-items-center">
                                 <Shield size={20} className="text-success me-2" />
                                 Account Security
                             </h5>
 
-                            <div className="mb-3 p-3 bg-white rounded-3 border border-light shadow-xs">
-                                <label className="text-muted small fw-bold text-uppercase d-block mb-1">Status</label>
+                            <div className="security-field mb-3">
+                                <label className="profile-field-label d-block">Status</label>
                                 <div className="d-flex align-items-center justify-content-between">
                                     <span className="fw-bold text-dark">{user.role}</span>
                                     <span className="badge bg-success bg-opacity-10 text-success border-0 px-2 rounded-1 small">Active</span>
                                 </div>
                             </div>
 
-                            <div className="mb-4 p-3 bg-white rounded-3 border border-light shadow-xs">
-                                <label className="text-muted small fw-bold text-uppercase d-block mb-1">System ID</label>
+                            <div className="security-field mb-4">
+                                <label className="profile-field-label d-block">System ID</label>
                                 <div className="d-flex align-items-center">
                                     <Fingerprint size={16} className="text-muted me-2" />
-                                    <span className="font-monospace text-primary fw-bold">#000{user.id}</span>
+                                    <span className="system-id">#000{user.id}</span>
                                 </div>
                             </div>
 
                             <div className="mt-auto">
                                 <button
-                                    className="btn btn-primary w-100 py-2 rounded-3 shadow-sm d-flex align-items-center justify-content-center"
+                                    className="btn btn-primary change-password-btn d-flex align-items-center justify-content-center"
                                     onClick={() => setShowPasswordModal(true)}
                                 >
                                     <Lock size={16} className="me-2" />
                                     Change Password
                                 </button>
-
                             </div>
-                        </div>
+                        </section>
                     </div>
-                </div>
+                </main>
             </div>
 
             {showPasswordModal && (

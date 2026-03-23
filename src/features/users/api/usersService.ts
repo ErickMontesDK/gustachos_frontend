@@ -97,4 +97,14 @@ const changeUserPassword = async (id: number, data: any) => {
     }
 }
 
-export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changeOwnPassword, changeUserPassword, restoreUser };
+const getDashboardStats = async () => {
+    try {
+        const response = await api.get(`/users/dashboard/stats/`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        throw error;
+    }
+}
+
+export { getUsers, updateUser, deleteUser, createUser, getUserProfile, changeOwnPassword, changeUserPassword, restoreUser, getDashboardStats };

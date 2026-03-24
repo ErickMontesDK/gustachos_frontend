@@ -1,14 +1,18 @@
 import Layout from "../../../components/Layout";
 import { useState } from "react";
-import { useCreateUser, useDeleteUser, User, useUpdateUser, useRestoreUser, useChangeUserPassword } from "../hooks/useUsers";
+import { User, useRestoreUser } from "../hooks/useUsers";
 import { useUsers } from "../hooks/useUsers";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
-import Modal from "../../../components/modal";
-import { Plus, Trash, Key, RefreshCw, Copy, Check, Users, ListFilter } from "lucide-react";
+import { Plus, Users, ListFilter } from "lucide-react";
 import "./users-data.css";
+
+import CreateUserModal from "./modals/CreateUserModal";
+import EditUserModal from "./modals/EditUserModal";
+import DeleteUserModal from "./modals/DeleteUserModal";
+import ChangePasswordModal from "./modals/ChangePasswordModal";
 
 export default function UsersData() {
     const userRoles = [
@@ -43,50 +47,10 @@ export default function UsersData() {
     } = useUsers();
 
     const {
-        formData: createData,
-        setFormData: setCreateData,
-        handleChange: handleCreateChange,
-        createUser
-    } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
-
-    const {
-        formData: updateData,
-        setFormData: setUpdateData,
-        handleChange: handleUpdateChange,
-        updateUser
-    } = useUpdateUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
-
-    const {
-        deleteUser
-    } = useDeleteUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
-
-    const {
         restoreUser
     } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
 
-    const {
-        new_password: pass_new, setNewPassword: setPassNew,
-        new_password_confirmation: pass_confirm, setNewPasswordConfirmation: setPassConfirm,
-        changeUserPassword
-    } = useChangeUserPassword(() => {
-        cleaningData();
-    }, (msg) => setErrorMessage(msg));
-
-
-    const passwordMatch = (
-        createData.new_password_confirmation !== "" && createData.new_password === createData.new_password_confirmation
-    );
-    const isCreateFormValid = !!(
-        (createData.new_role && createData.new_email && createData.new_first_name && createData.new_last_name && createData.new_password && createData.new_password_confirmation && createData.new_username) &&
-        passwordMatch
-    );
-    const isEditFormValid = !!(updateData.role && updateData.email && updateData.first_name && updateData.last_name);
-
-
     const cleaningData = () => {
-        setUpdateData({ role: "", email: "", first_name: "", last_name: "" });
-        setCreateData({ new_role: "", new_email: "", new_first_name: "", new_last_name: "", new_username: "", new_password: "", new_password_confirmation: "" });
-
         setShowEditModal(false);
         setShowDeleteModal(false);
         setShowCreateModal(false);
@@ -94,27 +58,6 @@ export default function UsersData() {
 
         setSelectedUser(null);
         setErrorMessage(null);
-
-        setPassNew("");
-        setPassConfirm("");
-        setCopied(false);
-    };
-
-    const generatePassword = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-        const passwordLength = 12;
-        let password = "";
-        for (let i = 0; i < passwordLength; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        setPassNew(password);
-        setPassConfirm(password);
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(pass_new);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
@@ -224,265 +167,32 @@ export default function UsersData() {
 
             </main>
 
-            {showEditModal && (
-                <Modal
-                    title="Edit User"
-                    message={`Editing user: ${selectedUser?.full_name || '...'}`}
-                    buttonText1="Save Changes"
-                    buttonText2="Cancel"
-                    isForm={true}
-                    isSubmitDisabled={!isEditFormValid}
-                    buttonAction1={() => {
-                        updateUser();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                >
-                    <div className="row g-3">
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">First Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={updateData.first_name}
-                                onChange={(e) => handleUpdateChange('first_name', e.target.value)}
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Last Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={updateData.last_name}
-                                onChange={(e) => handleUpdateChange('last_name', e.target.value)}
-                            />
-                        </div>
-                        <div className="col-12">
-                            <label className="form-label font-bold">Email</label>
-                            <input
-                                type="email"
-                                className="form-control"
-                                value={updateData.email}
-                                onChange={(e) => handleUpdateChange('email', e.target.value)}
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <Select
-                                label="Role"
-                                name="role"
-                                value={updateData.role}
-                                onChange={(e) => handleUpdateChange('role', e.target.value)}
-                                options={userRoles}
-                                placeholder="Select role"
-                            />
-                        </div>
-                    </div>
-                </Modal>
-            )}
+            <CreateUserModal 
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={refresh}
+            />
 
-            {showDeleteModal && (
-                <Modal
-                    title="Delete User"
-                    icon={<Trash size={24} />}
-                    message={`Are you sure you want to delete this user?`}
-                    buttonText1="Delete"
-                    buttonText2="Cancel"
-                    buttonAction1={() => {
-                        deleteUser();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                />
-            )}
+            <EditUserModal 
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                onSuccess={refresh}
+                user={selectedUser}
+            />
 
-            {showCreateModal && (
-                <Modal
-                    title="Create User"
-                    message={`Creating a new user account`}
-                    buttonText1="Create User"
-                    buttonText2="Cancel"
-                    isForm={true}
-                    isSubmitDisabled={!isCreateFormValid}
-                    buttonAction1={() => {
-                        if (!createData.new_first_name || !createData.new_last_name || !createData.new_email || !createData.new_role || !createData.new_password || !createData.new_password_confirmation || !createData.new_username) {
-                            setErrorMessage("Please fill in all required fields.");
-                            return;
-                        }
-                        createUser();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                >
-                    <div className="row g-3">
-                        <div className="col-12">
-                            <h6 className="border-bottom pb-2 text-secondary">Personal Information</h6>
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">First Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={createData.new_first_name}
-                                onChange={(e) => handleCreateChange("new_first_name", e.target.value)}
-                                placeholder="e.g. John"
-                                required
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Last Name</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={createData.new_last_name}
-                                onChange={(e) => handleCreateChange("new_last_name", e.target.value)}
-                                placeholder="e.g. Doe"
-                                required
-                            />
-                        </div>
-                        <div className="col-12">
-                            <label className="form-label font-bold">Email Address</label>
-                            <input
-                                type="email"
-                                className="form-control"
-                                value={createData.new_email}
-                                onChange={(e) => handleCreateChange("new_email", e.target.value)}
-                                placeholder="john.doe@example.com"
-                                required
-                            />
-                        </div>
+            <DeleteUserModal 
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onSuccess={refresh}
+                user={selectedUser}
+            />
 
-                        <div className="col-12 mt-4">
-                            <h6 className="border-bottom pb-2 text-secondary">Account Details</h6>
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Username</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={createData.new_username}
-                                onChange={(e) => handleCreateChange("new_username", e.target.value)}
-                                placeholder="johndoe"
-                                required
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <Select
-                                label="Role"
-                                name="role"
-                                value={createData.new_role}
-                                onChange={(e) => handleCreateChange("new_role", e.target.value)}
-                                options={userRoles}
-                                placeholder="Select role"
-                            />
-                        </div>
-
-                        <div className="col-12 mt-4">
-                            <h6 className="border-bottom pb-2 text-secondary">Security</h6>
-                        </div>
-                        {!passwordMatch && createData.new_password_confirmation !== "" && (
-                            <div className="alert alert-danger py-2 mb-3" role="alert">
-                                Passwords do not match
-                            </div>
-                        )}
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                value={createData.new_password}
-                                onChange={(e) => handleCreateChange("new_password", e.target.value)}
-                                placeholder="Password"
-                                required
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Confirm Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                value={createData.new_password_confirmation}
-                                onChange={(e) => handleCreateChange("new_password_confirmation", e.target.value)}
-                                placeholder="Password confirmation"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                </Modal>
-            )}
-
-            {showPasswordModal && (
-                <Modal
-                    title="Change User Password"
-                    icon={<Key size={24} />}
-                    message={`Set a new password for ${selectedUser?.full_name}`}
-                    buttonText1="Save Password"
-                    buttonText2="Cancel"
-                    isForm={true}
-                    isSubmitDisabled={!pass_new || pass_new !== pass_confirm}
-                    buttonAction1={() => {
-                        if (selectedUser) {
-                            changeUserPassword(selectedUser.id);
-                        }
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                >
-                    <div className="row g-3">
-                        <div className="col-12">
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                                <label className="form-label font-bold mb-0">New Password</label>
-                                <button
-                                    type="button"
-                                    className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                                    onClick={generatePassword}
-                                >
-                                    <RefreshCw size={14} /> Generate
-                                </button>
-                            </div>
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={pass_new}
-                                    onChange={(e) => setPassNew(e.target.value)}
-                                    placeholder="Enter or generate password"
-                                />
-                                {pass_new && (
-                                    <button
-                                        className="btn btn-outline-secondary"
-                                        type="button"
-                                        onClick={copyToClipboard}
-                                        title="Copy to clipboard"
-                                    >
-                                        {copied ? <Check size={16} color="green" /> : <Copy size={16} />}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                        <div className="col-12">
-                            <label className="form-label font-bold">Confirm Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                value={pass_confirm}
-                                onChange={(e) => setPassConfirm(e.target.value)}
-                                placeholder="Confirm new password"
-                            />
-                            {pass_new !== pass_confirm && pass_confirm !== "" && (
-                                <div className="text-danger small mt-1">Passwords do not match</div>
-                            )}
-                        </div>
-                    </div>
-                </Modal>
-            )}
+            <ChangePasswordModal 
+                isOpen={showPasswordModal}
+                onClose={() => setShowPasswordModal(false)}
+                onSuccess={refresh}
+                user={selectedUser}
+            />
 
         </Layout>
     );

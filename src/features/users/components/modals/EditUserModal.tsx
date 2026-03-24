@@ -1,0 +1,108 @@
+import { useState } from "react";
+import Modal from "../../../../components/modal";
+import Select from "../../../../components/common/inputs/Select";
+import { useUpdateUser, User } from "../../hooks/useUsers";
+
+interface Props {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
+    user: User | null;
+}
+
+export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Props) {
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    // Mock setUser since the hook manages its own state tracking of user externally, 
+    // but here we just need to satisfy the signature or update it to read from `user`.
+    // Wait, useUpdateUser takes `user` and `setUser(null)`. We can just pass a no-op function for setUser since we close the modal instead.
+    const {
+        formData: updateData,
+        setFormData: setUpdateData,
+        handleChange: handleUpdateChange,
+        updateUser
+    } = useUpdateUser(
+        user,
+        () => {}, // Normally setUser(null) in UsersData, we don't need it because we use handleClose
+        () => {
+            onSuccess();
+            handleClose();
+        },
+        (msg) => setErrorMessage(msg)
+    );
+
+    const userRoles = [
+        { id: "ADMIN", name: "Admin" },
+        { id: "DELIVERY", name: "Delivery" },
+        { id: "OPERATOR", name: "Operator" },
+    ];
+
+    const isEditFormValid = !!(updateData.role && updateData.email && updateData.first_name && updateData.last_name);
+
+    const handleClose = () => {
+        setErrorMessage(null);
+        onClose();
+    };
+
+    if (!isOpen || !user) return null;
+
+    return (
+        <Modal
+            title="Edit User"
+            message={`Editing user: ${user.full_name || '...'}`}
+            buttonText1="Save Changes"
+            buttonText2="Cancel"
+            isForm={true}
+            isSubmitDisabled={!isEditFormValid}
+            buttonAction1={() => {
+                updateUser();
+            }}
+            buttonAction2={handleClose}
+        >
+            {errorMessage && (
+                <div className="alert alert-danger py-2 mb-3" role="alert">
+                    {errorMessage}
+                </div>
+            )}
+            <div className="row g-3">
+                <div className="col-md-6">
+                    <label className="form-label font-bold">First Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={updateData.first_name}
+                        onChange={(e) => handleUpdateChange('first_name', e.target.value)}
+                    />
+                </div>
+                <div className="col-md-6">
+                    <label className="form-label font-bold">Last Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={updateData.last_name}
+                        onChange={(e) => handleUpdateChange('last_name', e.target.value)}
+                    />
+                </div>
+                <div className="col-12">
+                    <label className="form-label font-bold">Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        value={updateData.email}
+                        onChange={(e) => handleUpdateChange('email', e.target.value)}
+                    />
+                </div>
+                <div className="col-md-6">
+                    <Select
+                        label="Role"
+                        name="role"
+                        value={updateData.role}
+                        onChange={(e) => handleUpdateChange('role', e.target.value)}
+                        options={userRoles}
+                        placeholder="Select role"
+                    />
+                </div>
+            </div>
+        </Modal>
+    );
+}

@@ -1,0 +1,161 @@
+/* ========================================
+   BUSINESS-DATA.CSS — Business Settings Page
+   ======================================== */
+
+/* ----------------------------------------
+   1. Header Card
+   ---------------------------------------- */
+.business-header-card {
+  border: none;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: var(--card-bg-solid);
+}
+
+.business-logo-container {
+  width: 80px;
+  height: 80px;
+  background-color: var(--primary-subtle);
+  color: var(--primary-color);
+  border-radius: var(--border-radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.business-name {
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.business-edit-btn {
+  border: none;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ----------------------------------------
+   2. Info Cards
+   ---------------------------------------- */
+.info-card-container {
+  border: none;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  height: 100%;
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+}
+
+.info-card-container h5 {
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.info-field {
+  padding: 0.75rem;
+  background: var(--bg-main);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.info-field-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.info-field-value {
+  font-weight: 600;
+}
+
+.threshold-value {
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.threshold-unit {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.sync-info {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+
+/* ----------------------------------------
+   3. Client Types List
+   ---------------------------------------- */
+.client-type-list {
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.client-type-item {
+  border-color: var(--border-color-light);
+}
+
+.client-type-badge {
+  min-width: 40px;
+  text-align: center;
+  background-color: var(--info-subtle);
+  color: var(--info-color);
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.client-type-name {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.client-type-code {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.client-type-action-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+
+/* ----------------------------------------
+   4. Modal Form
+   ---------------------------------------- */
+.abbreviation-input {
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------
+   5. Responsive
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .business-logo-container {
+    width: 64px;
+    height: 64px;
+  }
+
+  .info-card-container {
+    padding: 1rem;
+  }
+}

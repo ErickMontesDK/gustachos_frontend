@@ -4,11 +4,12 @@ import { Briefcase, Globe, Languages, Ruler, Navigation, Clock, Calendar, Edit3,
 import Modal from "../../../components/modal";
 import { useBusiness, useUpdateBusiness } from "../hooks/useBusiness";
 import { ClientType, createClientType, deleteClientType, getClientTypes, updateClientType } from "../../client_types/api/clientTypesService";
+import "../../../styles/business-data.css";
 
 
 const InfoCard = ({ title, icon: Icon, children, bgColor = "primary" }: any) => (
     <div className="col-lg-6">
-        <div className="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white bg-opacity-75" style={{ backdropFilter: 'blur(8px)' }}>
+        <div className="info-card-container">
             <h5 className="mb-4 fw-bold d-flex align-items-center text-dark">
                 <Icon size={20} className={`text-${bgColor} me-2`} />
                 {title}
@@ -20,9 +21,9 @@ const InfoCard = ({ title, icon: Icon, children, bgColor = "primary" }: any) => 
 
 const InfoItem = ({ label, value, icon: Icon, fullWidth = false }: any) => (
     <div className={fullWidth ? "col-12" : "col-md-6"}>
-        <div className="p-3 bg-light rounded-3 border border-light shadow-xs">
-            <label className="text-muted small fw-bold text-uppercase d-block mb-1">{label}</label>
-            <div className="fw-semibold d-flex align-items-center text-truncate">
+        <div className="info-field">
+            <label className="info-field-label">{label}</label>
+            <div className="info-field-value d-flex align-items-center text-truncate">
                 {Icon && <Icon size={16} className="me-2 text-secondary flex-shrink-0" />}
                 {value || '--'}
             </div>
@@ -31,22 +32,16 @@ const InfoItem = ({ label, value, icon: Icon, fullWidth = false }: any) => (
 );
 
 export default function BusinessData() {
+
     const { business: businessInfo, loading, error, refresh } = useBusiness();
-    const [refreshKey, setRefreshKey] = useState(0);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [clientTypes, setClientTypes] = useState<ClientType[]>([]);
-    const [showClientTypeModal, setShowClientTypeModal] = useState(false);
-    const [showDeleteClientTypeModal, setShowDeleteClientTypeModal] = useState(false);
-    const [selectedClientType, setSelectedClientType] = useState<ClientType | null>(null);
-    const [clientTypeForm, setClientTypeForm] = useState<Partial<ClientType>>({
-        name: "",
-        abbreviation: ""
-    });
-    const [urlError, setUrlError] = useState("");
-    const [imgError, setImgError] = useState(false);
+
     const business = localStorage.getItem("business_data");
     const timezone = business ? JSON.parse(business).time_zone : "America/Mexico_City";
     const locale = business ? JSON.parse(business).locale : "es-ES";
+
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [urlError, setUrlError] = useState("");
+    const [imgError, setImgError] = useState(false);
 
     const {
         business: formData,
@@ -57,6 +52,15 @@ export default function BusinessData() {
         setShowEditModal(false);
         refresh();
     }, (msg) => alert(msg));
+
+    useEffect(() => { setImgError(false); }, [businessInfo.logo_url]);
+
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [clientTypes, setClientTypes] = useState<ClientType[]>([]);
+    const [showClientTypeModal, setShowClientTypeModal] = useState(false);
+    const [showDeleteClientTypeModal, setShowDeleteClientTypeModal] = useState(false);
+    const [selectedClientType, setSelectedClientType] = useState<ClientType | null>(null);
+    const [clientTypeForm, setClientTypeForm] = useState<Partial<ClientType>>({ name: "", abbreviation: "" });
 
     useEffect(() => {
         const fetchClientTypes = async () => {
@@ -70,11 +74,33 @@ export default function BusinessData() {
         fetchClientTypes();
     }, [refreshKey]);
 
-    useEffect(() => { setImgError(false); }, [businessInfo.logo_url]);
 
-    const validateUrl = (url: string) => {
-        if (!url) return true;
-        try { return !!new URL(url); } catch { return false; }
+    const handleUrlChange = (url: string) => {
+        setFormData({ ...formData, logo_url: url });
+        setImgError(false);
+
+        if (!url) {
+            setUrlError("");
+            return;
+        }
+
+        try {
+            new URL(url);
+            setUrlError("Validating image URL...");
+
+            const img = new Image();
+            img.onload = () => {
+                if (img.width > 1 && img.height > 1) {
+                    setUrlError("");
+                } else {
+                    setUrlError("The URL points to an invalid image format or tracking pixel.");
+                }
+            };
+            img.onerror = () => setUrlError("The URL does not point to a valid or accessible image.");
+            img.src = url;
+        } catch {
+            setUrlError("Please enter a valid URL");
+        }
     };
 
     const isFormValid = !!(
@@ -83,10 +109,48 @@ export default function BusinessData() {
         formData.min_time_between_visits >= 0 && !urlError
     );
 
-    const handleUrlChange = (url: string) => {
-        setFormData({ ...formData, logo_url: url });
-        setImgError(false);
-        setUrlError(url && !validateUrl(url) ? "Please enter a valid URL" : "");
+    const openEditBusinessModal = () => {
+        setFormData({ ...businessInfo });
+        setUrlError("");
+        setShowEditModal(true);
+    };
+
+    const openClientTypeModal = (type: ClientType | null = null) => {
+        setSelectedClientType(type);
+        setClientTypeForm(type ? { ...type } : { name: "", abbreviation: "" });
+        setShowClientTypeModal(true);
+    };
+
+    const openDeleteClientTypeModal = (type: ClientType) => {
+        setSelectedClientType(type);
+        setShowDeleteClientTypeModal(true);
+    };
+
+    const handleClientTypeSubmit = async () => {
+        try {
+            if (selectedClientType) {
+                await updateClientType({ ...selectedClientType, ...clientTypeForm });
+            } else {
+                await createClientType(clientTypeForm as ClientType);
+            }
+            setRefreshKey(prev => prev + 1);
+            setShowClientTypeModal(false);
+            setSelectedClientType(null);
+            setClientTypeForm({ name: "", abbreviation: "" });
+        } catch (err) {
+            console.error("Critical error in client type operation:", err);
+        }
+    };
+
+    const handleDeleteClientType = async () => {
+        try {
+            await deleteClientType(selectedClientType!);
+            setRefreshKey(prev => prev + 1);
+            setShowDeleteClientTypeModal(false);
+            setSelectedClientType(null);
+        } catch (err) {
+            console.error("Critical error deleting client type:", err);
+        }
     };
 
     if (loading && !businessInfo.business_name) {
@@ -97,11 +161,10 @@ export default function BusinessData() {
         <Layout>
             {error && <div className="alert alert-danger mb-4">{error}</div>}
 
-
-            <div className="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden bg-white">
+            <header className="business-header-card mb-4 bg-white">
                 <div className="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div className="d-flex align-items-center">
-                        <div className="bg-primary bg-opacity-10 rounded-4 me-4 text-primary d-flex align-items-center justify-content-center overflow-hidden" style={{ width: '80px', height: '80px' }}>
+                        <div className="business-logo-container me-4">
                             {businessInfo.logo_url && !imgError ? (
                                 <img src={businessInfo.logo_url} alt="Logo" className="w-100 h-100 object-fit-cover" onError={() => setImgError(true)} />
                             ) : (
@@ -109,87 +172,87 @@ export default function BusinessData() {
                             )}
                         </div>
                         <div>
-                            <h1 className="h2 mb-1 fw-bold text-dark">{businessInfo.business_name}</h1>
+                            <h1 className="h2 mb-1 business-name">{businessInfo.business_name}</h1>
                             <span className="badge bg-success bg-opacity-10 text-success rounded-pill px-3 border-0 d-inline-flex align-items-center gap-1">
                                 <CircleCheck size={14} /> Active Account
                             </span>
                         </div>
                     </div>
-                    <button className="btn btn-primary rounded-3 px-4 py-2 d-flex align-items-center gap-2 border-0 shadow-sm"
-                        onClick={() => { setFormData({ ...businessInfo }); setUrlError(""); setShowEditModal(true); }}>
+                    <button className="btn btn-primary business-edit-btn px-4 py-2 d-flex align-items-center gap-2"
+                        onClick={openEditBusinessModal}>
                         <Edit3 size={18} /> Edit Configuration
                     </button>
                 </div>
-            </div>
+            </header>
 
-
-            <div className="row g-4">
+            <main className="row g-4">
                 <InfoCard title="Localization & Regional" icon={Globe} bgColor="primary">
-                    <InfoItem label="Time Zone" value={businessInfo.time_zone} icon={Clock} />
-                    <InfoItem label="Language / Locale" value={businessInfo.locale} icon={Languages} />
-                    <InfoItem label="Distance Unit" value={businessInfo.distance_unit === 'm' ? 'International (m)' : 'English (ft)'} icon={Ruler} fullWidth />
+                    <InfoItem label="Time Zone"
+                        value={businessInfo.time_zone}
+                        icon={Clock} />
+                    <InfoItem label="Language / Locale"
+                        value={businessInfo.locale}
+                        icon={Languages} />
+                    <InfoItem label="Distance Unit"
+                        value={businessInfo.distance_unit === 'm' ? 'International (m)' : 'Imperial (ft)'}
+                        icon={Ruler} fullWidth />
                 </InfoCard>
 
                 <InfoCard title="Operational Thresholds" icon={Navigation} bgColor="success">
                     <div className="col-md-6">
-                        <div className="p-3 bg-light rounded-3 border border-light shadow-xs">
-                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Max Valid Distance</label>
-                            <div className="fw-semibold h4 mb-0 text-primary">
-                                {businessInfo.max_valid_distance} <small className="text-muted fs-6">{businessInfo.distance_unit}</small>
+                        <div className="info-field">
+                            <label className="info-field-label">Max Valid Distance</label>
+                            <div className="threshold-value h4 text-primary">
+                                {businessInfo.max_valid_distance}
+                                <small className="threshold-unit">{businessInfo.distance_unit}</small>
                             </div>
                         </div>
                     </div>
                     <div className="col-md-6">
-                        <div className="p-3 bg-light rounded-3 border border-light shadow-xs">
-                            <label className="text-muted small fw-bold text-uppercase d-block mb-1">Min Time Between Visits</label>
-                            <div className="fw-semibold h4 mb-0 text-success">
-                                {businessInfo.min_time_between_visits} <small className="text-muted fs-6">min</small>
+                        <div className="info-field">
+                            <label className="info-field-label">Min Time Between Visits</label>
+                            <div className="threshold-value h4 text-success">
+                                {businessInfo.min_time_between_visits} <small className="threshold-unit">min</small>
                             </div>
                         </div>
                     </div>
                     <div className="col-12 mt-2">
-                        <div className="p-3 rounded-3 d-flex align-items-center text-muted small">
+                        <div className="p-3 rounded-3 d-flex align-items-center sync-info">
                             <Calendar size={14} className="me-2" />
                             Last sync: {businessInfo.updated_at ? new Date(businessInfo.updated_at).toLocaleString(locale, { timeZone: timezone }) : '--'}
                         </div>
                     </div>
                 </InfoCard>
 
-
                 <InfoCard title="Client Types Management" icon={Tag} bgColor="info">
                     <div className="col-12">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <span className="text-muted small fw-bold text-uppercase">Existing Types</span>
-                            <button className="btn btn-sm btn-outline-info d-flex align-items-center gap-1 rounded-pill px-3" onClick={() => {
-                                setSelectedClientType(null);
-                                setClientTypeForm({ name: "", abbreviation: "" });
-                                setShowClientTypeModal(true);
-                            }}>
+                            <button className="btn btn-sm btn-outline-info d-flex align-items-center gap-1 rounded-pill px-3"
+                                onClick={() => openClientTypeModal(null)}>
                                 <Plus size={14} /> Add New
                             </button>
                         </div>
-                        <div className="list-group list-group-flush rounded-3 border overflow-hidden border-light shadow-xs">
+                        <div className="list-group list-group-flush client-type-list">
 
                             {clientTypes?.map((type, idx) => (
-                                <div key={idx} className="list-group-item d-flex justify-content-between align-items-center py-3 border-light">
+                                <div key={idx} className="list-group-item d-flex justify-content-between align-items-center py-3 client-type-item">
                                     <div className="d-flex align-items-center gap-3">
-                                        <div className="bg-info bg-opacity-10 text-info p-2 rounded-3 small fw-bold" style={{ minWidth: '40px', textAlign: 'center' }}>
+                                        <div className="client-type-badge">
                                             {type.abbreviation}
                                         </div>
                                         <div>
-                                            <div className="fw-bold text-dark">{type.name}</div>
-                                            <div className="text-muted extra-small text-uppercase">Type Code: {type.abbreviation}</div>
+                                            <div className="client-type-name">{type.name}</div>
+                                            <div className="client-type-code">Type Code: {type.abbreviation}</div>
                                         </div>
                                     </div>
                                     <div className="d-flex gap-2">
-                                        <button className="btn btn-light btn-sm rounded-circle p-2 text-primary border-0" onClick={() => {
-                                            setSelectedClientType(type);
-                                            setClientTypeForm({ ...type });
-                                            setShowClientTypeModal(true);
-                                        }}>
+                                        <button className="btn btn-light client-type-action-btn text-primary"
+                                            onClick={() => openClientTypeModal(type)}>
                                             <Edit3 size={15} />
                                         </button>
-                                        <button className="btn btn-light btn-sm rounded-circle p-2 text-danger border-0" onClick={() => { setSelectedClientType(type); setShowDeleteClientTypeModal(true); }}>
+                                        <button className="btn btn-light client-type-action-btn text-danger"
+                                            onClick={() => openDeleteClientTypeModal(type)}>
                                             <Trash2 size={15} />
                                         </button>
                                     </div>
@@ -198,7 +261,8 @@ export default function BusinessData() {
                         </div>
                     </div>
                 </InfoCard>
-            </div>
+            </main>
+
 
             {showEditModal && (
                 <Modal
@@ -270,21 +334,7 @@ export default function BusinessData() {
                     buttonText1={selectedClientType ? "Update Type" : "Create Type"}
                     buttonText2="Cancel"
                     isForm={true}
-                    buttonAction1={async () => {
-                        try {
-                            if (selectedClientType) {
-                                await updateClientType({ ...selectedClientType, ...clientTypeForm });
-                            } else {
-                                await createClientType(clientTypeForm as ClientType);
-                            }
-                            setRefreshKey(prev => prev + 1);
-                            setShowClientTypeModal(false);
-                            setSelectedClientType(null);
-                            setClientTypeForm({ name: "", abbreviation: "" });
-                        } catch (err) {
-                            console.error("Critical error in client type operation:", err);
-                        }
-                    }}
+                    buttonAction1={handleClientTypeSubmit}
                     buttonAction2={() => setShowClientTypeModal(false)}
                 >
                     <div className="row g-3 text-start">
@@ -302,10 +352,9 @@ export default function BusinessData() {
                             <label className="form-label fw-bold">Abbreviation / Code</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control abbreviation-input"
                                 placeholder="e.g. PP"
                                 maxLength={5}
-                                style={{ textTransform: 'uppercase' }}
                                 value={clientTypeForm.abbreviation || ""}
                                 onChange={(e) => setClientTypeForm({ ...clientTypeForm, abbreviation: e.target.value.toUpperCase() })}
                             />
@@ -322,16 +371,7 @@ export default function BusinessData() {
                     message={`Are you sure you want to delete the client type "${selectedClientType?.name}"?`}
                     buttonText1="Delete"
                     buttonText2="Cancel"
-                    buttonAction1={async () => {
-                        try {
-                            await deleteClientType(selectedClientType!);
-                            setRefreshKey(prev => prev + 1);
-                            setShowDeleteClientTypeModal(false);
-                            setSelectedClientType(null);
-                        } catch (err) {
-                            console.error("Critical error deleting client type:", err);
-                        }
-                    }}
+                    buttonAction1={handleDeleteClientType}
                     buttonAction2={() => setShowDeleteClientTypeModal(false)}
                 />
             )}

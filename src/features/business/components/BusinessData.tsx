@@ -61,6 +61,7 @@ export default function BusinessData() {
     const [showDeleteClientTypeModal, setShowDeleteClientTypeModal] = useState(false);
     const [selectedClientType, setSelectedClientType] = useState<ClientType | null>(null);
     const [clientTypeForm, setClientTypeForm] = useState<Partial<ClientType>>({ name: "", abbreviation: "" });
+    const [clientTypeActionError, setClientTypeActionError] = useState("");
 
     useEffect(() => {
         const fetchClientTypes = async () => {
@@ -73,7 +74,6 @@ export default function BusinessData() {
         };
         fetchClientTypes();
     }, [refreshKey]);
-
 
     const handleUrlChange = (url: string) => {
         setFormData({ ...formData, logo_url: url });
@@ -118,11 +118,13 @@ export default function BusinessData() {
     const openClientTypeModal = (type: ClientType | null = null) => {
         setSelectedClientType(type);
         setClientTypeForm(type ? { ...type } : { name: "", abbreviation: "" });
+        setClientTypeActionError("");
         setShowClientTypeModal(true);
     };
 
     const openDeleteClientTypeModal = (type: ClientType) => {
         setSelectedClientType(type);
+        setClientTypeActionError("");
         setShowDeleteClientTypeModal(true);
     };
 
@@ -133,23 +135,27 @@ export default function BusinessData() {
             } else {
                 await createClientType(clientTypeForm as ClientType);
             }
+            setClientTypeActionError("");
             setRefreshKey(prev => prev + 1);
             setShowClientTypeModal(false);
             setSelectedClientType(null);
             setClientTypeForm({ name: "", abbreviation: "" });
-        } catch (err) {
+        } catch (err: any) {
             console.error("Critical error in client type operation:", err);
+            setClientTypeActionError(err.message || "An error occurred while saving the client type.");
         }
     };
 
     const handleDeleteClientType = async () => {
         try {
             await deleteClientType(selectedClientType!);
+            setClientTypeActionError("");
             setRefreshKey(prev => prev + 1);
             setShowDeleteClientTypeModal(false);
             setSelectedClientType(null);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Critical error deleting client type:", err);
+            setClientTypeActionError(err.message || "An error occurred while deleting the client type.");
         }
     };
 
@@ -160,6 +166,12 @@ export default function BusinessData() {
     return (
         <Layout>
             {error && <div className="alert alert-danger mb-4">{error}</div>}
+            {clientTypeActionError && (
+                <div className="alert alert-danger mb-4 alert-dismissible fade show d-flex justify-content-between align-items-center" role="alert">
+                    <div>{clientTypeActionError}</div>
+                    <button type="button" className="btn-close m-0 position-static" onClick={() => setClientTypeActionError("")} aria-label="Close"></button>
+                </div>
+            )}
 
             <header className="business-header-card mb-4 bg-white">
                 <div className="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">

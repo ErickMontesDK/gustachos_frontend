@@ -13,27 +13,29 @@ export default function Profile() {
         message: ""
     });
 
-    const { old_password, setOldPassword,
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
-        changeOwnPassword } = useChangeOwnPassword(
-            () => {
-                setPasswordMessage({
-                    error: false,
-                    message: "Password updated successfully!"
-                });
-                setShowPasswordModal(false);
-            },
-            (msg) => {
-                setPasswordMessage({
-                    error: true,
-                    message: msg
-                });
-            }
-        );
+    const {
+        formData: passwordData,
+        setFormData: setPasswordData,
+        handleChange: handlePasswordChange,
+        changeOwnPassword
+    } = useChangeOwnPassword(
+        () => {
+            setPasswordMessage({
+                error: false,
+                message: "Password updated successfully!"
+            });
+            setShowPasswordModal(false);
+        },
+        (msg) => {
+            setPasswordMessage({
+                error: true,
+                message: msg
+            });
+        }
+    );
 
-    const passwordMatch = new_password === new_password_confirmation;
-    const isFormValid = new_password.length >= 6;
+    const passwordMatch = passwordData.new_password === passwordData.new_password_confirmation;
+    const isFormValid = passwordData.new_password.length >= 6;
 
     if (error) {
         return (
@@ -170,15 +172,17 @@ export default function Profile() {
                     buttonText1="Update Password"
                     buttonText2="Cancel"
                     isForm={true}
-                    isSubmitDisabled={!isFormValid || !passwordMatch || new_password_confirmation === "" || !old_password}
+                    isSubmitDisabled={!isFormValid || !passwordMatch || passwordData.new_password_confirmation === "" || !passwordData.old_password}
                     buttonAction1={() => {
                         changeOwnPassword();
                     }}
                     buttonAction2={() => {
                         setShowPasswordModal(false);
-                        setOldPassword("");
-                        setNewPassword("");
-                        setNewPasswordConfirmation("");
+                        setPasswordData({
+                            old_password: "",
+                            new_password: "",
+                            new_password_confirmation: ""
+                        });
                         setPasswordMessage({ error: false, message: "" });
                     }}
                 >
@@ -190,7 +194,7 @@ export default function Profile() {
                                 </div>
                             </div>
                         )}
-                        {!passwordMatch && new_password_confirmation !== "" && (
+                        {!passwordMatch && passwordData.new_password_confirmation !== "" && (
                             <div className="col-12">
                                 <div className="alert alert-danger py-2 mb-0" role="alert">
                                     Passwords do not match
@@ -202,8 +206,8 @@ export default function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
-                                value={old_password}
-                                onChange={(e) => setOldPassword(e.target.value)}
+                                value={passwordData.old_password}
+                                onChange={(e) => handlePasswordChange("old_password", e.target.value)}
                                 placeholder="Enter current password"
                                 required
                             />
@@ -213,8 +217,8 @@ export default function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
-                                value={new_password}
-                                onChange={(e) => setNewPassword(e.target.value)}
+                                value={passwordData.new_password}
+                                onChange={(e) => handlePasswordChange("new_password", e.target.value)}
                                 placeholder="New Password"
                                 required
                             />
@@ -227,8 +231,8 @@ export default function Profile() {
                             <input
                                 type="password"
                                 className="form-control"
-                                value={new_password_confirmation}
-                                onChange={(e) => setNewPasswordConfirmation(e.target.value)}
+                                value={passwordData.new_password_confirmation}
+                                onChange={(e) => handlePasswordChange("new_password_confirmation", e.target.value)}
                                 placeholder="Confirm Password"
                                 required
                             />

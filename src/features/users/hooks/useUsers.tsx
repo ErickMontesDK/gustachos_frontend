@@ -1,4 +1,3 @@
-import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { userMapper } from "../utils/userMappers";
@@ -24,7 +23,7 @@ export interface User {
     isDeleted: boolean;
 }
 
-interface filters {
+interface Filters {
     search_term: string;
     role: string;
     page: number;
@@ -33,7 +32,7 @@ interface filters {
     is_deleted: boolean;
 }
 
-const DEFAULT_FILTERS: filters = {
+const DEFAULT_FILTERS: Filters = {
     search_term: "",
     role: "",
     page: 1,
@@ -81,6 +80,51 @@ export const useUsers = () => {
     };
 }
 
+export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+    const [formData, setFormData] = useState({
+        new_role: "",
+        new_email: "",
+        new_first_name: "",
+        new_last_name: "",
+        new_username: "",
+        new_password: "",
+        new_password_confirmation: ""
+    });
+
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const createUser = () => {
+        if (formData.new_password !== formData.new_password_confirmation) {
+            if (onError) onError("Passwords do not match");
+            return;
+        }
+
+        createUserService({
+            role: formData.new_role,
+            email: formData.new_email,
+            first_name: formData.new_first_name,
+            last_name: formData.new_last_name,
+            password: formData.new_password,
+            username: formData.new_username,
+        })
+            .then(() => {
+                if (onSuccess) onSuccess();
+            })
+            .catch(error => {
+                if (onError) onError(error.message || "Error creating user");
+            });
+    }
+
+    return {
+        formData,
+        setFormData,
+        handleChange,
+        createUser
+    }
+}
+
 export const useUpdateUser = (user: User | null, setUser: (user: User | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
     const [formData, setFormData] = useState({
         role: "",
@@ -111,7 +155,6 @@ export const useUpdateUser = (user: User | null, setUser: (user: User | null) =>
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                console.error("Error updating user:", error);
                 if (onError) onError(error.message || "Error updating user");
             });
     }
@@ -133,7 +176,6 @@ export const useDeleteUser = (user: User | null, setUser: (user: User | null) =>
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                console.error("Error deleting user:", error);
                 if (onError) onError(error.message || "Error deleting user");
             });
     }
@@ -143,13 +185,10 @@ export const useDeleteUser = (user: User | null, setUser: (user: User | null) =>
     }
 }
 
-export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) => void) => {
+
+export const useChangeOwnPassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
     const [formData, setFormData] = useState({
-        new_role: "",
-        new_email: "",
-        new_first_name: "",
-        new_last_name: "",
-        new_username: "",
+        old_password: "",
         new_password: "",
         new_password_confirmation: ""
     });
@@ -158,62 +197,25 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) =>
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const createUser = () => {
-
+    const changeOwnPassword = () => {
         if (formData.new_password !== formData.new_password_confirmation) {
             if (onError) onError("Passwords do not match");
             return;
         }
 
-        createUserService({
-            role: formData.new_role,
-            email: formData.new_email,
-            first_name: formData.new_first_name,
-            last_name: formData.new_last_name,
-            password: formData.new_password,
-            username: formData.new_username,
-        })
-            .then(() => {
-                if (onSuccess) onSuccess();
-            })
-            .catch(error => {
-                console.error("Error creating user:", error);
-                if (onError) onError(error.message || "Error creating user");
-            });
-    }
-
-    return {
-        formData,
-        setFormData,
-        handleChange,
-        createUser
-    }
-}
-
-export const useChangeOwnPassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [old_password, setOldPassword] = useState("");
-    const [new_password, setNewPassword] = useState("");
-    const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
-
-    const changeOwnPassword = () => {
-        if (new_password !== new_password_confirmation) {
-            if (onError) onError("Passwords do not match");
-            return;
-        }
-
         changeOwnPasswordService({
-            old_password: old_password,
-            new_password: new_password,
+            old_password: formData.old_password,
+            new_password: formData.new_password,
         })
             .then(() => {
                 if (onSuccess) onSuccess();
-                setOldPassword("");
-                setNewPassword("");
-                setNewPasswordConfirmation("");
+                setFormData({
+                    old_password: "",
+                    new_password: "",
+                    new_password_confirmation: ""
+                });
             })
             .catch(error => {
-                console.error("Error changing password:", error);
-
                 if (error.message && typeof error.message === 'object' && error.message.old_password) {
                     const msg = Array.isArray(error.message.old_password)
                         ? error.message.old_password[0]
@@ -226,9 +228,9 @@ export const useChangeOwnPassword = (onSuccess?: () => void, onError?: (msg: str
     }
 
     return {
-        old_password, setOldPassword,
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
+        formData,
+        setFormData,
+        handleChange,
         changeOwnPassword
     }
 }
@@ -244,7 +246,6 @@ export const useRestoreUser = (userState: User | null, setUser: (user: User | nu
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                console.error("Error restoring user:", error);
                 if (onError) onError(error.message || "Error restoring user");
             });
     }
@@ -255,35 +256,45 @@ export const useRestoreUser = (userState: User | null, setUser: (user: User | nu
 }
 
 export const useChangeUserPassword = (onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [new_password, setNewPassword] = useState("");
-    const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
+    const [formData, setFormData] = useState({
+        new_password: "",
+        new_password_confirmation: ""
+    });
+
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
     const changeUserPassword = (id: number) => {
-        if (!new_password) {
+        if (!formData.new_password) {
             if (onError) onError("Please enter a new password");
             return;
         }
 
-        if (new_password !== new_password_confirmation) {
+        if (formData.new_password !== formData.new_password_confirmation) {
             if (onError) onError("Passwords do not match");
             return;
         }
 
         changeUserPasswordService(id, {
-            new_password: new_password,
+            new_password: formData.new_password,
         })
             .then(() => {
                 if (onSuccess) onSuccess();
+                setFormData({
+                    new_password: "",
+                    new_password_confirmation: ""
+                });
             })
             .catch(error => {
-                console.error("Error changing user password:", error);
                 if (onError) onError(error.message || "Error changing user password");
             });
     }
 
     return {
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
+        formData,
+        setFormData,
+        handleChange,
         changeUserPassword
     }
 }

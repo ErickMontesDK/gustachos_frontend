@@ -3,7 +3,7 @@ import React from 'react';
 export interface Option {
     id: string | number;
     name: string;
-    abbreviation?: string; //esto para que?
+    // abbreviation?: string; //esto para que?
 }
 
 interface SelectProps {

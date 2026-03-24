@@ -15,8 +15,9 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess, user }
     const [copied, setCopied] = useState(false);
 
     const {
-        new_password: pass_new, setNewPassword: setPassNew,
-        new_password_confirmation: pass_confirm, setNewPasswordConfirmation: setPassConfirm,
+        formData: passwordData,
+        setFormData: setPasswordData,
+        handleChange: handlePasswordChange,
         changeUserPassword
     } = useChangeUserPassword(
         () => {
@@ -33,19 +34,23 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess, user }
         for (let i = 0; i < passwordLength; i++) {
             password += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        setPassNew(password);
-        setPassConfirm(password);
+        setPasswordData({
+            new_password: password,
+            new_password_confirmation: password
+        });
     };
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(pass_new);
+        navigator.clipboard.writeText(passwordData.new_password);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     const handleClose = () => {
-        setPassNew("");
-        setPassConfirm("");
+        setPasswordData({
+            new_password: "",
+            new_password_confirmation: ""
+        });
         setCopied(false);
         setErrorMessage(null);
         onClose();
@@ -61,7 +66,7 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess, user }
             buttonText1="Save Password"
             buttonText2="Cancel"
             isForm={true}
-            isSubmitDisabled={!pass_new || pass_new !== pass_confirm}
+            isSubmitDisabled={!passwordData.new_password || passwordData.new_password !== passwordData.new_password_confirmation}
             buttonAction1={() => {
                 changeUserPassword(user.id);
             }}
@@ -88,11 +93,11 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess, user }
                         <input
                             type="text"
                             className="form-control"
-                            value={pass_new}
-                            onChange={(e) => setPassNew(e.target.value)}
+                            value={passwordData.new_password}
+                            onChange={(e) => handlePasswordChange("new_password", e.target.value)}
                             placeholder="Enter or generate password"
                         />
-                        {pass_new && (
+                        {passwordData.new_password && (
                             <button
                                 className="btn btn-outline-secondary"
                                 type="button"
@@ -109,11 +114,11 @@ export default function ChangePasswordModal({ isOpen, onClose, onSuccess, user }
                     <input
                         type="password"
                         className="form-control"
-                        value={pass_confirm}
-                        onChange={(e) => setPassConfirm(e.target.value)}
+                        value={passwordData.new_password_confirmation}
+                        onChange={(e) => handlePasswordChange("new_password_confirmation", e.target.value)}
                         placeholder="Confirm new password"
                     />
-                    {pass_new !== pass_confirm && pass_confirm !== "" && (
+                    {passwordData.new_password !== passwordData.new_password_confirmation && passwordData.new_password_confirmation !== "" && (
                         <div className="text-danger small mt-1">Passwords do not match</div>
                     )}
                 </div>

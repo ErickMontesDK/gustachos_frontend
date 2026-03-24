@@ -63,6 +63,7 @@ export default function TableDisplay<TData>({
         <>
             <div className="table-responsive rounded-3">
                 <table className="table table-bordered table-hover mb-0">
+
                     <thead className="table-dark">
                         {table.getHeaderGroups().map(headerGroup => {
                             return (
@@ -72,6 +73,7 @@ export default function TableDisplay<TData>({
                                             Actions
                                         </th>
                                     )}
+
                                     {headerGroup.headers.map(header => {
                                         return (
                                             <th
@@ -101,6 +103,7 @@ export default function TableDisplay<TData>({
                             );
                         })}
                     </thead>
+
                     <tbody>
                         {table.getRowModel().rows.map(row => {
                             const rowData: any = row.original;
@@ -109,6 +112,7 @@ export default function TableDisplay<TData>({
 
                             return (
                                 <tr key={row.id} className={rowClassName}>
+
                                     {editEnabled && (
                                         <td className="text-center px-0 py-">
                                             <div className="dropdown">
@@ -169,6 +173,8 @@ export default function TableDisplay<TData>({
                                             </div>
                                         </td>
                                     )}
+
+
                                     {row.getVisibleCells().map(cell => {
                                         let variantClassName = ""
                                         if (cell.column.id in cellClassName) {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "../../../../components/modal";
 import Select from "../../../../components/common/inputs/Select";
 import { useCreateUser } from "../../hooks/useUsers";
+import { userRoles } from "../UsersData";
 
 interface Props {
     isOpen: boolean;
@@ -24,12 +25,6 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: Props) {
         },
         (msg) => setErrorMessage(msg)
     );
-
-    const userRoles = [
-        { id: "ADMIN", name: "Admin" },
-        { id: "DELIVERY", name: "Delivery" },
-        { id: "OPERATOR", name: "Operator" },
-    ];
 
     const passwordMatch = (
         createData.new_password_confirmation !== "" && createData.new_password === createData.new_password_confirmation

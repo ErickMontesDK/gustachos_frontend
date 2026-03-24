@@ -14,15 +14,15 @@ import EditUserModal from "./modals/EditUserModal";
 import DeleteUserModal from "./modals/DeleteUserModal";
 import ChangePasswordModal from "./modals/ChangePasswordModal";
 
+export const userRoles = [
+    { id: "ADMIN", name: "Admin" },
+    { id: "DELIVERY", name: "Delivery" },
+    { id: "OPERATOR", name: "Operator" },
+];
+
 export default function UsersData() {
-    const userRoles = [
-        { id: "ADMIN", name: "Admin" },
-        { id: "DELIVERY", name: "Delivery" },
-        { id: "OPERATOR", name: "Operator" },
-    ];
     const current_role = localStorage.getItem("role") || "";
     const isAdmin = current_role.toLowerCase() === "admin";
-
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -31,8 +31,6 @@ export default function UsersData() {
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-
 
     const {
         users,
@@ -46,11 +44,7 @@ export default function UsersData() {
         refresh
     } = useUsers();
 
-    const {
-        restoreUser
-    } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
-
-
+    const { restoreUser } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
 
     return (
         <Layout>
@@ -159,27 +153,27 @@ export default function UsersData() {
 
             </main>
 
-            <CreateUserModal 
+            <CreateUserModal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 onSuccess={refresh}
             />
 
-            <EditUserModal 
+            <EditUserModal
                 isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
                 onSuccess={refresh}
                 user={selectedUser}
             />
 
-            <DeleteUserModal 
+            <DeleteUserModal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onSuccess={refresh}
                 user={selectedUser}
             />
 
-            <ChangePasswordModal 
+            <ChangePasswordModal
                 isOpen={showPasswordModal}
                 onClose={() => setShowPasswordModal(false)}
                 onSuccess={refresh}

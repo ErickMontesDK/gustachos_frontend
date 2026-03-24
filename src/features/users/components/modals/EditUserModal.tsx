@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "../../../../components/modal";
 import Select from "../../../../components/common/inputs/Select";
 import { useUpdateUser, User } from "../../hooks/useUsers";
+import { userRoles } from "../UsersData";
 
 interface Props {
     isOpen: boolean;
@@ -13,9 +14,6 @@ interface Props {
 export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Props) {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    // Mock setUser since the hook manages its own state tracking of user externally, 
-    // but here we just need to satisfy the signature or update it to read from `user`.
-    // Wait, useUpdateUser takes `user` and `setUser(null)`. We can just pass a no-op function for setUser since we close the modal instead.
     const {
         formData: updateData,
         setFormData: setUpdateData,
@@ -23,7 +21,7 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Prop
         updateUser
     } = useUpdateUser(
         user,
-        () => {}, // Normally setUser(null) in UsersData, we don't need it because we use handleClose
+        () => { },
         () => {
             onSuccess();
             handleClose();
@@ -31,11 +29,6 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Prop
         (msg) => setErrorMessage(msg)
     );
 
-    const userRoles = [
-        { id: "ADMIN", name: "Admin" },
-        { id: "DELIVERY", name: "Delivery" },
-        { id: "OPERATOR", name: "Operator" },
-    ];
 
     const isEditFormValid = !!(updateData.role && updateData.email && updateData.first_name && updateData.last_name);
 

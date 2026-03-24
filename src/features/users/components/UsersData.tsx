@@ -31,7 +31,7 @@ export default function UsersData() {
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
+
 
 
     const {
@@ -50,15 +50,7 @@ export default function UsersData() {
         restoreUser
     } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
 
-    const cleaningData = () => {
-        setShowEditModal(false);
-        setShowDeleteModal(false);
-        setShowCreateModal(false);
-        setShowPasswordModal(false);
 
-        setSelectedUser(null);
-        setErrorMessage(null);
-    };
 
     return (
         <Layout>

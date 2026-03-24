@@ -158,50 +158,58 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
 }
 
 export const useUpdateClients = (client: Client | null, setClient: (client: Client | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [code, setCode] = useState("");
-    const [name, setName] = useState("");
-    const [address, setAddress] = useState("");
-    const [neighborhood, setNeighborhood] = useState("");
-    const [municipality, setMunicipality] = useState("");
-    const [state, setState] = useState("");
-    const [sector, setSector] = useState("");
-    const [market, setMarket] = useState("");
-    const [client_type_id, setClient_type_id] = useState<number | string>("");
-    const [latitude, setLatitude] = useState(0);
-    const [longitude, setLongitude] = useState(0);
-    const [is_active, setIsActive] = useState(true);
+    const [formData, setFormData] = useState({
+        code: "",
+        name: "",
+        address: "",
+        neighborhood: "",
+        municipality: "",
+        state: "",
+        sector: "",
+        market: "",
+        client_type_id: "" as string | number,
+        latitude: 0,
+        longitude: 0,
+        is_active: true
+    });
 
     useEffect(() => {
         if (!client) return;
 
-        setCode(client.code);
-        setName(client.name);
-        setAddress(client.address);
-        setNeighborhood(client.neighborhood);
-        setMunicipality(client.municipality);
-        setState(client.state);
-        setSector(client.sector);
-        setMarket(client.market);
-        setClient_type_id(client.client_type_id);
-        setLatitude(client.latitude);
-        setLongitude(client.longitude);
-        setIsActive(client.is_active);
-    }, [client])
+        setFormData({
+            code: client.code || "",
+            name: client.name || "",
+            address: client.address || "",
+            neighborhood: client.neighborhood || "",
+            municipality: client.municipality || "",
+            state: client.state || "",
+            sector: client.sector || "",
+            market: client.market || "",
+            client_type_id: client.client_type_id || "",
+            latitude: client.latitude || 0,
+            longitude: client.longitude || 0,
+            is_active: client.is_active ?? true
+        });
+    }, [client]);
+
+    const handleChange = (name: string, value: any) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const updateClient = () => {
         updateClientService(client!.id, {
-            code,
-            name,
-            address,
-            neighborhood,
-            municipality,
-            state,
-            sector,
-            market,
-            client_type: String(client_type_id),
-            latitude,
-            longitude,
-            is_active
+            code: formData.code,
+            name: formData.name,
+            address: formData.address,
+            neighborhood: formData.neighborhood,
+            municipality: formData.municipality,
+            state: formData.state,
+            sector: formData.sector,
+            market: formData.market,
+            client_type: String(formData.client_type_id),
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            is_active: formData.is_active
         })
             .then(() => {
                 setClient(null);
@@ -214,30 +222,9 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
     }
 
     return {
-        code,
-        setCode,
-        name,
-        setName,
-        address,
-        setAddress,
-        neighborhood,
-        setNeighborhood,
-        municipality,
-        setMunicipality,
-        state,
-        setState,
-        sector,
-        setSector,
-        market,
-        setMarket,
-        client_type: client_type_id,
-        setClient_type: setClient_type_id,
-        latitude,
-        setLatitude,
-        longitude,
-        setLongitude,
-        is_active,
-        setIsActive,
+        formData,
+        setFormData,
+        handleChange,
         updateClient
     };
 }

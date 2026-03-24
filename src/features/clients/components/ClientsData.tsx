@@ -1,16 +1,18 @@
 import Layout from "../../../components/Layout";
 import { useEffect, useState } from "react";
-import { useClients, useUpdateClients, useDeleteClient, useClientsMap, useRestoreClient } from "../hooks/useClients";
+import { useClients, useClientsMap, useRestoreClient } from "../hooks/useClients";
 import { Client } from "../hooks/useClients";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
-import Modal from "../../../components/modal";
-import { Trash, Download, Settings, Store } from "lucide-react";
+import { Download, Settings, Store } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { getClientExcel } from "../api/clientsServices";
 import MapDisplay, { MarkerProps } from "../../../components/MapDisplay";
+
+import EditClientModal from "./modals/EditClientModal";
+import DeleteClientModal from "./modals/DeleteClientModal";
 
 
 const activeOptions: Option[] = [
@@ -43,46 +45,8 @@ export default function ClientsData() {
 
 
 
-    const {
-        code, setCode,
-        name, setName,
-        address, setAddress,
-        neighborhood, setNeighborhood,
-        municipality, setMunicipality,
-        state, setState,
-        sector, setSector,
-        market, setMarket,
-        client_type, setClient_type,
-        latitude, setLatitude,
-        longitude, setLongitude,
-        is_active, setIsActive,
-        updateClient
-    } = useUpdateClients(selectedClient, setSelectedClient, refresh, (msg) => console.error(msg));
-
-    const { deleteClient } = useDeleteClient(selectedClient, setSelectedClient, refresh, (msg) => console.error(msg));
-
     const { restoreClient } = useRestoreClient(selectedClient, setSelectedClient, refresh, (msg) => setErrorMessage(msg));
 
-    const isFormValid = !!(code && name && address && latitude && longitude);
-
-    const cleaningData = () => {
-        setCode("");
-        setName("");
-        setAddress("");
-        setNeighborhood("");
-        setMunicipality("");
-        setState("");
-        setSector("");
-        setMarket("");
-        setClient_type("");
-        setLatitude(0);
-        setLongitude(0);
-        setIsActive(true);
-        setErrorMessage(null);
-        setShowEditModal(false);
-        setShowDeleteModal(false);
-        setSelectedClient(null);
-    }
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -367,125 +331,20 @@ export default function ClientsData() {
 
             </div>
 
+            <EditClientModal 
+                isOpen={showEditModal} 
+                onClose={() => setShowEditModal(false)}
+                onSuccess={refresh}
+                client={selectedClient}
+                client_types={client_types}
+            />
 
-            {showEditModal && (
-                <Modal
-                    title="Edit Client"
-                    message={`Editing client ${selectedClient?.name} (${selectedClient?.code})`}
-                    buttonText1="Save"
-                    buttonText2="Cancel"
-                    isForm={true}
-                    isSubmitDisabled={!isFormValid}
-                    buttonAction1={() => {
-                        updateClient();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                >
-                    <div className="row g-3">
-                        {/* Section: General Info */}
-                        <div className="col-12">
-                            <h6 className="border-bottom pb-2 text-secondary">General Information</h6>
-                        </div>
-                        <div className="col-md-4">
-                            <label className="form-label font-bold">Code</label>
-                            <input type="text" className="form-control" value={code} onChange={(e) => setCode(e.target.value)} />
-                        </div>
-                        <div className="col-md-8">
-                            <label className="form-label font-bold">Name</label>
-                            <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
-                        </div>
-                        <div className="col-md-6">
-                            <Select
-                                label="Client Type"
-                                name="client_type"
-                                value={client_type}
-                                onChange={(e) => setClient_type(e.target.value)}
-                                options={client_types}
-                                placeholder="Select type"
-                            />
-                        </div>
-                        <div className="col-md-6 d-flex align-items-end">
-                            <div className="form-check form-switch p-3 border rounded w-100 bg-light">
-                                <input
-                                    className="form-check-input ms-0 me-2"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="is_active"
-                                    checked={is_active}
-                                    onChange={(e) => setIsActive(e.target.checked)}
-                                />
-                                <label className="form-check-label" htmlFor="is_active">Is Active</label>
-                            </div>
-                        </div>
-
-                        {/* Section: Location */}
-                        <div className="col-12 mt-4">
-                            <h6 className="border-bottom pb-2 text-secondary">Location</h6>
-                        </div>
-                        <div className="col-md-12">
-                            <label className="form-label font-bold">Address</label>
-                            <input type="text" className="form-control" value={address} onChange={(e) => setAddress(e.target.value)} />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Neighborhood</label>
-                            <input type="text" className="form-control" value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Municipality</label>
-                            <input type="text" className="form-control" value={municipality} onChange={(e) => setMunicipality(e.target.value)} />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">State</label>
-                            <input type="text" className="form-control" value={state} onChange={(e) => setState(e.target.value)} />
-                        </div>
-                        <div className="col-md-6">
-                            <label className="form-label font-bold">Sector</label>
-                            <input type="text" className="form-control" value={sector} onChange={(e) => setSector(e.target.value)} />
-                        </div>
-
-                        {/* Section: Market & Coordinates */}
-                        <div className="col-12 mt-4">
-                            <h6 className="border-bottom pb-2 text-secondary">Market & Coordinates</h6>
-                        </div>
-                        <div className="col-md-4">
-                            <label className="form-label font-bold">Market</label>
-                            <input type="text" className="form-control" value={market} onChange={(e) => setMarket(e.target.value)} />
-                        </div>
-                        <div className="col-md-4">
-                            <label className="form-label font-bold">Latitude</label>
-                            <input type="number" className="form-control" value={latitude} onChange={(e) => setLatitude(Number(e.target.value))} />
-                        </div>
-                        <div className="col-md-4">
-                            <label className="form-label font-bold">Longitude</label>
-                            <input type="number" className="form-control" value={longitude} onChange={(e) => setLongitude(Number(e.target.value))} />
-                        </div>
-                    </div>
-                </Modal>
-            )
-            }
-
-
-            {
-                showDeleteModal && (
-                    <Modal
-                        title="Delete Client"
-                        icon={<Trash size={24} />}
-                        message={`Are you sure you want to delete this client?`}
-                        buttonText1="Delete"
-                        buttonText2="Cancel"
-                        buttonAction1={() => {
-                            deleteClient();
-                            cleaningData();
-                        }}
-                        buttonAction2={() => {
-                            cleaningData();
-                        }}
-                    />
-                )
-            }
+            <DeleteClientModal 
+                isOpen={showDeleteModal} 
+                onClose={() => setShowDeleteModal(false)}
+                onSuccess={refresh}
+                client={selectedClient}
+            />
         </Layout >
     );
 }

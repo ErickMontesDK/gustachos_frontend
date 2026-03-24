@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import Select from "../../../components/common/inputs/Select";
 import Searchbar from "../../../components/common/inputs/Searchbar";
 import DatePicker from "../../../components/common/inputs/DatePicker";
-import { useDeleteVisit, useUpdateVisitNotes, useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
+import { useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
 import { columns } from "./columns";
-import Modal from "../../../components/modal";
-import { Trash, Download, Settings, MapPin } from "lucide-react";
+import { Download, Settings, MapPin } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
 import { getVisitExcel } from "../api/visitsService";
 import MapDisplay from "../../../components/MapDisplay";
 import { MarkerProps } from "../../../components/MapDisplay";
+
+import EditVisitModal from "./modals/EditVisitModal";
+import DeleteVisitModal from "./modals/DeleteVisitModal";
 
 
 const productivityOptions: Option[] = [
@@ -119,30 +121,8 @@ export default function VisitsData() {
 
 
 
-    const {
-        notes,
-        setNotes,
-        is_productive,
-        setProductive,
-        is_valid,
-        setValidated,
-        updateVisit
-    } = useUpdateVisitNotes(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
-
-    const { deleteVisit } = useDeleteVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
-
-
     const { restoreVisit } = useRestoreVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
 
-    const cleaningData = () => {
-        setNotes("");
-        setProductive(false);
-        setValidated(false);
-        setSelectedVisit(null);
-        setErrorMessage(null);
-        setShowEditModal(false);
-        setShowDeleteModal(false);
-    }
 
     useEffect(() => {
         getClientTypes().then((data) => {
@@ -383,79 +363,19 @@ export default function VisitsData() {
                 />
             </div>
 
-            {showEditModal && (
-                <Modal
-                    title="Edit Visit"
-                    message={`Editing visit for client: ${selectedVisit?.client__name || '...'}`}
-                    buttonText1="Save Changes"
-                    buttonText2="Cancel"
-                    isForm={true}
-                    buttonAction1={() => {
-                        updateVisit();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                >
-                    <div className="mb-3">
-                        <label htmlFor="notes" className="form-label font-bold">Notes</label>
-                        <textarea
-                            className="form-control"
-                            id="notes"
-                            rows={3}
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                        />
-                    </div>
-                    <div className="row g-3 mb-3">
-                        <div className="col-6">
-                            <div className="form-check form-switch p-3 border rounded">
-                                <input
-                                    className="form-check-input ms-0 me-2"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="productive"
-                                    checked={is_productive}
-                                    onChange={(e) => setProductive(e.target.checked)}
-                                />
-                                <label className="form-check-label" htmlFor="productive">Productive</label>
-                            </div>
-                        </div>
-                        <div className="col-6">
-                            <div className="form-check form-switch p-3 border rounded">
-                                <input
-                                    className="form-check-input ms-0 me-2"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="validated"
-                                    checked={is_valid}
-                                    onChange={(e) => setValidated(e.target.checked)}
-                                />
-                                <label className="form-check-label" htmlFor="validated">Validated</label>
-                            </div>
-                        </div>
-                    </div>
-                </Modal>
-            )}
+            <EditVisitModal 
+                isOpen={showEditModal} 
+                onClose={() => setShowEditModal(false)}
+                onSuccess={refresh}
+                visit={selectedVisit}
+            />
 
-            {showDeleteModal && (
-                <Modal
-                    title="Delete Visit"
-                    icon={<Trash size={24} />}
-                    message={`Are you sure you want to delete this visit?`}
-                    buttonText1="Delete"
-                    buttonText2="Cancel"
-                    buttonAction1={() => {
-                        deleteVisit();
-                        cleaningData();
-                    }}
-                    buttonAction2={() => {
-                        cleaningData();
-                    }}
-                />
-            )}
+            <DeleteVisitModal 
+                isOpen={showDeleteModal} 
+                onClose={() => setShowDeleteModal(false)}
+                onSuccess={refresh}
+                visit={selectedVisit}
+            />
         </Layout>
-
     );
 }

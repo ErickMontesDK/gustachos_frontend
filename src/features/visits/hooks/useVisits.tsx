@@ -94,29 +94,35 @@ export const useVisits = () => {
 
 
 export const useUpdateVisitNotes = (visit: Visit | null, setVisit: (visit: Visit | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [notes, setNotes] = useState("");
-    const [is_productive, setProductive] = useState(false);
-    const [is_valid, setValidated] = useState(false);
+    const [formData, setFormData] = useState({
+        notes: "",
+        is_productive: false,
+        is_valid: false
+    });
 
     useEffect(() => {
         if (!visit) return;
 
-        setNotes(visit.notes || "");
-        setProductive(visit.is_productive || false);
-        setValidated(visit.is_validated || false);
+        setFormData({
+            notes: visit.notes || "",
+            is_productive: visit.is_productive || false,
+            is_valid: visit.is_validated || false
+        });
 
-    }, [visit])
+    }, [visit]);
+
+    const handleChange = (name: string, value: any) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const updateVisit = () => {
         updateVisitService(visit!.id, {
-            notes,
-            is_productive,
-            is_valid
+            notes: formData.notes,
+            is_productive: formData.is_productive,
+            is_valid: formData.is_valid
         })
             .then(() => {
-                setNotes("");
-                setProductive(false);
-                setValidated(false);
+                setFormData({ notes: "", is_productive: false, is_valid: false });
                 setVisit(null);
                 if (onSuccess) onSuccess();
             })
@@ -126,15 +132,10 @@ export const useUpdateVisitNotes = (visit: Visit | null, setVisit: (visit: Visit
             });
     }
 
-
     return {
-        visit,
-        notes,
-        setNotes,
-        is_productive,
-        setProductive,
-        is_valid,
-        setValidated,
+        formData,
+        setFormData,
+        handleChange,
         updateVisit
     };
 }

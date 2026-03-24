@@ -1,5 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
+import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { userMapper } from "../utils/userMappers";
 import {
     getUsers,
@@ -53,7 +54,6 @@ export const useUserProfile = () => {
                 setUser(userMapper(data));
             })
             .catch(error => {
-                console.error("Error fetching user:", error);
                 setError(error.message || "Error fetching user");
             });
 
@@ -64,67 +64,21 @@ export const useUserProfile = () => {
 }
 
 export const useUsers = () => {
-    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: DEFAULT_FILTERS.page_size });
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [totalPages, setTotalPages] = useState(0);
-    const [filters, setFilters] = useState(DEFAULT_FILTERS);
-    const [users, setUsers] = useState<User[]>([]);
-    const [refreshKey, setRefreshKey] = useState(0);
-
-    const refresh = () => setRefreshKey(prev => prev + 1);
-
-    const updateFilters = <K extends keyof filters>(key: K, value: filters[K]) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-        setPagination(prev => ({ ...prev, pageIndex: 0 }));
-    }
-    const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        getUsers({
+    const { data: users, ...rest } = usePaginatedData({
+        defaultFilters: DEFAULT_FILTERS,
+        fetchData: getUsers,
+        mapData: userMapper,
+        formatFilters: (filters) => ({
             search_term: filters.search_term || undefined,
             role: filters.role || undefined,
-            page: pagination.pageIndex + 1,
-            page_size: pagination.pageSize,
-            sorting: sortingString || undefined,
             is_deleted: filters.is_deleted || undefined,
-            signal: controller.signal
         })
-            .then(data => {
-                setUsers(data.results.map(userMapper));
-                setTotalPages(data.total_pages);
-            })
-            .catch(error => {
-                if (error.name === 'CanceledError' || error.name === 'AbortError') {
-                    return;
-                }
-                console.error("Error fetching users:", error);
-            });
-
-        return () => controller.abort();
-
-    }, [
-        sortingString,
-        filters.search_term,
-        filters.role,
-        filters.is_deleted,
-        pagination.pageIndex,
-        pagination.pageSize,
-        refreshKey
-    ])
+    });
 
     return {
         users,
-        totalPages,
-        pagination,
-        setPagination,
-        filters,
-        updateFilters,
-        sorting,
-        setSorting,
-        refresh
-    }
+        ...rest
+    };
 }
 
 export const useUpdateUser = (user: User | null, setUser: (user: User | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {

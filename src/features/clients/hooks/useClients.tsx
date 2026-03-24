@@ -1,5 +1,6 @@
 import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
+import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap, restoreClient as restoreClientService } from "../api/clientsServices";
 import { clientMapper } from "./../utils/clientMapper";
 
@@ -28,7 +29,7 @@ export interface Client {
 
 interface ClientsForMap {
     id: number;
-    code: string; // <-- NEW
+    code: string;
     latitude: number;
     longitude: number;
     name: string;
@@ -72,25 +73,11 @@ const DEFAULT_FILTERS: filters = {
 }
 
 export const useClients = () => {
-    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: DEFAULT_FILTERS.page_size });
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [totalPages, setTotalPages] = useState(0);
-    const [filters, setFilters] = useState(DEFAULT_FILTERS);
-    const [clients, setClients] = useState<Client[]>([]);
-    const [refreshKey, setRefreshKey] = useState(0);
-
-    const refresh = () => setRefreshKey(prev => prev + 1);
-
-    const updateFilters = <K extends keyof filters>(key: K, value: filters[K]) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-        setPagination(prev => ({ ...prev, pageIndex: 0 }));
-    }
-    const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        getClients({
+    const { data: clients, ...rest } = usePaginatedData({
+        defaultFilters: DEFAULT_FILTERS,
+        fetchData: getClients,
+        mapData: clientMapper,
+        formatFilters: (filters) => ({
             client_type: filters.client_type || undefined,
             municipality: filters.municipality || undefined,
             state: filters.state || undefined,
@@ -99,54 +86,14 @@ export const useClients = () => {
             address: filters.address || undefined,
             name: filters.name || undefined,
             code: filters.code || undefined,
-            page: pagination.pageIndex + 1,
-            page_size: pagination.pageSize,
-            sorting: sortingString || undefined,
             is_deleted: filters.is_deleted || undefined,
             is_active: filters.is_active === "true" ? true : filters.is_active === "false" ? false : undefined,
-            signal: controller.signal
         })
-            .then(data => {
-                setClients(data.results.map(clientMapper));
-                setTotalPages(data.total_pages);
-            })
-            .catch(error => {
-                if (error.name === 'CanceledError' || error.name === 'AbortError') {
-                    return;
-                }
-                console.error("Error fetching clients:", error);
-            });
-
-        return () => controller.abort();
-
-    }, [
-        sortingString,
-        filters.client_type,
-        filters.municipality,
-        filters.state,
-        filters.sector,
-        filters.market,
-        filters.address,
-        filters.name,
-        filters.code,
-        filters.is_deleted,
-        filters.is_active,
-        pagination.pageIndex,
-        pagination.pageSize,
-        refreshKey
-    ])
+    });
 
     return {
         clients,
-        totalPages,
-        pagination,
-        setPagination,
-        filters,
-        updateFilters,
-        sorting,
-        setSorting,
-        refresh,
-        refreshKey
+        ...rest
     };
 }
 

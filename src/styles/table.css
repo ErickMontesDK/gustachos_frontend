@@ -73,3 +73,15 @@ z td {
     cursor: not-allowed;
     background-color: var(--dark-subtle) !important;
 }
+
+.actions-column {
+    width: 65px;
+}
+
+.sortable-header {
+    cursor: pointer;
+}
+
+.default-header {
+    cursor: default;
+}

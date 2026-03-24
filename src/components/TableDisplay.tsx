@@ -68,7 +68,7 @@ export default function TableDisplay<TData>({
                             return (
                                 <tr key={headerGroup.id}>
                                     {editEnabled && (
-                                        <th className="text-center" style={{ width: '65px' }}>
+                                        <th className="text-center actions-column">
                                             Actions
                                         </th>
                                     )}
@@ -78,10 +78,9 @@ export default function TableDisplay<TData>({
                                                 key={header.id}
                                                 onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                                                 style={{
-                                                    cursor: header.column.getCanSort() ? 'pointer' : 'default',
                                                     width: header.column.getSize(),
                                                 }}
-                                                className="text-center"
+                                                className={`text-center ${header.column.getCanSort() ? 'sortable-header' : 'default-header'}`}
                                             >
                                                 <div className="header-cell">
                                                     {flexRender(header.column.columnDef.header, header.getContext())}

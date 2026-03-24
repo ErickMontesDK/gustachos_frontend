@@ -7,16 +7,10 @@ import Searchbar from "../../../components/common/inputs/Searchbar";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
 import Modal from "../../../components/modal";
-import { Plus, Trash, Key, RefreshCw, Copy, Check } from "lucide-react";
+import { Plus, Trash, Key, RefreshCw, Copy, Check, Users, ListFilter } from "lucide-react";
+import "./users-data.css";
 
 export default function UsersData() {
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [copied, setCopied] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const userRoles = [
         { id: "ADMIN", name: "Admin" },
         { id: "DELIVERY", name: "Delivery" },
@@ -24,6 +18,17 @@ export default function UsersData() {
     ];
     const current_role = localStorage.getItem("role") || "";
     const isAdmin = current_role.toLowerCase() === "admin";
+
+
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
 
     const {
         users,
@@ -36,6 +41,17 @@ export default function UsersData() {
         setSorting,
         refresh
     } = useUsers();
+
+    const {
+        new_role, setNewRole,
+        new_email, setNewEmail,
+        new_first_name, setNewFirstName,
+        new_last_name, setNewLastName,
+        new_password, setNewPassword,
+        new_password_confirmation, setNewPasswordConfirmation,
+        new_username, setNewUsername,
+        createUser
+    } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
 
     const {
         role, setRole,
@@ -52,17 +68,6 @@ export default function UsersData() {
     const {
         restoreUser
     } = useRestoreUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
-
-    const {
-        new_role, setNewRole,
-        new_email, setNewEmail,
-        new_first_name, setNewFirstName,
-        new_last_name, setNewLastName,
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
-        new_username, setNewUsername,
-        createUser
-    } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
 
     const {
         new_password: pass_new, setNewPassword: setPassNew,
@@ -82,27 +87,32 @@ export default function UsersData() {
     );
     const isEditFormValid = !!(role && email && first_name && last_name);
 
+
     const cleaningData = () => {
         setFirstName("");
         setLastName("");
         setEmail("");
         setRole("");
+
         setShowEditModal(false);
         setShowDeleteModal(false);
         setShowCreateModal(false);
         setShowPasswordModal(false);
+
         setSelectedUser(null);
         setErrorMessage(null);
+
         setPassNew("");
         setPassConfirm("");
         setCopied(false);
+
         setNewFirstName("");
         setNewLastName("");
         setNewEmail("");
         setNewRole("");
         setNewPassword("");
         setNewPasswordConfirmation("");
-    }
+    };
 
     const generatePassword = () => {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -113,19 +123,21 @@ export default function UsersData() {
         }
         setPassNew(password);
         setPassConfirm(password);
-    }
+    };
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(pass_new);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    }
+    };
 
     return (
         <Layout>
-            <div className="animate-fade-in">
-                <h1>Users Data</h1>
-                <div className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">
+            <main className="animate-fade-in">
+                <header>
+                    <h1><Users size={34} className="flex-shrink-0 me-2 text-primary mb-1" />Users Data</h1>
+                </header>
+                <section className="filters-card p-4 mb-4 shadow-sm border rounded bg-white">
 
                     {errorMessage && (
                         <div className="alert alert-danger py-2 mb-3" role="alert">
@@ -134,7 +146,9 @@ export default function UsersData() {
                     )}
 
 
-                    <h5 className="mb-3 text-secondary">Filters</h5>
+                    <h5 className="mb-3 text-secondary">
+                        <ListFilter size={20} className="flex-shrink-0 me-2 text-primary mb-1" />Filters
+                    </h5>
 
                     <div className="row g-3 mb-4 align-items-end">
                         <div className="col-md-2">
@@ -161,7 +175,7 @@ export default function UsersData() {
 
                         {isAdmin && (
                             <div className="col-md-3 d-flex align-items-end">
-                                <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center" style={{ height: '48px' }}>
+                                <div className="form-check form-switch p-2 border rounded w-100 bg-light d-flex align-items-center filter-switch-container">
                                     <input
                                         className="form-check-input ms-2 me-2"
                                         type="checkbox"
@@ -177,8 +191,7 @@ export default function UsersData() {
 
                         <div className="col-md-3">
                             <button
-                                className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
-                                style={{ height: '48px', fontWeight: '500' }}
+                                className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 create-user-btn"
                                 onClick={() => {
                                     setErrorMessage(null);
                                     setShowCreateModal(true);
@@ -190,7 +203,7 @@ export default function UsersData() {
                         </div>
 
                     </div>
-                </div>
+                </section>
 
                 <TableDisplay
                     columns={columns}
@@ -224,7 +237,7 @@ export default function UsersData() {
                     }}
                 />
 
-            </div>
+            </main>
 
             {showEditModal && (
                 <Modal

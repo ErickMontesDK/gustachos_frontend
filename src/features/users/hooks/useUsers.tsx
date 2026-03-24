@@ -82,27 +82,30 @@ export const useUsers = () => {
 }
 
 export const useUpdateUser = (user: User | null, setUser: (user: User | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [role, setRole] = useState("");
-    const [email, setEmail] = useState("");
-    const [first_name, setFirstName] = useState("");
-    const [last_name, setLastName] = useState("");
+    const [formData, setFormData] = useState({
+        role: "",
+        email: "",
+        first_name: "",
+        last_name: ""
+    });
 
     useEffect(() => {
         if (!user) return;
 
-        setRole(user.role || "");
-        setEmail(user.email || "");
-        setFirstName(user.first_name || "");
-        setLastName(user.last_name || "");
+        setFormData({
+            role: user.role || "",
+            email: user.email || "",
+            first_name: user.first_name || "",
+            last_name: user.last_name || ""
+        });
     }, [user])
 
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
     const updateUser = () => {
-        updateUserService(user!.id, {
-            role,
-            email,
-            first_name,
-            last_name
-        })
+        updateUserService(user!.id, formData)
             .then(() => {
                 setUser(null);
                 if (onSuccess) onSuccess();
@@ -114,13 +117,11 @@ export const useUpdateUser = (user: User | null, setUser: (user: User | null) =>
     }
 
     return {
-        role, setRole,
-        email, setEmail,
-        first_name, setFirstName,
-        last_name, setLastName,
+        formData,
+        setFormData,
+        handleChange,
         updateUser
     }
-
 }
 
 
@@ -143,28 +144,34 @@ export const useDeleteUser = (user: User | null, setUser: (user: User | null) =>
 }
 
 export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [new_role, setNewRole] = useState("");
-    const [new_email, setNewEmail] = useState("");
-    const [new_first_name, setNewFirstName] = useState("");
-    const [new_last_name, setNewLastName] = useState("");
-    const [new_username, setNewUsername] = useState("");
-    const [new_password, setNewPassword] = useState("");
-    const [new_password_confirmation, setNewPasswordConfirmation] = useState("");
+    const [formData, setFormData] = useState({
+        new_role: "",
+        new_email: "",
+        new_first_name: "",
+        new_last_name: "",
+        new_username: "",
+        new_password: "",
+        new_password_confirmation: ""
+    });
+
+    const handleChange = (field: keyof typeof formData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
     const createUser = () => {
 
-        if (new_password !== new_password_confirmation) {
+        if (formData.new_password !== formData.new_password_confirmation) {
             if (onError) onError("Passwords do not match");
             return;
         }
 
         createUserService({
-            role: new_role,
-            email: new_email,
-            first_name: new_first_name,
-            last_name: new_last_name,
-            password: new_password,
-            username: new_username,
+            role: formData.new_role,
+            email: formData.new_email,
+            first_name: formData.new_first_name,
+            last_name: formData.new_last_name,
+            password: formData.new_password,
+            username: formData.new_username,
         })
             .then(() => {
                 if (onSuccess) onSuccess();
@@ -176,13 +183,9 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) =>
     }
 
     return {
-        new_role, setNewRole,
-        new_email, setNewEmail,
-        new_first_name, setNewFirstName,
-        new_last_name, setNewLastName,
-        new_username, setNewUsername,
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
+        formData,
+        setFormData,
+        handleChange,
         createUser
     }
 }

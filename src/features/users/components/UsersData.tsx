@@ -43,21 +43,16 @@ export default function UsersData() {
     } = useUsers();
 
     const {
-        new_role, setNewRole,
-        new_email, setNewEmail,
-        new_first_name, setNewFirstName,
-        new_last_name, setNewLastName,
-        new_password, setNewPassword,
-        new_password_confirmation, setNewPasswordConfirmation,
-        new_username, setNewUsername,
+        formData: createData,
+        setFormData: setCreateData,
+        handleChange: handleCreateChange,
         createUser
     } = useCreateUser(refresh, (msg) => setErrorMessage(msg));
 
     const {
-        role, setRole,
-        email, setEmail,
-        first_name, setFirstName,
-        last_name, setLastName,
+        formData: updateData,
+        setFormData: setUpdateData,
+        handleChange: handleUpdateChange,
         updateUser
     } = useUpdateUser(selectedUser, setSelectedUser, refresh, (msg) => setErrorMessage(msg));
 
@@ -79,20 +74,18 @@ export default function UsersData() {
 
 
     const passwordMatch = (
-        new_password_confirmation !== "" && new_password === new_password_confirmation
+        createData.new_password_confirmation !== "" && createData.new_password === createData.new_password_confirmation
     );
     const isCreateFormValid = !!(
-        (new_role && new_email && new_first_name && new_last_name && new_password && new_password_confirmation && new_username) &&
+        (createData.new_role && createData.new_email && createData.new_first_name && createData.new_last_name && createData.new_password && createData.new_password_confirmation && createData.new_username) &&
         passwordMatch
     );
-    const isEditFormValid = !!(role && email && first_name && last_name);
+    const isEditFormValid = !!(updateData.role && updateData.email && updateData.first_name && updateData.last_name);
 
 
     const cleaningData = () => {
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setRole("");
+        setUpdateData({ role: "", email: "", first_name: "", last_name: "" });
+        setCreateData({ new_role: "", new_email: "", new_first_name: "", new_last_name: "", new_username: "", new_password: "", new_password_confirmation: "" });
 
         setShowEditModal(false);
         setShowDeleteModal(false);
@@ -105,13 +98,6 @@ export default function UsersData() {
         setPassNew("");
         setPassConfirm("");
         setCopied(false);
-
-        setNewFirstName("");
-        setNewLastName("");
-        setNewEmail("");
-        setNewRole("");
-        setNewPassword("");
-        setNewPasswordConfirmation("");
     };
 
     const generatePassword = () => {
@@ -216,7 +202,6 @@ export default function UsersData() {
                     editEnabled={true}
                     onEdit={(user) => {
                         setErrorMessage(null);
-
                         setSelectedUser(user);
                         setShowEditModal(true);
                     }}
@@ -261,8 +246,8 @@ export default function UsersData() {
                             <input
                                 type="text"
                                 className="form-control"
-                                value={first_name}
-                                onChange={(e) => setFirstName(e.target.value)}
+                                value={updateData.first_name}
+                                onChange={(e) => handleUpdateChange('first_name', e.target.value)}
                             />
                         </div>
                         <div className="col-md-6">
@@ -270,8 +255,8 @@ export default function UsersData() {
                             <input
                                 type="text"
                                 className="form-control"
-                                value={last_name}
-                                onChange={(e) => setLastName(e.target.value)}
+                                value={updateData.last_name}
+                                onChange={(e) => handleUpdateChange('last_name', e.target.value)}
                             />
                         </div>
                         <div className="col-12">
@@ -279,16 +264,16 @@ export default function UsersData() {
                             <input
                                 type="email"
                                 className="form-control"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={updateData.email}
+                                onChange={(e) => handleUpdateChange('email', e.target.value)}
                             />
                         </div>
                         <div className="col-md-6">
                             <Select
                                 label="Role"
                                 name="role"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
+                                value={updateData.role}
+                                onChange={(e) => handleUpdateChange('role', e.target.value)}
                                 options={userRoles}
                                 placeholder="Select role"
                             />
@@ -323,7 +308,7 @@ export default function UsersData() {
                     isForm={true}
                     isSubmitDisabled={!isCreateFormValid}
                     buttonAction1={() => {
-                        if (!new_first_name || !new_last_name || !new_email || !new_role || !new_password || !new_password_confirmation || !new_username) {
+                        if (!createData.new_first_name || !createData.new_last_name || !createData.new_email || !createData.new_role || !createData.new_password || !createData.new_password_confirmation || !createData.new_username) {
                             setErrorMessage("Please fill in all required fields.");
                             return;
                         }
@@ -343,8 +328,8 @@ export default function UsersData() {
                             <input
                                 type="text"
                                 className="form-control"
-                                value={new_first_name}
-                                onChange={(e) => setNewFirstName(e.target.value)}
+                                value={createData.new_first_name}
+                                onChange={(e) => handleCreateChange("new_first_name", e.target.value)}
                                 placeholder="e.g. John"
                                 required
                             />
@@ -354,8 +339,8 @@ export default function UsersData() {
                             <input
                                 type="text"
                                 className="form-control"
-                                value={new_last_name}
-                                onChange={(e) => setNewLastName(e.target.value)}
+                                value={createData.new_last_name}
+                                onChange={(e) => handleCreateChange("new_last_name", e.target.value)}
                                 placeholder="e.g. Doe"
                                 required
                             />
@@ -365,8 +350,8 @@ export default function UsersData() {
                             <input
                                 type="email"
                                 className="form-control"
-                                value={new_email}
-                                onChange={(e) => setNewEmail(e.target.value)}
+                                value={createData.new_email}
+                                onChange={(e) => handleCreateChange("new_email", e.target.value)}
                                 placeholder="john.doe@example.com"
                                 required
                             />
@@ -380,8 +365,8 @@ export default function UsersData() {
                             <input
                                 type="text"
                                 className="form-control"
-                                value={new_username}
-                                onChange={(e) => setNewUsername(e.target.value)}
+                                value={createData.new_username}
+                                onChange={(e) => handleCreateChange("new_username", e.target.value)}
                                 placeholder="johndoe"
                                 required
                             />
@@ -390,8 +375,8 @@ export default function UsersData() {
                             <Select
                                 label="Role"
                                 name="role"
-                                value={new_role}
-                                onChange={(e) => setNewRole(e.target.value)}
+                                value={createData.new_role}
+                                onChange={(e) => handleCreateChange("new_role", e.target.value)}
                                 options={userRoles}
                                 placeholder="Select role"
                             />
@@ -400,7 +385,7 @@ export default function UsersData() {
                         <div className="col-12 mt-4">
                             <h6 className="border-bottom pb-2 text-secondary">Security</h6>
                         </div>
-                        {!passwordMatch && new_password_confirmation !== "" && (
+                        {!passwordMatch && createData.new_password_confirmation !== "" && (
                             <div className="alert alert-danger py-2 mb-3" role="alert">
                                 Passwords do not match
                             </div>
@@ -410,8 +395,8 @@ export default function UsersData() {
                             <input
                                 type="password"
                                 className="form-control"
-                                value={new_password}
-                                onChange={(e) => setNewPassword(e.target.value)}
+                                value={createData.new_password}
+                                onChange={(e) => handleCreateChange("new_password", e.target.value)}
                                 placeholder="Password"
                                 required
                             />
@@ -421,8 +406,8 @@ export default function UsersData() {
                             <input
                                 type="password"
                                 className="form-control"
-                                value={new_password_confirmation}
-                                onChange={(e) => setNewPasswordConfirmation(e.target.value)}
+                                value={createData.new_password_confirmation}
+                                onChange={(e) => handleCreateChange("new_password_confirmation", e.target.value)}
                                 placeholder="Password confirmation"
                                 required
                             />

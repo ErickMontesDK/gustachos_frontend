@@ -74,6 +74,9 @@ export const useUpdateBusiness = (onSuccess?: () => void, onError?: (msg: string
         updateBusinessInfo(business)
             .then(() => {
                 if (onSuccess) onSuccess();
+                localStorage.setItem("business_data", JSON.stringify(business));
+                localStorage.setItem("business_name", business.business_name);
+                localStorage.setItem("logo_url", business.logo_url);
             })
             .catch(error => {
                 console.error("Error updating business config:", error);

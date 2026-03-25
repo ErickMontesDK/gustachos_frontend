@@ -37,13 +37,13 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
     const markersLayerRef = useRef<any>(null);
-    const DEFAULT_COORDINATES = [-12.0464, -77.0428];
+
 
     const [selectedMarker, setSelectedMarker] = useState<MarkerProps | null>(null);
 
     useEffect(() => {
         if (mapContainerRef.current && !mapInstanceRef.current) {
-            mapInstanceRef.current = L.map(mapContainerRef.current).setView(DEFAULT_COORDINATES, 13);
+            mapInstanceRef.current = L.map(mapContainerRef.current).setView([0, 0], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
@@ -124,6 +124,7 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                     maxZoom: 15
                 });
             } else {
+                const DEFAULT_COORDINATES = [-12.0464, -77.0428];
                 mapInstanceRef.current.setView(DEFAULT_COORDINATES, 13);
             }
         }

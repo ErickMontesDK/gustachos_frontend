@@ -1,5 +1,4 @@
-import { SortingState } from "@tanstack/react-table";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService, restoreVisit as restoreVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";

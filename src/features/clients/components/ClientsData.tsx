@@ -6,10 +6,11 @@ import Searchbar from "../../../components/common/inputs/Searchbar";
 import Select, { Option } from "../../../components/common/inputs/Select";
 import TableDisplay from "../../../components/TableDisplay";
 import { columns } from "./columns";
-import { Download, Settings, Store } from "lucide-react";
+import { Download, Store } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { getClientExcel } from "../api/clientsServices";
 import MapDisplay, { MarkerProps } from "../../../components/MapDisplay";
+import MapConfigPanel, { useMapConfig } from "../../../components/MapConfigPanel";
 
 import EditClientModal from "./modals/EditClientModal";
 import DeleteClientModal from "./modals/DeleteClientModal";
@@ -50,27 +51,20 @@ export default function ClientsData() {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const code = params.get("code");
-        const client_type = params.get("client_type");
-        const municipality = params.get("municipality");
-        const state = params.get("state");
-        const sector = params.get("sector");
-        const market = params.get("market");
-        const address = params.get("address");
-        const name = params.get("name");
-        const is_deleted = params.get("is_deleted") === "true";
-        const is_active = params.get("is_active");
 
-        if (code) updateFilters("code", code);
-        if (client_type) updateFilters("client_type", client_type);
-        if (municipality) updateFilters("municipality", municipality);
-        if (state) updateFilters("state", state);
-        if (sector) updateFilters("sector", sector);
-        if (market) updateFilters("market", market);
-        if (address) updateFilters("address", address);
-        if (name) updateFilters("name", name);
-        if (is_deleted) updateFilters("is_deleted", is_deleted);
-        if (is_active) updateFilters("is_active", is_active);
+        const filterKeys = [
+            "code", "client_type", "municipality", "state",
+            "sector", "market", "address", "name", "is_active"
+        ];
+
+        filterKeys.forEach((key) => {
+            const value = params.get(key);
+            if (value) updateFilters(key as keyof typeof filters, value);
+        });
+
+        if (params.get("is_deleted") === "true") {
+            updateFilters("is_deleted", true);
+        }
     }, [updateFilters]);
 
 
@@ -85,6 +79,7 @@ export default function ClientsData() {
     }, []);
 
     const { clientsMap } = useClientsMap(filters, refreshKey);
+    const { clientTypeConfig, setClientTypeConfig } = useMapConfig();
 
     useEffect(() => {
         setMarkers(clientsMap.map((client) => ({
@@ -102,15 +97,6 @@ export default function ClientsData() {
     }, [clientsMap]);
 
 
-
-    const [clientTypeConfig, setClientTypeConfig] = useState<Record<string, { color: string; icon: string }>>(
-        JSON.parse(localStorage.getItem("clientTypeConfig") || "{}")
-    );
-
-
-    useEffect(() => {
-        localStorage.setItem("clientTypeConfig", JSON.stringify(clientTypeConfig));
-    }, [clientTypeConfig]);
 
     return (
         <Layout>
@@ -257,49 +243,11 @@ export default function ClientsData() {
                         </div>
                     </div>
                 </div>
-                <div className="card shadow-sm mb-4 border-0 bg-light animate-fade-in">
-                    <div className="card-body">
-                        <h5 className="card-title d-flex align-items-center gap-2 mb-3 text-secondary">
-                            <Settings size={20} /> Map Configuration by Client Type
-                        </h5>
-                        <div className="row g-3">
-                            {client_types.map((type) => (
-                                <div key={type.id} className="col-md-6 col-lg-4">
-                                    <div className="p-3 border rounded bg-white shadow-sm">
-                                        <div className="fw-bold mb-2 text-dark">{type.name}</div>
-                                        <div className="d-flex gap-3 align-items-center">
-                                            <div className="flex-grow-1">
-                                                <label className="small text-muted d-block mb-1">Color</label>
-                                                <input
-                                                    type="color"
-                                                    className="form-control form-control-sm border-0 p-0"
-                                                    style={{ height: '31px', width: '100%', cursor: 'pointer' }}
-                                                    defaultValue={clientTypeConfig[type.id]?.color || "#007bff"}
-                                                    onBlur={(e) => {
-                                                        const target = e.target as HTMLInputElement;
-                                                        setClientTypeConfig({ ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], color: target.value } });
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex-grow-1">
-                                                <label className="small text-muted d-block mb-1">Icon</label>
-                                                <select className="form-select form-select-sm"
-                                                    defaultValue={clientTypeConfig[type.id]?.icon || "Store"}
-                                                    onChange={(e) => setClientTypeConfig({ ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], icon: e.target.value } })}>
-                                                    <option value="Store">Store</option>
-                                                    <option value="Home">Home</option>
-                                                    <option value="MapPin">MapPin</option>
-                                                    <option value="Package">Package</option>
-                                                    <option value="User">User</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <MapConfigPanel
+                    clientTypes={client_types}
+                    clientTypeConfig={clientTypeConfig}
+                    setClientTypeConfig={setClientTypeConfig}
+                />
 
                 <MapDisplay markers={markers} config={clientTypeConfig} />
 
@@ -331,16 +279,16 @@ export default function ClientsData() {
 
             </div>
 
-            <EditClientModal 
-                isOpen={showEditModal} 
+            <EditClientModal
+                isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
                 onSuccess={refresh}
                 client={selectedClient}
                 client_types={client_types}
             />
 
-            <DeleteClientModal 
-                isOpen={showDeleteModal} 
+            <DeleteClientModal
+                isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onSuccess={refresh}
                 client={selectedClient}

@@ -16,7 +16,7 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Prop
 
     const {
         formData: updateData,
-        setFormData: setUpdateData,
+        // setFormData: setUpdateData,
         handleChange: handleUpdateChange,
         updateUser
     } = useUpdateUser(

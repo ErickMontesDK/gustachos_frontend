@@ -27,6 +27,7 @@
         opacity: 0;
         transform: translateY(-12px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -50,7 +51,6 @@
     max-height: calc(450px - 24px);
 }
 
-/* Minimal specific helper classes */
 .visit-card-productive {
     background: var(--success-subtle);
     border-color: rgba(25, 135, 84, 0.2);

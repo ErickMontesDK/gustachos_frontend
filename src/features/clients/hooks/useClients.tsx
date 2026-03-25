@@ -1,4 +1,3 @@
-import { SortingState } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap, restoreClient as restoreClientService } from "../api/clientsServices";

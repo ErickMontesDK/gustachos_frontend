@@ -6,12 +6,13 @@ import Searchbar from "../../../components/common/inputs/Searchbar";
 import DatePicker from "../../../components/common/inputs/DatePicker";
 import { useVisits, Visit, useRestoreVisit } from "../hooks/useVisits";
 import { columns } from "./columns";
-import { Download, Settings, MapPin } from "lucide-react";
+import { Download, MapPin } from "lucide-react";
 import { getClientTypes } from "../../client_types/api/clientTypesService";
 import { Option } from "../../../components/common/inputs/Select";
 import { getVisitExcel } from "../api/visitsService";
 import MapDisplay from "../../../components/MapDisplay";
 import { MarkerProps } from "../../../components/MapDisplay";
+import MapConfigPanel, { useMapConfig } from "../../../components/MapConfigPanel";
 
 import EditVisitModal from "./modals/EditVisitModal";
 import DeleteVisitModal from "./modals/DeleteVisitModal";
@@ -37,9 +38,7 @@ export default function VisitsData() {
     const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
     const role = localStorage.getItem("role") || "";
     const isAdmin = role.toLowerCase() === "admin";
-    const [clientTypeConfig, setClientTypeConfig] = useState<Record<string, { color: string; icon: string }>>(
-        JSON.parse(localStorage.getItem("clientTypeConfig") || "{}")
-    );
+    const { clientTypeConfig, setClientTypeConfig } = useMapConfig();
 
     const {
         visits,
@@ -55,45 +54,19 @@ export default function VisitsData() {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const client_type = params.get("client_type");
-        const municipality = params.get("municipality");
-        const state = params.get("state");
-        const sector = params.get("sector");
-        const search_term = params.get("search_term");
-        const date_from = params.get("date_from");
-        const date_to = params.get("date_to");
-        const is_deleted = params.get("is_deleted") === "true" ? true : false;
-        const is_productive = params.get("is_productive");
-        const is_valid = params.get("is_valid");
-        if (client_type) {
-            updateFilters("client_type", client_type);
-        }
-        if (municipality) {
-            updateFilters("municipality", municipality);
-        }
-        if (state) {
-            updateFilters("state", state);
-        }
-        if (sector) {
-            updateFilters("sector", sector);
-        }
-        if (search_term) {
-            updateFilters("search_term", search_term);
-        }
-        if (date_from) {
-            updateFilters("date_from", date_from);
-        }
-        if (date_to) {
-            updateFilters("date_to", date_to);
-        }
-        if (is_deleted) {
-            updateFilters("is_deleted", is_deleted);
-        }
-        if (is_productive) {
-            updateFilters("is_productive", is_productive);
-        }
-        if (is_valid) {
-            updateFilters("is_valid", is_valid);
+
+        const filterKeys = [
+            "client_type", "municipality", "state", "sector",
+            "search_term", "date_from", "date_to", "is_productive", "is_valid"
+        ];
+
+        filterKeys.forEach((key) => {
+            const value = params.get(key);
+            if (value) updateFilters(key as keyof typeof filters, value);
+        });
+
+        if (params.get("is_deleted") === "true") {
+            updateFilters("is_deleted", true);
         }
     }, [updateFilters]);
 
@@ -117,8 +90,6 @@ export default function VisitsData() {
         }));
         setMarkers(markers);
     }, [visits]);
-
-
 
 
     const { restoreVisit } = useRestoreVisit(selectedVisit, setSelectedVisit, refresh, (msg) => setErrorMessage(msg));
@@ -283,56 +254,11 @@ export default function VisitsData() {
                         </div>
                     </div>
                 </div>
-                <div className="card shadow-sm mb-4 border-0 bg-light animate-fade-in">
-                    <div className="card-body">
-                        <h5 className="card-title d-flex align-items-center gap-2 mb-3 text-secondary">
-                            <Settings size={20} /> Map Configuration by Client Type
-                        </h5>
-                        <div className="row g-3">
-                            {client_types.map((type) => (
-                                <div key={type.id} className="col-md-6 col-lg-4">
-                                    <div className="p-3 border rounded bg-white shadow-sm">
-                                        <div className="fw-bold mb-2 text-dark">{type.name}</div>
-                                        <div className="d-flex gap-3 align-items-center">
-                                            <div className="flex-grow-1">
-                                                <label className="small text-muted d-block mb-1">Color</label>
-                                                <input
-                                                    type="color"
-                                                    className="form-control form-control-sm border-0 p-0"
-                                                    style={{ height: '31px', width: '100%', cursor: 'pointer' }}
-                                                    value={clientTypeConfig[type.id]?.color || "#007bff"}
-                                                    onChange={(e) => {
-                                                        const newConfig = { ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], color: e.target.value } };
-                                                        setClientTypeConfig(newConfig);
-                                                        localStorage.setItem("clientTypeConfig", JSON.stringify(newConfig));
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="flex-grow-1">
-                                                <label className="small text-muted d-block mb-1">Icon</label>
-                                                <select
-                                                    className="form-select form-select-sm"
-                                                    value={clientTypeConfig[type.id]?.icon || "Store"}
-                                                    onChange={(e) => {
-                                                        const newConfig = { ...clientTypeConfig, [type.id]: { ...clientTypeConfig[type.id], icon: e.target.value } };
-                                                        setClientTypeConfig(newConfig);
-                                                        localStorage.setItem("clientTypeConfig", JSON.stringify(newConfig));
-                                                    }}
-                                                >
-                                                    <option value="Store">Store</option>
-                                                    <option value="Home">Home</option>
-                                                    <option value="MapPin">MapPin</option>
-                                                    <option value="Package">Package</option>
-                                                    <option value="User">User</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <MapConfigPanel
+                    clientTypes={client_types}
+                    clientTypeConfig={clientTypeConfig}
+                    setClientTypeConfig={setClientTypeConfig}
+                />
 
                 <MapDisplay markers={markers} config={clientTypeConfig} />
 
@@ -363,15 +289,15 @@ export default function VisitsData() {
                 />
             </div>
 
-            <EditVisitModal 
-                isOpen={showEditModal} 
+            <EditVisitModal
+                isOpen={showEditModal}
                 onClose={() => setShowEditModal(false)}
                 onSuccess={refresh}
                 visit={selectedVisit}
             />
 
-            <DeleteVisitModal 
-                isOpen={showDeleteModal} 
+            <DeleteVisitModal
+                isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onSuccess={refresh}
                 visit={selectedVisit}

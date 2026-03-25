@@ -10,8 +10,21 @@ import ClientsData from './features/clients/components/ClientsData';
 import UsersData from './features/users/components/UsersData';
 import Profile from './components/Profile';
 import BusinessData from './features/business/components/BusinessData';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    const name = localStorage.getItem("business_name");
+    const logo = localStorage.getItem("logo_url");
+
+    if (name) document.title = name;
+
+    if (logo) {
+      const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (link) link.href = logo;
+    }
+  }, []);
+
   return (
     <Router>
       <Routes>

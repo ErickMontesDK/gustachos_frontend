@@ -24,9 +24,26 @@ export default function Login() {
     }, [navigate]);
 
     useEffect(() => {
+        if (!businessInfo.name) return;
+
+        document.title = businessInfo.name;
+
+        const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+
+        if (link) {
+            link.href = businessInfo.logo; // usa el logo como favicon
+        } else {
+            const newLink = document.createElement("link");
+            newLink.rel = "icon";
+            newLink.href = businessInfo.logo;
+            document.head.appendChild(newLink);
+        }
+
+    }, [businessInfo]);
+
+    useEffect(() => {
         api.get("public-business-config/")
             .then((response) => {
-                console.log(response.data);
                 setBusinessInfo({
                     name: response.data.business_name,
                     logo: response.data.logo_url

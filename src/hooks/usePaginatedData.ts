@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SortingState } from '@tanstack/react-table';
 
 interface FetchParams {
@@ -22,15 +22,23 @@ export function usePaginatedData<TData, TFilters>({
     mapData,
     formatFilters
 }: UsePaginatedDataProps<TData, TFilters>) {
-    const [pagination, setPagination] = useState({ 
-        pageIndex: 0, 
-        pageSize: (defaultFilters as any).page_size || 15 
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: (defaultFilters as any).page_size || 15
     });
     const [sorting, setSorting] = useState<SortingState>([]);
     const [totalPages, setTotalPages] = useState(0);
     const [filters, setFilters] = useState<TFilters>(defaultFilters);
     const [dataList, setDataList] = useState<TData[]>([]);
     const [refreshKey, setRefreshKey] = useState(0);
+
+    const fetchDataRef = useRef(fetchData);
+    const mapDataRef = useRef(mapData);
+    const formatFiltersRef = useRef(formatFilters);
+
+    useEffect(() => { fetchDataRef.current = fetchData; }, [fetchData]);
+    useEffect(() => { mapDataRef.current = mapData; }, [mapData]);
+    useEffect(() => { formatFiltersRef.current = formatFilters; }, [formatFilters]);
 
     const refresh = useCallback(() => setRefreshKey(prev => prev + 1), []);
 
@@ -39,14 +47,18 @@ export function usePaginatedData<TData, TFilters>({
         setPagination(prev => ({ ...prev, pageIndex: 0 }));
     }, []);
 
-    const sortingString = sorting.map(sort => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
+    const sortingString = sorting
+        .map(sort => `${sort.desc ? '-' : ''}${sort.id}`)
+        .join(',');
 
     useEffect(() => {
         const controller = new AbortController();
 
-        const processedFilters = formatFilters ? formatFilters(filters) : filters;
+        const processedFilters = formatFiltersRef.current
+            ? formatFiltersRef.current(filters)
+            : filters;
 
-        fetchData({
+        fetchDataRef.current({
             ...processedFilters,
             page: pagination.pageIndex + 1,
             page_size: pagination.pageSize,
@@ -54,7 +66,7 @@ export function usePaginatedData<TData, TFilters>({
             signal: controller.signal
         })
             .then(data => {
-                setDataList(data.results.map(mapData));
+                setDataList(data.results.map(mapDataRef.current));
                 setTotalPages(data.total_pages);
             })
             .catch(error => {
@@ -71,7 +83,7 @@ export function usePaginatedData<TData, TFilters>({
         pagination.pageIndex,
         pagination.pageSize,
         refreshKey,
-        JSON.stringify(filters) 
+        filters
     ]);
 
     return {

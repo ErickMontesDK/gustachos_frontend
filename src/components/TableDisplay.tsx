@@ -6,7 +6,7 @@ import {
     SortingState,
     OnChangeFn,
 } from '@tanstack/react-table';
-import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Key, Pencil, RotateCcw, Trash } from 'lucide-react';
+import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Key, Pencil, RotateCcw, Trash, MapPin } from 'lucide-react';
 import './../styles/table.css';
 
 interface TableProps<TData> {
@@ -21,6 +21,7 @@ interface TableProps<TData> {
     onSortingChange?: OnChangeFn<SortingState>;
     onPaginationChange?: (updater: any) => void;
     editEnabled?: boolean;
+    onLocate?: (data: TData) => void;
     onEdit?: (data: TData) => void;
     onDelete?: (data: TData) => void;
     onRestore?: (data: TData) => void;
@@ -36,6 +37,7 @@ export default function TableDisplay<TData>({
     onSortingChange,
     onPaginationChange,
     editEnabled = false,
+    onLocate,
     onEdit,
     onDelete,
     onRestore,
@@ -71,6 +73,12 @@ export default function TableDisplay<TData>({
                                     {editEnabled && (
                                         <th className="text-center actions-column">
                                             Actions
+                                        </th>
+                                    )}
+
+                                    {onLocate && (
+                                        <th className="text-center" style={{ width: 80 }}>
+                                            <MapPin size={16} /> Locate
                                         </th>
                                     )}
 
@@ -174,6 +182,19 @@ export default function TableDisplay<TData>({
                                         </td>
                                     )}
 
+                                    {onLocate && (
+                                        <td className="text-center px-0">
+                                            <div className="d-flex align-items-center h-100 w-100 d-flex justify-content-center">
+                                                <button
+                                                    className="btn btn-sm btn-outline-primary p-1 d-flex nowrap align-items-center justify-content-center"
+                                                    title="Locate on map"
+                                                    onClick={() => onLocate(row.original)}
+                                                >
+                                                    <MapPin size={14} /> Locate
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
 
                                     {row.getVisibleCells().map(cell => {
                                         let variantClassName = ""

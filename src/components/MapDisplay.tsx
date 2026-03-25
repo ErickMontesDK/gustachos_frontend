@@ -6,6 +6,7 @@ import './MapDisplay.css';
 
 declare const L: any;
 
+
 export interface MarkerProps {
     lat: number;
     lng: number;
@@ -29,11 +30,15 @@ export interface MarkerProps {
 export interface MapDisplayProps {
     markers?: MarkerProps[];
     config?: Record<string, { color: string; icon: string }>;
+    focusedVisitId?: number | null;
 }
 
 
 
-export default function MapDisplay({ markers, config }: MapDisplayProps) {
+export default function MapDisplay({ markers, config, focusedVisitId }: MapDisplayProps) {
+    const mapRef = useRef<any | null>(null);
+    const markerRefs = useRef<Record<number, any>>({});
+
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
     const markersLayerRef = useRef<any>(null);
@@ -42,8 +47,27 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
     const [selectedMarker, setSelectedMarker] = useState<MarkerProps | null>(null);
 
     useEffect(() => {
+        if (!focusedVisitId || !mapRef.current) return;
+
+        const marker = markerRefs.current[focusedVisitId];
+        if (!marker) return;
+
+        const latlng = marker.getLatLng();
+        mapRef.current.flyTo(latlng, 16, { animate: true, duration: 1 });
+
+        const markerData = markers?.find(m =>
+            m.visit_id === focusedVisitId ||
+            m.id === focusedVisitId
+        );
+        if (markerData) {
+            setTimeout(() => setSelectedMarker(markerData), 100);
+        }
+    }, [focusedVisitId, markers]);
+
+    useEffect(() => {
         if (mapContainerRef.current && !mapInstanceRef.current) {
             mapInstanceRef.current = L.map(mapContainerRef.current).setView([0, 0], 13);
+            mapRef.current = mapInstanceRef.current;
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
@@ -112,6 +136,14 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
                         })
                     }).addTo(markersLayerRef.current);
 
+                    if (marker.visit_id !== undefined) {
+                        markerRefs.current[marker.visit_id] = leafletMarker;
+                    }
+
+                    if (marker.id !== undefined) {
+                        markerRefs.current[marker.id] = leafletMarker;
+                    }
+
                     leafletMarker.on('click', () => {
                         setSelectedMarker(marker);
                     });
@@ -135,6 +167,7 @@ export default function MapDisplay({ markers, config }: MapDisplayProps) {
             <div
                 ref={mapContainerRef}
                 className="map-container rounded shadow-sm border"
+                id="map-container"
             />
 
             {selectedMarker && (

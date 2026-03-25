@@ -36,6 +36,7 @@ export default function VisitsData() {
     const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
+    const [focusedVisitId, setFocusedVisitId] = useState<number | null>(null);
     const role = localStorage.getItem("role") || "";
     const isAdmin = role.toLowerCase() === "admin";
     const { clientTypeConfig, setClientTypeConfig } = useMapConfig();
@@ -260,7 +261,7 @@ export default function VisitsData() {
                     setClientTypeConfig={setClientTypeConfig}
                 />
 
-                <MapDisplay markers={markers} config={clientTypeConfig} />
+                <MapDisplay markers={markers} config={clientTypeConfig} focusedVisitId={focusedVisitId} />
 
                 <TableDisplay
                     columns={columns}
@@ -285,6 +286,10 @@ export default function VisitsData() {
                         setErrorMessage(null);
                         setSelectedVisit(visit);
                         restoreVisit(visit);
+                    }}
+                    onLocate={(visit) => {
+                        setFocusedVisitId((visit as Visit).id);
+                        document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                 />
             </div>

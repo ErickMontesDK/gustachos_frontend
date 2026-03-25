@@ -28,6 +28,7 @@ export default function ClientsData() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [focusedClientId, setFocusedClientId] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [markers, setMarkers] = useState<MarkerProps[] | []>([]);
     const role = localStorage.getItem("role") || "";
@@ -249,7 +250,7 @@ export default function ClientsData() {
                     setClientTypeConfig={setClientTypeConfig}
                 />
 
-                <MapDisplay markers={markers} config={clientTypeConfig} />
+                <MapDisplay markers={markers} config={clientTypeConfig} focusedVisitId={focusedClientId} />
 
                 <TableDisplay
                     columns={columns}
@@ -274,6 +275,10 @@ export default function ClientsData() {
                         setErrorMessage(null);
                         setSelectedClient(client);
                         restoreClient(client);
+                    }}
+                    onLocate={(client) => {
+                        setFocusedClientId((client as Client).id);
+                        document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                 />
 

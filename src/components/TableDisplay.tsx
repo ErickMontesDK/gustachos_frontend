@@ -186,9 +186,14 @@ export default function TableDisplay<TData>({
                                         <td className="text-center px-0">
                                             <div className="d-flex align-items-center h-100 w-100 d-flex justify-content-center">
                                                 <button
-                                                    className="btn btn-sm btn-outline-primary p-1 d-flex nowrap align-items-center justify-content-center"
+                                                    className="locate-btn btn btn-sm btn-outline-primary p-1 d-flex nowrap align-items-center justify-content-center"
                                                     title="Locate on map"
-                                                    onClick={() => onLocate(row.original)}
+                                                    onClick={(e) => {
+                                                        document.querySelectorAll(".locate-btn").forEach(btn => btn.classList.remove("btn-primary", "text-white"));
+                                                        const thisButton = e.currentTarget;
+                                                        thisButton.classList.add("btn-primary", "text-white");
+                                                        onLocate(row.original)
+                                                    }}
                                                 >
                                                     <MapPin size={14} /> Locate
                                                 </button>

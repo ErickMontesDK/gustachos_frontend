@@ -13,6 +13,13 @@ import { DashboardProps, RecentActivity } from '../pages/home';
 
 
 export default function AdminDashboard({ today, formatTimestamp, role }: DashboardProps) {
+    const timezone = localStorage.getItem("timezone") || "America/Mexico_City";
+    const todayFormatted = today.toLocaleDateString('en-CA', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
     const navigate = useNavigate();
 
     const [stats, setStats] = useState({
@@ -36,9 +43,9 @@ export default function AdminDashboard({ today, formatTimestamp, role }: Dashboa
     }, []);
 
     const kpiElements = [
-        { label: 'Total Visits', value: stats.visits_today.toString(), icon: <MapPin size={20} />, bgClass: 'kpi-bg-primary', iconColor: 'text-primary', url: `/visits-data?date_from=${today.toISOString().split('T')[0]}` },
-        { label: 'Productivity Rate', value: `${parseFloat(stats.productive_percentage.toFixed(2))}%`, icon: <TrendingUp size={20} />, bgClass: 'kpi-bg-success', iconColor: 'text-success', url: `/visits-data?is_productive=true&date_from=${today.toISOString().split('T')[0]}` },
-        { label: 'Validation Rate', value: `${parseFloat(stats.valid_visits_percentage.toFixed(2))}%`, icon: <ShieldCheck size={20} />, bgClass: 'kpi-bg-danger', iconColor: 'text-danger', url: `/visits-data?is_valid=false&date_from=${today.toISOString().split('T')[0]}` },
+        { label: 'Clients visited', value: stats.visits_today.toString(), icon: <MapPin size={20} />, bgClass: 'kpi-bg-primary', iconColor: 'text-primary', url: `/visits-data?date_from=${todayFormatted}` },
+        { label: 'Productivity Rate', value: `${parseFloat(stats.productive_percentage.toFixed(2))}%`, icon: <TrendingUp size={20} />, bgClass: 'kpi-bg-success', iconColor: 'text-success', url: `/visits-data?is_productive=true&date_from=${todayFormatted}` },
+        { label: 'Validation Rate', value: `${parseFloat(stats.valid_visits_percentage.toFixed(2))}%`, icon: <ShieldCheck size={20} />, bgClass: 'kpi-bg-danger', iconColor: 'text-danger', url: `/visits-data?is_valid=false&date_from=${todayFormatted}` },
         { label: 'Active Staff', value: stats.active_deliverers.toString(), icon: <Navigation size={20} />, bgClass: 'kpi-bg-warning', iconColor: 'text-warning', url: `/users-data` },
     ];
 

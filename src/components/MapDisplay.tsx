@@ -25,6 +25,7 @@ export interface MarkerProps {
     is_productive?: boolean;
     notes?: string;
     deliverer_name?: string;
+    is_valid?: boolean;
 }
 
 export interface MapDisplayProps {

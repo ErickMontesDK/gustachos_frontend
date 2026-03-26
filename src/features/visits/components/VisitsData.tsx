@@ -88,6 +88,7 @@ export default function VisitsData() {
             deliverer_name: `${visit.deliverer__last_name}`,
             address: visit.address,
             sector: visit.client__sector,
+            is_valid: visit.is_validated,
         }));
         setMarkers(markers);
     }, [visits]);

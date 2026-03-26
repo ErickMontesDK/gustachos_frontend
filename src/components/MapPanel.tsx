@@ -116,6 +116,7 @@ const InfoRow = ({ icon: Icon, label, loading, content, className }: InfoRowProp
 const VisitDetailsSection = ({ marker }: any) => (
     <div className="border-top border-dashed pt-3 mt-1">
 
+
         <div className="d-flex align-items-center gap-2 mb-3">
             <Activity size={16} color="var(--text-main)" />
             <span className="fw-bold" style={{ fontSize: '12px', color: 'var(--text-main)' }}>VISIT DETAILS</span>
@@ -123,6 +124,7 @@ const VisitDetailsSection = ({ marker }: any) => (
                 View Profile
             </a>
         </div>
+        <span className={`badge ${marker.is_valid ? 'bg-success' : 'bg-danger'} mb-2`}>{marker.is_valid ? 'Valid' : 'Invalid'}</span>
 
         <div className="d-flex flex-column gap-2">
 
@@ -228,6 +230,7 @@ export default function MapPanel({ marker, config, onClose }: MapPanelProps) {
                     setLoadingDetail(false);
                 });
         }
+        console.log("marker", marker);
     }, [marker]);
 
     useEffect(() => {

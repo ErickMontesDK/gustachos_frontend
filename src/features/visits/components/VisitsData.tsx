@@ -74,10 +74,10 @@ export default function VisitsData() {
 
     useEffect(() => {
         const markers: MarkerProps[] = visits.map((visit) => ({
-            lat: visit.visit_coordinates[0],
-            lng: visit.visit_coordinates[1],
+            lat: visit.visit_coordinates[0] || 0,
+            lng: visit.visit_coordinates[1] || 0,
             popup: visit.client__name,
-            type: visit.client_type_id.toString(),
+            type: visit.client_type_id?.toString() || "",
             code: visit.client__code,
             id: visit.client_id,
             visit_id: visit.id,

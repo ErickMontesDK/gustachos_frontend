@@ -53,11 +53,14 @@ export default function RegisterVisit() {
     const scannerPressed = () => {
         setIsClientFound(false);
         setScanError("");
+        gettingGeolocation(
+            undefined,
+            (msg) => setScanError(msg ? `Location error: ${msg}` : "")
+        );
         startScanner();
     }
 
     const handleScan = (detectedCodes: DetectedCode[]) => {
-        gettingGeolocation();
         setIsScannerUsed(true);
         setIsScannerLoading(true);
         const detectedCode = detectedCodes[0].rawValue;
@@ -131,7 +134,7 @@ export default function RegisterVisit() {
             });
     }
 
-    const isFormValid = isClientFound && clientId && latitude && longitude && delivererName && datetime;
+    const isFormValid = isClientFound && clientId && latitude !== 0 && longitude !== 0 && delivererName && datetime;
 
     return (
         <PermissionGate>

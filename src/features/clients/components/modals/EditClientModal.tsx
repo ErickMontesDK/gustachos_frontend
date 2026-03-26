@@ -41,7 +41,7 @@ export default function EditClientModal({ isOpen, onClose, onSuccess, client, cl
         <Modal
             title="Edit Client"
             message={`Editing client ${client.name} (${client.code})`}
-            buttonText1="Save"
+            buttonText1="Save Changes"
             buttonText2="Cancel"
             isForm={true}
             isSubmitDisabled={!isFormValid}

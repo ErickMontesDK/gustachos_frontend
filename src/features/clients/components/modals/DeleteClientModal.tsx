@@ -15,7 +15,7 @@ export default function DeleteClientModal({ isOpen, onClose, onSuccess, client }
 
     const { deleteClient } = useDeleteClient(
         client,
-        () => {}, 
+        () => { },
         () => {
             onSuccess();
             handleClose();
@@ -41,6 +41,7 @@ export default function DeleteClientModal({ isOpen, onClose, onSuccess, client }
                 deleteClient();
             }}
             buttonAction2={handleClose}
+            showCloseButton={true}
         >
             {errorMessage && (
                 <div className="alert alert-danger py-2 mb-3" role="alert">

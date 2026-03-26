@@ -18,7 +18,7 @@ export default function EditVisitModal({ isOpen, onClose, onSuccess, visit }: Pr
         updateVisit
     } = useUpdateVisitNotes(
         visit,
-        () => {}, 
+        () => { },
         () => {
             onSuccess();
             handleClose();
@@ -44,6 +44,7 @@ export default function EditVisitModal({ isOpen, onClose, onSuccess, visit }: Pr
                 updateVisit();
             }}
             buttonAction2={handleClose}
+            showCloseButton={true}
         >
             {errorMessage && (
                 <div className="alert alert-danger py-2 mb-3" role="alert">

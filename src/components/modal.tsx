@@ -10,6 +10,7 @@ interface ModalProps {
     isVertical?: boolean;
     isForm?: boolean;
     isSubmitDisabled?: boolean;
+    showCloseButton?: boolean;
 }
 
 export default function Modal({
@@ -23,7 +24,8 @@ export default function Modal({
     children,
     isVertical = false,
     isForm = false,
-    isSubmitDisabled = false
+    isSubmitDisabled = false,
+    showCloseButton = false
 }: ModalProps) {
     const handleFormSubmit = (e: React.FormEvent) => {
         if (isForm) {
@@ -62,6 +64,16 @@ export default function Modal({
         <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+                    {showCloseButton && (
+                        <button
+                            type="button"
+                            className="btn-close position-absolute"
+                            style={{ top: '1.25rem', right: '1.25rem', zIndex: 1 }}
+                            onClick={buttonAction2}
+                        />
+                    )}
+
+
                     <div className="modal-body p-5 text-center">
                         {icon &&
                             <div className="mb-4 d-inline-flex align-items-center justify-content-center" style={{ width: '80px', height: '80px', backgroundColor: 'var(--success-subtle)', borderRadius: '50%', color: 'var(--success-color)' }}>

@@ -20,7 +20,7 @@ export default function EditClientModal({ isOpen, onClose, onSuccess, client, cl
         updateClient
     } = useUpdateClients(
         client,
-        () => {}, 
+        () => { },
         () => {
             onSuccess();
             handleClose();
@@ -49,6 +49,7 @@ export default function EditClientModal({ isOpen, onClose, onSuccess, client, cl
                 updateClient();
             }}
             buttonAction2={handleClose}
+            showCloseButton={true}
         >
             {errorMessage && (
                 <div className="alert alert-danger py-2 mb-3" role="alert">

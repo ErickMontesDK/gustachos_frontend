@@ -286,6 +286,7 @@ export default function BusinessData() {
                     isSubmitDisabled={!isFormValid || isUpdating}
                     buttonAction1={updateBusiness}
                     buttonAction2={() => setShowEditModal(false)}
+                    showCloseButton={true}
                 >
                     <div className="row g-3 text-start">
                         <div className="col-12">
@@ -348,6 +349,7 @@ export default function BusinessData() {
                     isForm={true}
                     buttonAction1={handleClientTypeSubmit}
                     buttonAction2={() => setShowClientTypeModal(false)}
+                    showCloseButton={true}
                 >
                     <div className="row g-3 text-start">
                         <div className="col-12">
@@ -385,6 +387,7 @@ export default function BusinessData() {
                     buttonText2="Cancel"
                     buttonAction1={handleDeleteClientType}
                     buttonAction2={() => setShowDeleteClientTypeModal(false)}
+                    showCloseButton={true}
                 />
             )}
         </Layout>

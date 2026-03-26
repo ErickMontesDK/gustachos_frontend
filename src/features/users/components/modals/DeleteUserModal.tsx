@@ -15,7 +15,7 @@ export default function DeleteUserModal({ isOpen, onClose, onSuccess, user }: Pr
 
     const { deleteUser } = useDeleteUser(
         user,
-        () => {}, 
+        () => { },
         () => {
             onSuccess();
             handleClose();
@@ -41,6 +41,7 @@ export default function DeleteUserModal({ isOpen, onClose, onSuccess, user }: Pr
                 deleteUser();
             }}
             buttonAction2={handleClose}
+            showCloseButton={true}
         >
             {errorMessage && (
                 <div className="alert alert-danger py-2 mb-3" role="alert">

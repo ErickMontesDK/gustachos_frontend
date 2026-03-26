@@ -37,8 +37,8 @@ export default function AdminDashboard({ today, formatTimestamp, role }: Dashboa
 
     const kpiElements = [
         { label: 'Total Visits', value: stats.visits_today.toString(), icon: <MapPin size={20} />, bgClass: 'kpi-bg-primary', iconColor: 'text-primary', url: `/visits-data?date_from=${today.toISOString().split('T')[0]}` },
-        { label: 'Productivity Rate', value: `${stats.productive_percentage}%`, icon: <TrendingUp size={20} />, bgClass: 'kpi-bg-success', iconColor: 'text-success', url: `/visits-data?is_productive=true&date_from=${today.toISOString().split('T')[0]}` },
-        { label: 'Validation Rate', value: `${stats.valid_visits_percentage}%`, icon: <ShieldCheck size={20} />, bgClass: 'kpi-bg-danger', iconColor: 'text-danger', url: `/visits-data?is_valid=false&date_from=${today.toISOString().split('T')[0]}` },
+        { label: 'Productivity Rate', value: `${parseFloat(stats.productive_percentage.toFixed(2))}%`, icon: <TrendingUp size={20} />, bgClass: 'kpi-bg-success', iconColor: 'text-success', url: `/visits-data?is_productive=true&date_from=${today.toISOString().split('T')[0]}` },
+        { label: 'Validation Rate', value: `${parseFloat(stats.valid_visits_percentage.toFixed(2))}%`, icon: <ShieldCheck size={20} />, bgClass: 'kpi-bg-danger', iconColor: 'text-danger', url: `/visits-data?is_valid=false&date_from=${today.toISOString().split('T')[0]}` },
         { label: 'Active Staff', value: stats.active_deliverers.toString(), icon: <Navigation size={20} />, bgClass: 'kpi-bg-warning', iconColor: 'text-warning', url: `/users-data` },
     ];
 

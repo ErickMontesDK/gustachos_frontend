@@ -59,7 +59,7 @@ export default function Login() {
         setIsLoading(true);
         setError("");
 
-        const url = "auth/login/";
+        const url = "/auth/login/";
 
         try {
             await api.post(url, { username, password });

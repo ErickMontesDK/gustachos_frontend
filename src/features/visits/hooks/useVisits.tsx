@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { deleteVisit as deleteVisitService, getVisits, updateVisit as updateVisitService, restoreVisit as restoreVisitService } from "../api/visitsService";
 import { visitMapper } from "../utils/visitMapper";
+import { parseApiError } from "../../../utils/errorHandler";
 
 export interface Visit {
     id: number;
@@ -127,7 +128,7 @@ export const useUpdateVisitNotes = (visit: Visit | null, setVisit: (visit: Visit
             })
             .catch(error => {
                 console.error("Error updating visit:", error);
-                if (onError) onError(error.message || "Error updating visit");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -150,7 +151,7 @@ export const useDeleteVisit = (visit: Visit | null, setVisit: (visit: Visit | nu
             })
             .catch(error => {
                 console.error("Error deleting visit:", error);
-                if (onError) onError(error.message || "Error deleting visit");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -172,7 +173,7 @@ export const useRestoreVisit = (visitState: Visit | null, setVisit: (visit: Visi
             })
             .catch(error => {
                 console.error("Error restoring visit:", error);
-                if (onError) onError(error.message || "Error restoring visit");
+                if (onError) onError(parseApiError(error));
             });
     }
 

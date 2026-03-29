@@ -1,8 +1,19 @@
 {
-    "rewrites": [
+    "routes": [
         {
-            "source": "/backend/:path*",
-            "destination": "https://estimated-chicky-gustachos-c1be7cda.koyeb.app/api/:path*"
+            "src": "/backend/(.*)",
+            "dest": "https://estimated-chicky-gustachos-c1be7cda.koyeb.app/api/$1",
+            "headers": {
+                "X-Forwarded-Host": "gustachos.vercel.app"
+            },
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS"
+            ]
         }
     ]
 }

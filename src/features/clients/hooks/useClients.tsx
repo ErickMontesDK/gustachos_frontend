@@ -260,7 +260,7 @@ export const useRestoreClient = (clientState: Client | null, setClient: (client:
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                console.error("Error restoring client:", error);
+                console.error("Error restoring client: ", error);
                 if (onError) onError(parseApiError(error));
             });
     }

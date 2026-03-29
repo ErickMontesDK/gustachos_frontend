@@ -36,8 +36,16 @@ export const deleteUser = async (id: number) => {
 };
 
 export const createUser = async (data: any) => {
-    const response = await api.post("/users/", data);
-    return response.data;
+    console.log("📤 Enviando a /users/:", JSON.stringify(data));
+    try {
+        const response = await api.post("/users/", data);
+        console.log("✅ Respuesta:", response.data);
+        return response.data;
+    } catch (error: any) {
+        console.log("❌ Error status:", error.response?.status);
+        console.log("❌ Error data:", JSON.stringify(error.response?.data));
+        throw error;
+    }
 };
 
 export const getUserProfile = async () => {

@@ -11,6 +11,7 @@ import {
     changeUserPassword as changeUserPasswordService,
     restoreUser as restoreUserService
 } from "../api/usersService";
+import { parseApiError } from "../../../utils/errorHandler";
 
 export interface User {
     id: number;
@@ -113,7 +114,7 @@ export const useCreateUser = (onSuccess?: () => void, onError?: (msg: string) =>
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                if (onError) onError(error.message || "Error creating user");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -155,7 +156,7 @@ export const useUpdateUser = (user: User | null, setUser: (user: User | null) =>
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                if (onError) onError(error.message || "Error updating user");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -176,7 +177,7 @@ export const useDeleteUser = (user: User | null, setUser: (user: User | null) =>
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                if (onError) onError(error.message || "Error deleting user");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -216,14 +217,7 @@ export const useChangeOwnPassword = (onSuccess?: () => void, onError?: (msg: str
                 });
             })
             .catch(error => {
-                if (error.message && typeof error.message === 'object' && error.message.old_password) {
-                    const msg = Array.isArray(error.message.old_password)
-                        ? error.message.old_password[0]
-                        : error.message.old_password;
-                    if (onError) onError(msg);
-                } else {
-                    if (onError) onError(error.message || "Error changing password");
-                }
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -246,7 +240,7 @@ export const useRestoreUser = (userState: User | null, setUser: (user: User | nu
                 if (onSuccess) onSuccess();
             })
             .catch(error => {
-                if (onError) onError(error.message || "Error restoring user");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -287,7 +281,7 @@ export const useChangeUserPassword = (onSuccess?: () => void, onError?: (msg: st
                 });
             })
             .catch(error => {
-                if (onError) onError(error.message || "Error changing user password");
+                if (onError) onError(parseApiError(error));
             });
     }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { usePaginatedData } from "../../../hooks/usePaginatedData";
 import { getClients, updateClient as updateClientService, deleteClient as deleteClientService, getClientsMap, restoreClient as restoreClientService } from "../api/clientsServices";
 import { clientMapper } from "./../utils/clientMapper";
+import { parseApiError } from "../../../utils/errorHandler";
 
 export interface Client {
     id: number;
@@ -216,7 +217,7 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
             })
             .catch(error => {
                 console.error("Error updating client:", error);
-                if (onError) onError(error.message || "Error updating client");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -239,7 +240,7 @@ export const useDeleteClient = (client: Client | null, setClient: (client: Clien
             })
             .catch(error => {
                 console.error("Error deleting client:", error);
-                if (onError) onError(error.message || "Error deleting client");
+                if (onError) onError(parseApiError(error));
             });
     }
 
@@ -260,7 +261,7 @@ export const useRestoreClient = (clientState: Client | null, setClient: (client:
             })
             .catch(error => {
                 console.error("Error restoring client:", error);
-                if (onError) onError(error.message || "Error restoring client");
+                if (onError) onError(parseApiError(error));
             });
     }
 

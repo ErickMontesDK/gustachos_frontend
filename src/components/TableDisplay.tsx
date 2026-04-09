@@ -9,6 +9,13 @@ import {
 import { ArrowDownUp, ChevronDown, ChevronUp, EllipsisVertical, Key, Pencil, RotateCcw, Trash, MapPin } from 'lucide-react';
 import './../styles/table.css';
 
+declare module '@tanstack/react-table' {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface ColumnMeta<TData, TValue> {
+        breakAll?: boolean;
+    }
+}
+
 interface TableProps<TData> {
     columns: ColumnDef<TData, any>[];
     data: TData[];
@@ -21,11 +28,14 @@ interface TableProps<TData> {
     onSortingChange?: OnChangeFn<SortingState>;
     onPaginationChange?: (updater: any) => void;
     editEnabled?: boolean;
+    isUserTable?: boolean;
     onLocate?: (data: TData) => void;
     onEdit?: (data: TData) => void;
     onDelete?: (data: TData) => void;
     onRestore?: (data: TData) => void;
     onChangePassword?: (data: TData) => void;
+    focusedMarkerId?: number;
+    setFocusedVisitId?: (id: number) => void;
 }
 
 export default function TableDisplay<TData>({
@@ -37,11 +47,14 @@ export default function TableDisplay<TData>({
     onSortingChange,
     onPaginationChange,
     editEnabled = false,
+    isUserTable = false,
     onLocate,
     onEdit,
     onDelete,
     onRestore,
-    onChangePassword
+    onChangePassword,
+    focusedMarkerId,
+    setFocusedVisitId
 }: TableProps<TData>) {
     const user_id = localStorage.getItem('user_id');
     const table = useReactTable({
@@ -115,8 +128,13 @@ export default function TableDisplay<TData>({
                     <tbody>
                         {table.getRowModel().rows.map(row => {
                             const rowData: any = row.original;
-                            const rowClassName = rowData.rowClassName || '';
+                            let rowClassName = rowData.rowClassName || '';
                             const cellClassName = rowData.cellClassName || {};
+
+
+                            if (focusedMarkerId && rowData.id === focusedMarkerId) {
+                                rowClassName += ' table-primary';
+                            }
 
                             return (
                                 <tr key={row.id} className={rowClassName}>
@@ -130,7 +148,7 @@ export default function TableDisplay<TData>({
                                                     data-bs-toggle="dropdown"
                                                     data-bs-boundary="viewport"
                                                     aria-expanded="false"
-                                                    disabled={parseInt(user_id || "") === parseInt(rowData.id || "")}
+                                                    disabled={isUserTable && parseInt(user_id || "") === parseInt(rowData.id || "")}
                                                 >
                                                     <EllipsisVertical size={16} />
                                                 </button>
@@ -188,12 +206,7 @@ export default function TableDisplay<TData>({
                                                 <button
                                                     className="locate-btn btn btn-sm btn-outline-primary p-1 d-flex nowrap align-items-center justify-content-center"
                                                     title="Locate on map"
-                                                    onClick={(e) => {
-                                                        document.querySelectorAll(".locate-btn").forEach(btn => btn.classList.remove("btn-primary", "text-white"));
-                                                        const thisButton = e.currentTarget;
-                                                        thisButton.classList.add("btn-primary", "text-white");
-                                                        onLocate(row.original)
-                                                    }}
+                                                    onClick={() => onLocate(row.original)}
                                                 >
                                                     <MapPin size={14} /> Locate
                                                 </button>
@@ -210,10 +223,13 @@ export default function TableDisplay<TData>({
                                         return (
                                             <td
                                                 key={cell.id}
-                                                className={`text-dark text-center ${variantClassName}`}
-                                                style={{ width: cell.column.getSize() }}
+                                                className={`text-dark text-center ${variantClassName} table-cell`}
+                                                style={{ minWidth: cell.column.getSize() }}
                                             >
-                                                <div className="table-cell-content">
+                                                <div className="table-cell-inner" style={{
+                                                    wordBreak: cell.column.columnDef.meta?.breakAll ? 'break-all' : 'normal',
+                                                    overflowWrap: cell.column.columnDef.meta?.breakAll ? 'anywhere' : 'normal',
+                                                }}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </div>
                                             </td>

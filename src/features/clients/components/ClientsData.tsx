@@ -83,18 +83,22 @@ export default function ClientsData() {
     const { clientTypeConfig, setClientTypeConfig } = useMapConfig();
 
     useEffect(() => {
-        setMarkers(clientsMap.map((client) => ({
-            lat: client.latitude,
-            lng: client.longitude,
-            popup: client.name,
-            type: client.client_type,
-            code: client.code,
-            id: client.id,
-            address: client.address,
-            sector: client.sector,
-            market: client.market,
-            is_active: client.is_active,
-        })));
+        setMarkers(
+            clientsMap
+                .filter((client) => client.latitude != null && client.longitude != null)
+                .map((client) => ({
+                    lat: client.latitude as number,
+                    lng: client.longitude as number,
+                    popup: client.name,
+                    type: client.client_type,
+                    code: client.code,
+                    id: client.id,
+                    address: client.address,
+                    sector: client.sector,
+                    market: client.market,
+                    is_active: client.is_active,
+                }))
+        );
     }, [clientsMap]);
 
 
@@ -277,7 +281,9 @@ export default function ClientsData() {
                         restoreClient(client);
                     }}
                     onLocate={(client) => {
-                        setFocusedClientId((client as Client).id);
+                        const c = client as Client;
+                        if (c.latitude == null || c.longitude == null) return;
+                        setFocusedClientId(c.id);
                         document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                     focusedMarkerId={focusedClientId ?? undefined}

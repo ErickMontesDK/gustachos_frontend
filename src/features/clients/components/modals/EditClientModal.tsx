@@ -124,11 +124,11 @@ export default function EditClientModal({ isOpen, onClose, onSuccess, client, cl
                 </div>
                 <div className="col-md-4">
                     <label className="form-label font-bold">Latitude</label>
-                    <input type="number" className="form-control" value={updateData.latitude} onChange={(e) => handleUpdateChange('latitude', Number(e.target.value))} />
+                    <input type="number" className="form-control" value={updateData.latitude ?? ""} onChange={(e) => handleUpdateChange('latitude', e.target.value === "" ? null : Number(e.target.value))} />
                 </div>
                 <div className="col-md-4">
                     <label className="form-label font-bold">Longitude</label>
-                    <input type="number" className="form-control" value={updateData.longitude} onChange={(e) => handleUpdateChange('longitude', Number(e.target.value))} />
+                    <input type="number" className="form-control" value={updateData.longitude ?? ""} onChange={(e) => handleUpdateChange('longitude', e.target.value === "" ? null : Number(e.target.value))} />
                 </div>
             </div>
             {errorMessage && (

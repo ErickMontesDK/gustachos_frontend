@@ -17,8 +17,8 @@ export interface Client {
     market: string;
     client_type: string;
     client_type_id: number;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
     is_active: boolean;
     is_active_label: string;
     isDeleted: boolean;
@@ -30,8 +30,8 @@ export interface Client {
 interface ClientsForMap {
     id: number;
     code: string;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
     name: string;
     client_type: string;
     address: string;
@@ -120,8 +120,8 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
                 setClientsMap(results.map((client: any) => ({
                     id: client.id || 0,
                     code: client.code || "not defined",
-                    latitude: client.latitude || 0,
-                    longitude: client.longitude || 0,
+                    latitude: client.latitude != null ? Number(client.latitude) : null,
+                    longitude: client.longitude != null ? Number(client.longitude) : null,
                     name: client.name || "not defined",
                     client_type: client.client_type || "not defined",
                     address: client.address || "not defined",
@@ -158,7 +158,20 @@ export const useClientsMap = (filters: filters, refreshKey?: any) => {
 }
 
 export const useUpdateClients = (client: Client | null, setClient: (client: Client | null) => void, onSuccess?: () => void, onError?: (msg: string) => void) => {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        code: string;
+        name: string;
+        address: string;
+        neighborhood: string;
+        municipality: string;
+        state: string;
+        sector: string;
+        market: string;
+        client_type_id: string | number;
+        latitude: number | null;
+        longitude: number | null;
+        is_active: boolean;
+    }>({
         code: "",
         name: "",
         address: "",
@@ -167,9 +180,9 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
         state: "",
         sector: "",
         market: "",
-        client_type_id: "" as string | number,
-        latitude: 0,
-        longitude: 0,
+        client_type_id: "",
+        latitude: null,
+        longitude: null,
         is_active: true
     });
 
@@ -186,8 +199,8 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
             sector: client.sector || "",
             market: client.market || "",
             client_type_id: client.client_type_id || "",
-            latitude: client.latitude || 0,
-            longitude: client.longitude || 0,
+            latitude: client.latitude != null ? client.latitude : null,
+            longitude: client.longitude != null ? client.longitude : null,
             is_active: client.is_active ?? true
         });
     }, [client]);
@@ -207,8 +220,8 @@ export const useUpdateClients = (client: Client | null, setClient: (client: Clie
             sector: formData.sector,
             market: formData.market,
             client_type: String(formData.client_type_id),
-            latitude: formData.latitude,
-            longitude: formData.longitude,
+            latitude: formData.latitude ?? undefined,
+            longitude: formData.longitude ?? undefined,
             is_active: formData.is_active
         })
             .then(() => {

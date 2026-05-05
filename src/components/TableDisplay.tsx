@@ -203,13 +203,21 @@ export default function TableDisplay<TData>({
                                     {onLocate && (
                                         <td className="text-center px-0">
                                             <div className="d-flex align-items-center h-100 w-100 d-flex justify-content-center">
-                                                <button
-                                                    className="locate-btn btn btn-sm btn-outline-primary p-1 d-flex nowrap align-items-center justify-content-center"
-                                                    title="Locate on map"
-                                                    onClick={() => onLocate(row.original)}
-                                                >
-                                                    <MapPin size={14} /> Locate
-                                                </button>
+                                                {(() => {
+                                                    const canLocate = (rowData.latitude != null && rowData.longitude != null) || 
+                                                                    (rowData.visit_coordinates && rowData.visit_coordinates[0] !== 0 && rowData.visit_coordinates[1] !== 0);
+                                                    return (
+                                                        <button
+                                                            className={`locate-btn btn btn-sm ${canLocate ? 'btn-outline-primary' : 'btn-outline-secondary'} p-1 d-flex nowrap align-items-center justify-content-center`}
+                                                            title={canLocate ? "Locate on map" : "No coordinates available"}
+                                                            onClick={() => canLocate && onLocate(row.original)}
+                                                            disabled={!canLocate}
+                                                            style={!canLocate ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                                                        >
+                                                            <MapPin size={14} /> Locate
+                                                        </button>
+                                                    );
+                                                })()}
                                             </div>
                                         </td>
                                     )}

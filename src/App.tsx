@@ -12,6 +12,7 @@ import Profile from './components/Profile';
 import BusinessData from './features/business/components/BusinessData';
 import { useEffect } from 'react';
 import BackendHealthCheck from './components/BackendHealthCheck';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   useEffect(() => {
@@ -27,6 +28,7 @@ function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <BackendHealthCheck>
       <Router>
         <Routes>
@@ -57,6 +59,7 @@ function App() {
         </Routes>
       </Router>
     </BackendHealthCheck>
+    </ErrorBoundary>
   );
 }
 

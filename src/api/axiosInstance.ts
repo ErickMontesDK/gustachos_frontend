@@ -35,6 +35,7 @@ const clearAuthData = () => {
     localStorage.removeItem("business_name");
     localStorage.removeItem("logo_url");
     localStorage.removeItem("business_data");
+    localStorage.removeItem("in_session");
 };
 
 api.interceptors.response.use((response) => {

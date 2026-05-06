@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"d:\\\\erick\\\\Documents\\\\Codes\\\\EchoRoute\\\\FrontEnd\" -Recurse -File -Include \"*.tsx\", \"*.ts\", \"*.jsx\", \"*.js\")",
+      "Bash(Select-Object -First 30 FullName)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

@@ -26,19 +26,26 @@ export interface RecentActivity {
     };
 }
 
-const DashboardHeader = ({ userName, today, locale, timezone, role }: DashboardProps) => (
+const DashboardHeader = ({ userName, today, locale, timezone, role }: DashboardProps) => {
+    let dateLabel = "";
+    try {
+        dateLabel = today.toLocaleDateString(locale, {
+            timeZone: timezone,
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch {
+        dateLabel = today.toLocaleDateString();
+    }
+    return (
     <header className="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 className="fw-bold mb-1 text-dark">Hello, {userName} 👋</h2>
             <p className="text-muted mb-0 d-flex align-items-center small">
                 <CalendarCheck size={16} className="me-2 text-primary" />
-                {today.toLocaleDateString(locale, {
-                    timeZone: timezone,
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })}
+                {dateLabel}
             </p>
         </div>
         {(role === 'admin' || role === 'operator') && (
@@ -49,7 +56,8 @@ const DashboardHeader = ({ userName, today, locale, timezone, role }: DashboardP
             </div>
         )}
     </header>
-);
+    );
+};
 
 export default function Home() {
     const role = localStorage.getItem("role") || "";
